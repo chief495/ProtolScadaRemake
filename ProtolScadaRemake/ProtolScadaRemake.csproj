@@ -1,0 +1,224 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Assets\**" />
+    <EmbeddedResource Remove="Assets\**" />
+    <None Remove="Assets\**" />
+    <Page Remove="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Images\ProtolLogo.ico" />
+    <None Remove="Images\Protol_Menu.svg" />
+    <None Remove="Images\Screens\Protol_EM.png" />
+    <None Remove="Images\Screens\Protol_EM.svg" />
+    <None Remove="Images\Screens\Protol_Ggd.png" />
+    <None Remove="Images\Screens\Protol_Ggd.svg" />
+    <None Remove="Images\Screens\Protol_Gro.png" />
+    <None Remove="Images\Screens\Protol_Gro.svg" />
+    <None Remove="Images\Screens\Protol_TC.png" />
+    <None Remove="Images\Screens\Protol_TC.svg" />
+    <None Remove="Images\TopNavigation\CommandsActive.png" />
+    <None Remove="Images\TopNavigation\CommandsDeactive.png" />
+    <None Remove="Images\TopNavigation\CommandsMove.png" />
+    <None Remove="Images\TopNavigation\EMActve.png" />
+    <None Remove="Images\TopNavigation\EMDeactive.png" />
+    <None Remove="Images\TopNavigation\EMMove.png" />
+    <None Remove="Images\TopNavigation\FaultsActive.png" />
+    <None Remove="Images\TopNavigation\FaultsDeactive.png" />
+    <None Remove="Images\TopNavigation\FaultsMove.png" />
+    <None Remove="Images\TopNavigation\GroActive.png" />
+    <None Remove="Images\TopNavigation\GroDeactive.png" />
+    <None Remove="Images\TopNavigation\GroMove.png" />
+    <None Remove="Images\TopNavigation\GtdActive.png" />
+    <None Remove="Images\TopNavigation\GtdDeactive.png" />
+    <None Remove="Images\TopNavigation\GtdMove.png" />
+    <None Remove="Images\TopNavigation\LogActive.png" />
+    <None Remove="Images\TopNavigation\LogDeactive.png" />
+    <None Remove="Images\TopNavigation\LogMove.png" />
+    <None Remove="Images\TopNavigation\MainPageActive.png" />
+    <None Remove="Images\TopNavigation\MainPageDeactive.png" />
+    <None Remove="Images\TopNavigation\MainPageMove.png" />
+    <None Remove="Images\TopNavigation\PlantActive.png" />
+    <None Remove="Images\TopNavigation\PlantDeactive.png" />
+    <None Remove="Images\TopNavigation\PlantMove.png" />
+    <None Remove="Images\TopNavigation\ReceptActve.png" />
+    <None Remove="Images\TopNavigation\ReceptDeactive.png" />
+    <None Remove="Images\TopNavigation\ReceptMove.png" />
+    <None Remove="Images\TopNavigation\TrendActive.png" />
+    <None Remove="Images\TopNavigation\TrendDeactive.png" />
+    <None Remove="Images\TopNavigation\TrendMove.png" />
+    <None Remove="Images\TopNavigation\VariableActive.png" />
+    <None Remove="Images\TopNavigation\VariableDeactive.png" />
+    <None Remove="Images\TopNavigation\VariableMove.png" />
+    <None Remove="Images\TopNavigation\ТcActive.png" />
+    <None Remove="Images\TopNavigation\ТcDeactive.png" />
+    <None Remove="Images\TopNavigation\ТcMove.png" />
+  </ItemGroup>
+
+   <ItemGroup>
+    <Resource Include="Images\ProtolLogo.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Protol_Menu.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Screens\Protol_EM.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Screens\Protol_EM.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Screens\Protol_Ggd.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Screens\Protol_Ggd.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Screens\Protol_Gro.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Screens\Protol_Gro.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Screens\Protol_TC.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Screens\Protol_TC.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\CommandsActive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\CommandsDeactive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\CommandsMove.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\EMActve.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\EMDeactive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\EMMove.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\FaultsActive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\FaultsDeactive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\FaultsMove.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\GroActive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\GroDeactive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\GroMove.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\GtdActive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\GtdDeactive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\GtdMove.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\LogActive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\LogDeactive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\LogMove.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\MainPageActive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\MainPageDeactive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\MainPageMove.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\PlantActive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\PlantDeactive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\PlantMove.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\ReceptActve.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\ReceptDeactive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\ReceptMove.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\TrendActive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\TrendDeactive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\TrendMove.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\VariableActive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\VariableDeactive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\VariableMove.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\ТcActive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\ТcDeactive.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\TopNavigation\ТcMove.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Images\Valves\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MahApps.Metro" Version="2.4.11" />
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="6.2.1" />
+    <PackageReference Include="NModbus" Version="3.0.81" />
+    <PackageReference Include="NModbus4" Version="2.1.0" />
+    <PackageReference Include="SharpVectors" Version="1.8.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+</Project>

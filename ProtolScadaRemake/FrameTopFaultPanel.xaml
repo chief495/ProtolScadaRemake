@@ -1,0 +1,11 @@
+﻿<UserControl x:Class="ProtolScada.Wpf.FrameTopFaultPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="64" Width="306">
+
+    <Grid>
+        <TextBlock Text="Панель аварий" 
+                   HorizontalAlignment="Center" 
+                   VerticalAlignment="Center"/>
+    </Grid>
+</UserControl>

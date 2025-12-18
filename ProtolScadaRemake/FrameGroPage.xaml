@@ -1,0 +1,15 @@
+﻿<UserControl
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:ProtolScadaRemake" 
+    x:Class="ProtolScadaRemake.FrameGroPage">
+
+    <Grid x:Name="MainGrid">
+        <Grid.Background>
+            <ImageBrush ImageSource="pack://application:,,,/Images/Screens/Protol_Gro.png"
+                    Stretch="UniformToFill"
+                    AlignmentX="Center"
+                    AlignmentY="Center"/>
+        </Grid.Background>
+    </Grid>
+</UserControl>
