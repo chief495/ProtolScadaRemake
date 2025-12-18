@@ -28,12 +28,15 @@ namespace ProtolScadaRemake
         // Объекты данных
         public TVariableList Variables = new TVariableList(); // Массив переменных
         public TCommandList Commands = new TCommandList(); // Массив команд
-        public TLogList Log = new TLogList(); // Журнал событий
         public TFaultList Faults = new TFaultList(); // Массив аварий и предуреждений
         public TTrendList Trends = new TTrendList(); // Массив трендов
 
-        public TGlobal() // Конструктор
-        {  
+        public TLogList Log { get; private set; }
+
+        public TGlobal()
+        {
+            Log = new TLogList();
+            // ... остальная инициализация
         }
         public void UpdateFaults()
         {

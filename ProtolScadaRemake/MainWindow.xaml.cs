@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProtolScadaRemake.Views;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -8,15 +9,27 @@ namespace ProtolScadaRemake
 {
     public partial class MainWindow : Window
     {
+        private TGlobal _global;
         private readonly DispatcherTimer timer;
-        private FrameEmPage? _emPage; // Храним ссылку на страницу
+        private FrameEmPage? _emPage;
         private FrameTcPage? _TcPage;
         private FrameGroPage? _GroPage;
         private FrameGgdPage? _GgdPage;
+        private FrameLog? _LogPage;
+        private DispatcherTimer _logTestTimer;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            // Инициализация глобального объекта
+            _global = new TGlobal();
+
+            // Добавление тестовых записей в журнал
+            _global.Log.Add("Система", "Приложение запущено", 0);
+            _global.Log.Add("Пользователь", "Пользователь вошел в систему", 1);
+            _global.Log.Add("Предупреждение", "Низкий уровень бака", 2);
+            _global.Log.Add("Событие", "Запуск процесса перемешивания", 3);
 
             // Таймер для времени
             timer = new DispatcherTimer();
@@ -24,20 +37,53 @@ namespace ProtolScadaRemake
             timer.Tick += Timer_Tick;
             timer.Start();
 
+            // Таймер для добавления тестовых записей
+            _logTestTimer = new DispatcherTimer();
+            _logTestTimer.Interval = TimeSpan.FromSeconds(5);
+            _logTestTimer.Tick += LogTestTimer_Tick;
+            _logTestTimer.Start();
+
             // Инициализация кнопок
             InitializeButtons();
+
+            // Показываем главную страницу по умолчанию
+            ShowMainPage();
+        }
+
+        private void LogTestTimer_Tick(object sender, EventArgs e)
+        {
+            // Добавляем тестовую запись каждые 5 секунд
+            string[] groups = { "Система", "Пользователь", "Оборудование", "Рецептура" };
+            string[] messages = {
+                "Автоматическое обновление данных",
+                "Проверка связи с оборудованием",
+                "Сканирование датчиков",
+                "Обновление трендов",
+                "Резервное копирование данных"
+            };
+
+            Random rnd = new Random();
+            string group = groups[rnd.Next(groups.Length)];
+            string message = messages[rnd.Next(messages.Length)];
+            short imageIndex = (short)rnd.Next(0, 4);
+
+            _global.Log.Add(group, $"{message} - {DateTime.Now:HH:mm:ss}", imageIndex);
+
+            // Обновляем журнал, если он открыт
+            if (_LogPage != null && ContentGrid.Children.Contains(_LogPage))
+            {
+                _LogPage.RefreshLog();
+            }
         }
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            // Время и дата
             TimeLabel.Text = DateTime.Now.ToString("HH:mm:ss");
             DateLabel.Text = DateTime.Now.ToString("dd.MM.yyyy");
         }
 
         private void InitializeButtons()
         {
-            // Подписываем все кнопки
             MainPageButton.Click += (s, e) => ShowMainPage();
             GgdPageButton.Click += (s, e) => ShowGgdPage();
             GroPageButton.Click += (s, e) => ShowGroPage();
@@ -45,7 +91,32 @@ namespace ProtolScadaRemake
             EmPageButton.Click += (s, e) => ShowEmPage();
             ReceptPageButton.Click += (s, e) => ShowPage("Рецептура");
             AlarmPageButton.Click += (s, e) => ShowPage("Аварии");
-            LogPageButton.Click += (s, e) => ShowPage("Журнал");
+            LogPageButton.Click += (s, e) => ShowLogPage();
+        }
+
+        private void ShowLogPage()
+        {
+            try
+            {
+                ContentGrid.Children.Clear();
+
+                if (_LogPage == null)
+                {
+                    _LogPage = new FrameLog(_global);
+                }
+
+                ContentGrid.Children.Add(_LogPage);
+
+                // ОБЯЗАТЕЛЬНО ОБНОВЛЯЕМ ЖУРНАЛ ПРИ ОТКРЫТИИ
+                _LogPage.RefreshLog();
+
+                TitleLabel.Text = "ЖУРНАЛ СОБЫТИЙ";
+                SetActiveButton(LogPageButton);
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Не удалось загрузить журнал: {ex.Message}");
+            }
         }
 
         // ОТОБРАЖЕНИЕ SVG СТРАНИЦЫ
@@ -269,7 +340,7 @@ namespace ProtolScadaRemake
 
         private void AlarmPageButton_Click(object sender, RoutedEventArgs e)
         {
-
+            // Пустая реализация, обработка уже в InitializeButtons()
         }
     }
 }
