@@ -245,7 +245,7 @@
             <!-- Журнал -->
             <Button x:Name="LogPageButton" 
                     Height="96" 
-                    Style="{StaticResource InactiveNavigationButtonStyle}">
+                    Style="{StaticResource InactiveNavigationButtonStyle}" Click="LogPageButton_Click">
                 <StackPanel>
                     <Image Source="pack://application:,,,/ProtolScadaRemake;component/Images/TopNavigation/LogActive.png" 
                            Width="48" Height="48"/>

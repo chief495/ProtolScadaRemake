@@ -23,10 +23,11 @@ namespace ProtolScadaRemake
         private int Timeout = 300; // Таймоут перезачи данных
 
         public TWordsArea() // Конструктор простой
-        { 
+        {
             Data = new UInt16[0];
             FaultsCount = 0;
         }
+
         public TWordsArea(string IpAddress, int PortNum, int DeviceAddress, ushort StartAddress, ushort Length) // Конструктор Modbus TCP
         {
             Data = new UInt16[Length];
@@ -38,16 +39,14 @@ namespace ProtolScadaRemake
             FaultsCount = 0;
         }
 
-        public UInt16 GetModbusTcpHoldingRegisters(TLogList Log) // Чтение области Holding Register из Modbus TCP устройства
+        public UInt16 GetModbusTcpHoldingRegisters(TLogList Log) // Изменили LogClasses на TLogList
         {
             UInt16[] Result = new UInt16[0];
             try
             {
                 TcpClient client;
                 client = new TcpClient();
-
                 client.ReceiveTimeout = Timeout;
-
 
                 client.Connect(fIpAddress, fPortNum);
                 var factory = new ModbusFactory();
@@ -56,33 +55,34 @@ namespace ProtolScadaRemake
                 FaultsCount = 0;
                 Data = Result;
                 if (Timeout > 300) Timeout = Timeout - 100;
-            } // try
+            }
             catch
             {
-                if(FaultsCount < (65535)) FaultsCount++;
+                if (FaultsCount < (65535)) FaultsCount++;
                 if (Timeout < 5000) Timeout = Timeout + 300;
                 if (FaultsCount == FaultsCountEvent)
-                    if(Log != null)
+                    if (Log != null)
                     {
-                        Log.Add("Связь", "Неудалось считать область Holding Registers у устройства " + fIpAddress + ":" + fPortNum.ToString()
-                                 + "(" + fDeviceAddress.ToString() + ") по адресу " + fStartAddress.ToString("x4") + "H длиной "
-                                 + fLength.ToString() + " ,бит(а)", 3);
+                        Log.Add("Связь",
+                            "Не удалось считать область Holding Registers у устройства " +
+                            fIpAddress + ":" + fPortNum.ToString() + "(" + fDeviceAddress.ToString() +
+                            ") по адресу " + fStartAddress.ToString("x4") + "H длиной " +
+                            fLength.ToString() + " бит(а)", 3);
                     }
                 Thread.Sleep(500);
-            } // catch
+            }
             Thread.Sleep(10);
             return FaultsCount;
         }
-        public UInt16 GetModbusTcpInputRegisters(TLogList Log) // Чтение области Input Register из Modbus TCP устройства
+
+        public UInt16 GetModbusTcpInputRegisters(TLogList Log) // Изменили TLogClasses на TLogList
         {
             UInt16[] Result = new UInt16[0];
             try
             {
                 TcpClient client;
                 client = new TcpClient();
-
                 client.ReceiveTimeout = Timeout;
-
 
                 client.Connect(fIpAddress, fPortNum);
                 var factory = new ModbusFactory();
@@ -91,7 +91,7 @@ namespace ProtolScadaRemake
                 FaultsCount = 0;
                 Data = Result;
                 if (Timeout > 300) Timeout = Timeout - 100;
-            } // try
+            }
             catch
             {
                 if (FaultsCount < (65535)) FaultsCount++;
@@ -99,16 +99,16 @@ namespace ProtolScadaRemake
                 if (FaultsCount == FaultsCountEvent)
                     if (Log != null)
                     {
-                        Log.Add("Связь", "Неудалось считать область Holding Registers у устройства " + fIpAddress + ":" + fPortNum.ToString()
-                                 + "(" + fDeviceAddress.ToString() + ") по адресу " + fStartAddress.ToString("x4") + "H длиной "
-                                 + fLength.ToString() + " ,бит(а)", 3);
+                        Log.Add("Связь",
+                            "Не удалось считать область Input Registers у устройства " +
+                            fIpAddress + ":" + fPortNum.ToString() + "(" + fDeviceAddress.ToString() +
+                            ") по адресу " + fStartAddress.ToString("x4") + "H длиной " +
+                            fLength.ToString() + " бит(а)", 3);
                     }
                 Thread.Sleep(500);
-            } // catch
+            }
             Thread.Sleep(300);
             return FaultsCount;
         }
-
-
     }
 }

@@ -1,207 +1,190 @@
 ﻿using System;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Threading;
+using System.IO;
 using Microsoft.Win32;
-using ProtolScadaRemake.ViewModels;
+using ProtolScadaRemake;
 
 namespace ProtolScadaRemake.Views
 {
     public partial class FrameLog : UserControl
     {
-        private LogViewModel _viewModel;
         private TGlobal _global;
-        private DispatcherTimer _updateTimer;
+        private DateTime _filterFromDate;
+        private DateTime _filterToDate;
 
         public FrameLog(TGlobal global)
         {
             InitializeComponent();
             _global = global;
 
-            InitializeViewModel();
-            InitializeFilters();
-            UpdateStatus();
+            // Устанавливаем даты по умолчанию (последние сутки)
+            _filterFromDate = DateTime.Now.AddDays(-1);
+            _filterToDate = DateTime.Now;
 
-            // Запускаем таймер для периодического обновления
-            StartUpdateTimer();
+            dpFrom.SelectedDate = _filterFromDate;
+            dpTo.SelectedDate = _filterToDate;
+
+            // Устанавливаем обработчики событий
+            dpFrom.SelectedDateChanged += DpFrom_SelectedDateChanged;
+            dpTo.SelectedDateChanged += DpTo_SelectedDateChanged;
+
+            chkAlarm.Checked += CheckBox_CheckedChanged;
+            chkAlarm.Unchecked += CheckBox_CheckedChanged;
+            chkWarning.Checked += CheckBox_CheckedChanged;
+            chkWarning.Unchecked += CheckBox_CheckedChanged;
+            chkError.Checked += CheckBox_CheckedChanged;
+            chkError.Unchecked += CheckBox_CheckedChanged;
+            chkFault.Checked += CheckBox_CheckedChanged;
+            chkFault.Unchecked += CheckBox_CheckedChanged;
+            chkUser.Checked += CheckBox_CheckedChanged;
+            chkUser.Unchecked += CheckBox_CheckedChanged;
+            chkSystem.Checked += CheckBox_CheckedChanged;
+            chkSystem.Unchecked += CheckBox_CheckedChanged;
+
+            // Загружаем данные
+            LoadLogData();
         }
 
-        private void StartUpdateTimer()
-        {
-            _updateTimer = new DispatcherTimer();
-            _updateTimer.Interval = TimeSpan.FromMilliseconds(500); // Обновляем 2 раза в секунду
-            _updateTimer.Tick += UpdateTimer_Tick;
-            _updateTimer.Start();
-        }
-
-        private void UpdateTimer_Tick(object sender, EventArgs e)
-        {
-            // Обновляем журнал, если он видим
-            if (IsVisible)
-            {
-                RefreshLog();
-            }
-        }
-
-        // Публичный метод для обновления журнала
         public void RefreshLog()
         {
-            if (_viewModel != null)
+            LoadLogData();
+        }
+
+        private void LoadLogData()
+        {
+            try
             {
-                _viewModel.RefreshLog();
-                UpdateStatus();
-                ApplyFilters();
-            }
-        }
+                lvLog.Items.Clear();
 
-        private void InitializeViewModel()
-        {
-            _viewModel = new LogViewModel(_global.Log);
-            this.DataContext = _viewModel;
-        }
+                // Получаем все записи
+                var allRecords = _global.Log.GetAllRecords();
+                int filteredCount = 0;
 
-        private void InitializeFilters()
-        {
-            cmbFilter.Items.Add("Все сообщения");
-            cmbFilter.Items.Add("Информационные");
-            cmbFilter.Items.Add("Действия пользователя");
-            cmbFilter.Items.Add("Предупреждения");
-            cmbFilter.Items.Add("События");
-            cmbFilter.SelectedIndex = 0;
-        }
-
-        private void UpdateStatus()
-        {
-            tbStatus.Text = $"Записей: {lvLog.Items.Count}";
-        }
-
-        private void BtnRefresh_Click(object sender, RoutedEventArgs e)
-        {
-            RefreshLog();
-        }
-
-        private void BtnClear_Click(object sender, RoutedEventArgs e)
-        {
-            if (MessageBox.Show("Вы действительно хотите очистить журнал?",
-                "Подтверждение",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question) == MessageBoxResult.Yes)
-            {
-                _viewModel.ClearLog();
-                UpdateStatus();
-            }
-        }
-
-        private void BtnExport_Click(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*";
-            saveFileDialog.FileName = $"Journal_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
-
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                try
+                foreach (var record in allRecords)
                 {
-                    using (StreamWriter writer = new StreamWriter(saveFileDialog.FileName))
+                    // Фильтрация по дате
+                    if (record.Time < _filterFromDate || record.Time > _filterToDate.AddDays(1))
+                        continue;
+
+                    // Фильтрация по типу записи
+                    bool isVisible = IsRecordTypeVisible(record);
+
+                    if (isVisible)
                     {
-                        writer.WriteLine("ЖУРНАЛ СОБЫТИЙ");
-                        writer.WriteLine($"Создан: {DateTime.Now:dd.MM.yyyy HH:mm:ss}");
-                        writer.WriteLine("=".PadRight(80, '='));
-
-                        foreach (TLogRecord record in lvLog.Items)
-                        {
-                            string imageType = GetImageTypeText(record.ImageIndex);
-                            writer.WriteLine($"{record.Time:dd.MM.yyyy HH:mm:ss} [{record.GroupName}] [{imageType}] {record.Text}");
-                        }
-
-                        writer.WriteLine("=".PadRight(80, '='));
-                        writer.WriteLine($"Всего записей: {lvLog.Items.Count}");
+                        lvLog.Items.Add(record);
+                        filteredCount++;
                     }
+                }
 
-                    MessageBox.Show($"Журнал успешно экспортирован в файл:\n{saveFileDialog.FileName}",
-                        "Экспорт завершен",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-                }
-                catch (Exception ex)
+                // Прокрутка к последней записи (самой новой)
+                if (lvLog.Items.Count > 0)
                 {
-                    MessageBox.Show($"Ошибка при экспорте журнала:\n{ex.Message}",
-                        "Ошибка",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                    lvLog.ScrollIntoView(lvLog.Items[0]);
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка LoadLogData: {ex.Message}");
             }
         }
 
-        private string GetImageTypeText(Int16 imageIndex)
+        private bool IsRecordTypeVisible(TLogRecord record)
         {
-            return imageIndex switch
+            string recordType = GetRecordType(record);
+
+            switch (recordType)
             {
-                0 => "ИНФО",
-                1 => "ПОЛЬЗ.",
-                2 => "ПРЕДУПР.",
-                3 => "СОБЫТИЕ",
-                _ => "НЕИЗВ."
+                case "Авария":
+                    return chkAlarm.IsChecked == true;
+                case "Предупреждение":
+                    return chkWarning.IsChecked == true;
+                case "Отказ":
+                    return chkError.IsChecked == true;
+                case "Сбой":
+                    return chkFault.IsChecked == true;
+                case "Пользователь":
+                    return chkUser.IsChecked == true;
+                case "Система":
+                    return chkSystem.IsChecked == true;
+                default:
+                    return true;
+            }
+        }
+
+        private string GetRecordType(TLogRecord record)
+        {
+            if (record.GroupName.Contains("Авария")) return "Авария";
+            if (record.GroupName.Contains("Предупреждение")) return "Предупреждение";
+            if (record.GroupName.Contains("Отказ")) return "Отказ";
+            if (record.GroupName.Contains("Сбой") || record.GroupName.Contains("Ошибка")) return "Сбой";
+            if (record.GroupName.Contains("Пользователь")) return "Пользователь";
+            if (record.GroupName.Contains("Система")) return "Система";
+
+            // По умолчанию по ImageIndex
+            return record.ImageIndex switch
+            {
+                0 => "Система",
+                1 => "Пользователь",
+                2 => "Предупреждение",
+                3 => "Событие",
+                4 => "Авария",
+                5 => "Отказ",
+                _ => "Другое"
             };
         }
 
-        private void CmbFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void BtnApply_Click(object sender, RoutedEventArgs e)
         {
-            ApplyFilters();
+            ApplyPeriodFilter();
+            LoadLogData();
         }
 
-        private void TxtFilterGroup_TextChanged(object sender, TextChangedEventArgs e)
+        private void ApplyPeriodFilter()
         {
-            ApplyFilters();
-        }
+            DateTime now = DateTime.Now;
 
-        private void ApplyFilters()
-        {
-            var collectionView = System.Windows.Data.CollectionViewSource.GetDefaultView(lvLog.ItemsSource);
-
-            if (collectionView != null)
+            switch (cmbPeriod.SelectedIndex)
             {
-                collectionView.Filter = item =>
-                {
-                    if (item is TLogRecord record)
-                    {
-                        bool typeMatch = true;
-                        bool groupMatch = true;
+                case 0: // Сутки
+                    _filterFromDate = now.AddDays(-1);
+                    break;
+                case 1: // Неделя
+                    _filterFromDate = now.AddDays(-7);
+                    break;
+                case 2: // Месяц
+                    _filterFromDate = now.AddMonths(-1);
+                    break;
+            }
 
-                        // Фильтр по типу
-                        switch (cmbFilter.SelectedIndex)
-                        {
-                            case 1: typeMatch = record.ImageIndex == 0; break;
-                            case 2: typeMatch = record.ImageIndex == 1; break;
-                            case 3: typeMatch = record.ImageIndex == 2; break;
-                            case 4: typeMatch = record.ImageIndex == 3; break;
-                        }
+            _filterToDate = now;
 
-                        // Фильтр по группе
-                        if (!string.IsNullOrEmpty(txtFilterGroup.Text))
-                        {
-                            groupMatch = record.GroupName.IndexOf(txtFilterGroup.Text,
-                                StringComparison.OrdinalIgnoreCase) >= 0;
-                        }
+            // Обновляем DatePicker
+            dpFrom.SelectedDate = _filterFromDate;
+            dpTo.SelectedDate = _filterToDate;
+        }
 
-                        return typeMatch && groupMatch;
-                    }
-                    return false;
-                };
-
-                UpdateStatus();
+        private void DpFrom_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (dpFrom.SelectedDate.HasValue)
+            {
+                _filterFromDate = dpFrom.SelectedDate.Value;
+                LoadLogData();
             }
         }
 
-        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        private void DpTo_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Останавливаем таймер при выгрузке
-            if (_updateTimer != null)
+            if (dpTo.SelectedDate.HasValue)
             {
-                _updateTimer.Stop();
-                _updateTimer = null;
+                _filterToDate = dpTo.SelectedDate.Value;
+                LoadLogData();
             }
+        }
+
+        private void CheckBox_CheckedChanged(object sender, RoutedEventArgs e)
+        {
+            LoadLogData();
         }
     }
 }
