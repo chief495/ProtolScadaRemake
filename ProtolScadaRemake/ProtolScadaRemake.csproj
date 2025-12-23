@@ -16,8 +16,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Hand.png" />
     <None Remove="Images\ProtolLogo.ico" />
     <None Remove="Images\Protol_Menu.svg" />
+    <None Remove="Images\Pump\PumpH_Changed.svg" />
+    <None Remove="Images\Pump\PumpH_Fault.svg" />
+    <None Remove="Images\Pump\PumpH_Start.svg" />
+    <None Remove="Images\Pump\PumpH_Stop.svg" />
     <None Remove="Images\Screens\Protol_EM.png" />
     <None Remove="Images\Screens\Protol_EM.svg" />
     <None Remove="Images\Screens\Protol_Ggd.png" />
@@ -65,10 +70,23 @@
   </ItemGroup>
 
    <ItemGroup>
+    <Resource Include="Hand.png" />
     <Resource Include="Images\ProtolLogo.ico">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Images\Protol_Menu.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Pump\PumpH_Changed.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Pump\PumpH_Fault.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Pump\PumpH_Start.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Pump\PumpH_Stop.svg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Images\Screens\Protol_EM.png">

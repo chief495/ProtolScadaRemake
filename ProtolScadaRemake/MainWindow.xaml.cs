@@ -9,7 +9,7 @@ namespace ProtolScadaRemake
 {
     public partial class MainWindow : Window
     {
-        private TGlobal _global;
+        public TGlobal _global;
         private readonly DispatcherTimer timer;
         private FrameEmPage? _emPage;
         private FrameTcPage? _TcPage;
@@ -49,7 +49,6 @@ namespace ProtolScadaRemake
             // Показываем главную страницу по умолчанию
             ShowMainPage();
         }
-
         private void LogTestTimer_Tick(object sender, EventArgs e)
         {
             // Добавляем тестовую запись каждые 5 секунд
@@ -130,9 +129,8 @@ namespace ProtolScadaRemake
                 // Создаем или используем существующую страницу
                 if (_emPage == null)
                 {
-                    _emPage = new FrameEmPage();
+                    _emPage = new FrameEmPage(_global);
                 }
-
                 // Добавляем на форму
                 ContentGrid.Children.Add(_emPage);
 
@@ -343,6 +341,7 @@ namespace ProtolScadaRemake
             // Пустая реализация, обработка уже в InitializeButtons()
         }
 
+     
         private void LogPageButton_Click(object sender, RoutedEventArgs e)
         {
 
