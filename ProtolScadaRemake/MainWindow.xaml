@@ -1,6 +1,7 @@
-﻿<Window x:Class="ProtolScadaRemake.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:ProtolScadaRemake" x:Class="ProtolScadaRemake.MainWindow"
         Title="Система диспетчерского управления технологическим процессом" 
         Height="1061" Width="1380"
         WindowState="Maximized"
@@ -8,7 +9,7 @@
 
     <Window.Resources>
         <!-- Базовый стиль для кнопок навигации -->
-        <Style x:Key="NavigationButtonStyle" TargetType="Button">
+        <Style x:Key="NavigationButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="0"/>
@@ -19,7 +20,7 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button">
+                    <ControlTemplate TargetType="{x:Type Button}">
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}">
@@ -41,19 +42,19 @@
         </Style>
 
         <!-- Стиль для активной кнопки навигации -->
-        <Style x:Key="ActiveNavigationButtonStyle" TargetType="Button" BasedOn="{StaticResource NavigationButtonStyle}">
+        <Style x:Key="ActiveNavigationButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource NavigationButtonStyle}">
             <Setter Property="Background" Value="#FFBBDEFB"/>
             <Setter Property="BorderBrush" Value="#FF2196F3"/>
             <Setter Property="BorderThickness" Value="0,0,4,0"/>
         </Style>
 
         <!-- Стиль для неактивной кнопки навигации -->
-        <Style x:Key="InactiveNavigationButtonStyle" TargetType="Button" BasedOn="{StaticResource NavigationButtonStyle}">
+        <Style x:Key="InactiveNavigationButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource NavigationButtonStyle}">
             <Setter Property="Opacity" Value="0.7"/>
         </Style>
 
         <!-- Стиль для текста счетчика аварий -->
-        <Style x:Key="FaultCounterTextStyle" TargetType="TextBlock">
+        <Style x:Key="FaultCounterTextStyle" TargetType="{x:Type TextBlock}">
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Foreground" Value="White"/>
@@ -259,10 +260,7 @@
 
         <!-- BOTTOM PANEL -->
         <Border Grid.Row="2" Grid.ColumnSpan="2" Background="#FFE3F2FD">
-            <TextBlock HorizontalAlignment="Right" Margin="10,0">
-                <Run Text="Связь с контроллером:" FontWeight="Bold"/>
-                <Run x:Name="ControllerConnectionQualityLabel" Text="..." FontStyle="Italic"/>
-            </TextBlock>
+            <TextBlock HorizontalAlignment="Right" Margin="10,0"><Run Text="Связь с контроллером:" FontWeight="Bold"/><Run Text=" "/><Run x:Name="ControllerConnectionQualityLabel" Text="..." FontStyle="Italic"/></TextBlock>
         </Border>
     </Grid>
 </Window>

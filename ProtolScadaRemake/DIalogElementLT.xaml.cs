@@ -35,7 +35,7 @@ namespace ProtolScadaRemake
         }
     
 
-public void initialize() // инициализация формы
+        public void Initialize() // инициализация формы
         {
             // режим работы
             TVariableTag VariableTag = Global.Variables.GetByName(VarName + "_Manual");
@@ -84,18 +84,12 @@ public void initialize() // инициализация формы
             GroupBox2.IsEnabled = Global.Access;
             GroupBox3.IsEnabled = Global.Access;
         }
-        //private void CancelButton_Click(object sender, EventArgs e)
-        //{
-        //    Close();
-        //}
-
-        //Таймер подсветки кнопок раз в секунду при открытии окна
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             System.Windows.Threading.DispatcherTimer timer = new();
 
             timer.Tick += new EventHandler(timerTick);
-            timer.Interval = new TimeSpan(0, 0, 1);
+            timer.Interval = new TimeSpan(0, 0, 0, 100);
             timer.Start();
         }
 
@@ -415,24 +409,10 @@ public void initialize() // инициализация формы
                     }
         }
 
-        private void DialogElemetLT_Load(object sender, EventArgs e)
+        private void DialogElemetLT_Load(object sender, RoutedEventArgs e)
         {
-            // Получаем позицию курсора через WinForms
-            System.Windows.Point cursorScreenPosition = this.PointToScreen(Mouse.GetPosition(this));
-            // Размеры экрана
-            double screenWidth = SystemParameters.PrimaryScreenWidth;
-            double screenHeight = SystemParameters.PrimaryScreenHeight;
-            // Центрируем окно по курсору
-            this.Left = cursorScreenPosition.X - this.ActualWidth / 2;
-            this.Top = cursorScreenPosition.Y - this.ActualHeight / 2;
-            // Проверка границ экрана
-            if (this.Left < 0) this.Left = 0;
-            if (this.Top < 0) this.Top = 0;
-            if (this.Left > screenWidth - this.ActualWidth)
-                this.Left = screenWidth - this.ActualWidth;
-            if (this.Top > screenHeight - this.ActualHeight)
-                this.Top = screenHeight - this.ActualHeight;
-
+            DialogElementLT DialogElementLt = new DialogElementLT();
+            DialogElementLt.ShowDialog();
             // Закрытие других экземпляров
             CloseDuplicateWindows();
         }

@@ -9,7 +9,7 @@
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
         Title="DIalogElementLT" Height="300" Width="560">
-    <Grid Background="#FFCCC9C9" Height="300">
+    <Grid Background="#FFCCC9C9" Height="300" Margin="0,0,-6,-16">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="237*"/>
             <ColumnDefinition Width="323*"/>
