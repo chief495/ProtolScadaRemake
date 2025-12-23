@@ -1,33 +1,32 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
+using System.Windows;
+using ProtolScadaRemake;
 
 namespace ProtolScadaRemake.ViewModels
 {
     public class LogViewModel : INotifyPropertyChanged
     {
-        private TLogList _logList;
+        private TLogList _logList; // Изменили LogClasses на TLogList
         private ObservableCollection<TLogRecord> _logItems;
-        private DateTime _lastRefreshTime;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public ObservableCollection<TLogRecord> LogItems
         {
-            get => _logItems;
-            private set
+            get { return _logItems; }
+            set
             {
                 _logItems = value;
                 OnPropertyChanged(nameof(LogItems));
             }
         }
 
-        public LogViewModel(TLogList logList)
+        public LogViewModel(TLogList logList) // Изменили LogClasses на TLogList
         {
             _logList = logList;
             _logItems = new ObservableCollection<TLogRecord>();
-            _lastRefreshTime = DateTime.Now;
             RefreshLog();
         }
 
@@ -35,41 +34,36 @@ namespace ProtolScadaRemake.ViewModels
         {
             try
             {
-                // ВАЖНО: Получаем актуальный список записей
-                int recordCount = _logList.GetCount();
+                var records = _logList.GetAllRecords();
 
-                LogItems.Clear();
-
-                // Добавляем все записи в обратном порядке (новые сверху)
-                for (int i = recordCount - 1; i >= 0; i--)
+                if (Application.Current != null && Application.Current.Dispatcher != null)
                 {
-                    if (i < _logList.Items.Length)
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
-                        LogItems.Add(_logList.Items[i]);
-                    }
+                        LogItems.Clear();
+                        foreach (var record in records)
+                        {
+                            LogItems.Add(record);
+                        }
+
+                        OnPropertyChanged(nameof(LogItems));
+                        System.Diagnostics.Debug.WriteLine($"Обновлено записей: {LogItems.Count}");
+                    });
                 }
-
-                _lastRefreshTime = DateTime.Now;
-                OnPropertyChanged(nameof(LogItems));
-
-                // Для отладки
-                Console.WriteLine($"Обновлен журнал. Записей: {recordCount}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при обновлении журнала: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка RefreshLog: {ex.Message}");
             }
         }
 
         public void ClearLog()
         {
             _logList.Clear();
-            LogItems.Clear();
-            _lastRefreshTime = DateTime.Now;
-            OnPropertyChanged(nameof(LogItems));
+            RefreshLog();
         }
 
-        protected virtual void OnPropertyChanged(string propertyName)
+        protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

@@ -342,5 +342,9 @@ namespace ProtolScadaRemake
         }
 
      
+        private void LogPageButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

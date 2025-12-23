@@ -21,11 +21,13 @@ namespace ProtolScadaRemake
         private ushort fStartAddress = 0; // Адрес начала области
         private ushort fLength = 0; // Размер области
         private int Timeout = 300; // Таймоут перезачи данных
+
         public TBitsArea() // Конструктор простой
         {
             Data = new bool[0];
             FaultsCount = 0;
         }
+
         public TBitsArea(string IpAddress, int PortNum, int DeviceAddress, ushort StartAddress, ushort Length) // Конструктор Modbus TCP
         {
             Data = new bool[Length];
@@ -36,6 +38,8 @@ namespace ProtolScadaRemake
             fLength = Length;
             FaultsCount = 0;
         }
+
+        // ИЗМЕНИТЕ ЭТОТ МЕТОД: LogClasses -> TLogList
         public UInt16 GetModbusTcpCoils(TLogList Log) // Чтение области Coils из Modbus TCP устройства
         {
             bool[] Result = new bool[0];
@@ -51,7 +55,7 @@ namespace ProtolScadaRemake
                 FaultsCount = 0;
                 Data = Result;
                 if (Timeout > 300) Timeout = Timeout - 100;
-            } // try
+            }
             catch
             {
                 if (FaultsCount < (65535)) FaultsCount++;
@@ -59,12 +63,14 @@ namespace ProtolScadaRemake
                 if (FaultsCount == FaultsCountEvent)
                     if (Log != null)
                     {
-                        Log.Add("Связь", "Неудалось считать область Coils у устройства " + fIpAddress + ":" + fPortNum.ToString()
-                                 + "(" + fDeviceAddress.ToString() + ") по адресу " + fStartAddress.ToString("x4") + "H длиной "
-                                 + fLength.ToString() + " ,бит(а)", 3);
+                        Log.Add("Связь",
+                            "Не удалось считать область Coils у устройства " +
+                            fIpAddress + ":" + fPortNum.ToString() + "(" + fDeviceAddress.ToString() +
+                            ") по адресу " + fStartAddress.ToString("x4") + "H длиной " +
+                            fLength.ToString() + " бит(а)", 3);
                     }
                 Thread.Sleep(500);
-            } // catch
+            }
             Thread.Sleep(300);
             return FaultsCount;
         }

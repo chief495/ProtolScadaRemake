@@ -36,7 +36,6 @@ namespace ProtolScadaRemake
         public TGlobal()
         {
             Log = new TLogList();
-            // ... остальная инициализация
         }
         public void UpdateFaults()
         {
