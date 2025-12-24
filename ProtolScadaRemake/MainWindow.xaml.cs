@@ -17,6 +17,7 @@ namespace ProtolScadaRemake
         private FrameGgdPage? _GgdPage;
         private FrameLog? _LogPage;
         private DispatcherTimer _logTestTimer;
+        private FrameTrends _trendsPage;
 
         public MainWindow()
         {
@@ -91,6 +92,19 @@ namespace ProtolScadaRemake
             ReceptPageButton.Click += (s, e) => ShowPage("Рецептура");
             AlarmPageButton.Click += (s, e) => ShowPage("Аварии");
             LogPageButton.Click += (s, e) => ShowLogPage();
+        }
+        private void TrendsButton_Click(object sender, RoutedEventArgs e)
+        {
+            ContentGrid.Children.Clear();
+
+            if (_trendsPage == null)
+            {
+                _trendsPage = new FrameTrends(_global);
+            }
+
+            ContentGrid.Children.Add(_trendsPage);
+            TitleLabel.Text = "ТРЕНДЫ";
+            SetActiveButton(TrendsButton);
         }
 
         private void ShowLogPage()

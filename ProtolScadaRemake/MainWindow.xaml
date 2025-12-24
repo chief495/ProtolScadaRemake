@@ -256,6 +256,7 @@
                                Margin="0,5,0,0"/>
                 </StackPanel>
             </Button>
+            <Button x:Name="TrendsButton" Content="Тренды" Click="TrendsButton_Click"/>
         </StackPanel>
 
         <!-- BOTTOM PANEL -->

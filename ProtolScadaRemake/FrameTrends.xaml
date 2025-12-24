@@ -1,0 +1,72 @@
+﻿<UserControl x:Class="ProtolScadaRemake.Views.FrameTrends"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:oxy="http://oxyplot.org/wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Панель выбора периода -->
+        <GroupBox Grid.Row="0" Header="Выбор периода" Margin="5">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <RadioButton x:Name="RbHour" Content="Последний час" GroupName="Period" IsChecked="True" Margin="5"/>
+                    <RadioButton x:Name="RbDay" Content="Последние сутки" GroupName="Period" Margin="5"/>
+                    <RadioButton x:Name="RbWeek" Content="Последняя неделя" GroupName="Period" Margin="5"/>
+                    <RadioButton x:Name="RbCustom" Content="Произвольный период" GroupName="Period" Margin="5"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <TextBlock Text="С:" VerticalAlignment="Center" Margin="5"/>
+                    <DatePicker x:Name="DpFromDate" Width="100" Margin="5"/>
+                    <ComboBox x:Name="CmbFromHour" Width="50" Margin="5"/>
+                    <TextBlock Text=":" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="CmbFromMinute" Width="50" Margin="5"/>
+
+                    <TextBlock Text="По:" VerticalAlignment="Center" Margin="10,5,5,5"/>
+                    <DatePicker x:Name="DpToDate" Width="100" Margin="5"/>
+                    <ComboBox x:Name="CmbToHour" Width="50" Margin="5"/>
+                    <TextBlock Text=":" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="CmbToMinute" Width="50" Margin="5"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <Button x:Name="BtnYesterday" Content="Вчера" Width="80" Margin="5"/>
+                    <Button x:Name="BtnToday" Content="Сегодня" Width="80" Margin="5"/>
+                    <Button x:Name="BtnWeek" Content="Неделя" Width="80" Margin="5"/>
+                    <Button x:Name="BtnLoad" Content="Загрузить" Width="80" Margin="5" Background="LightBlue"/>
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Панель выбора тренда -->
+        <GroupBox Grid.Row="1" Header="Выбор тренда" Margin="5">
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="Тренд:" VerticalAlignment="Center" Margin="5"/>
+                <ComboBox x:Name="CmbTrend" Width="300" Margin="5"/>
+                <Button x:Name="BtnExport" Content="Экспорт" Width="80" Margin="5"/>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- График -->
+        <GroupBox Grid.Row="2" Header="График" Margin="5">
+            <Grid>
+                <oxy:PlotView x:Name="TrendPlot" Model="{Binding}"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- Статус -->
+        <StatusBar Grid.Row="3" Margin="5">
+            <TextBlock x:Name="TxtStatus" Text="Готово"/>
+        </StatusBar>
+    </Grid>
+</UserControl>

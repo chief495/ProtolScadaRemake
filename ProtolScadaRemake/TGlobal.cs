@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProtolScada;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -12,40 +13,86 @@ namespace ProtolScadaRemake
     public class TGlobal
     {
         // Настройки подключения к базе данных
-        public string DB_HostName = "localhost"; // Адрес хоста базы данных
-        public int DB_Port = 3306;               // Номер порта базы данных
-        public string DB_UserLogin = "root";     // Имя пользователя базы данных
-        public string DB_Password = "advengauser";    // Пароль к базе данных
-        public string DB_Name = "protolscadadb"; // Имя базы данных
+        public string DB_HostName = "localhost";
+        public int DB_Port = 3306;
+        public string DB_UserLogin = "root";
+        public string DB_Password = "advengauser";
+        public string DB_Name = "protolscadadb";
         public string Password = "Protol251121";
         public bool Access = false;
         public DateTime PassTime;
+
         // Настройка параметров опрашиваемого оборудования
-        public string Plc_IpAddress = "192.168.100.5"; // IP адрес контроллера
-        public int Plc_PortNum = 502;                  // Порт контроллера
-        public int Plc_DeviceAddress = 1;              // Адрес устройства modbus
+        public string Plc_IpAddress = "192.168.100.5";
+        public int Plc_PortNum = 502;
+        public int Plc_DeviceAddress = 1;
 
         // Объекты данных
-        public TVariableList Variables = new TVariableList(); // Массив переменных
-        public TCommandList Commands = new TCommandList(); // Массив команд
-        public TFaultList Faults = new TFaultList(); // Массив аварий и предуреждений
-        public TTrendList Trends = new TTrendList(); // Массив трендов
+        public TVariableList Variables = new TVariableList();
+        public TCommandList Commands = new TCommandList();
+        public TFaultList Faults = new TFaultList();
 
+        // Только одно объявление Trends
         public TLogList Log { get; private set; }
+        public TTrendList Trends { get; private set; }
+
+        // Добавьте новое свойство:
+        public TrendDbManager TrendDb { get; private set; }
 
         public TGlobal()
         {
             Log = new TLogList();
+            Trends = new TTrendList();
+            TrendDb = new TrendDbManager(this);
+
+            InitTestTrends();
         }
+
+        private void InitTestTrends()
+        {
+            Trends.Add("Temp1", "Температура бак 1", "°C", 10, 1000);
+            Trends.Add("Temp2", "Температура бак 2", "°C", 10, 1000);
+            Trends.Add("Pressure1", "Давление", "бар", 5, 2000);
+            Trends.Add("Level1", "Уровень", "%", 30, 1000);
+
+            Trends.Add("Pump1_Freq", "Частота насоса 1", "Гц", 1, 5000);
+            Trends.Add("Pump1_Curr", "Ток насоса 1", "А", 2, 5000);
+            Trends.Add("Pump2_Freq", "Частота насоса 2", "Гц", 1, 5000);
+            Trends.Add("Pump2_Temp", "Температура насоса 2", "°C", 10, 2000);
+        }
+
+        public async Task UpdateTrendsAsync()
+        {
+            foreach (var trend in Trends.Items)
+            {
+                var variable = Variables.GetByName(trend.Name);
+                if (variable != null)
+                {
+                    // Используйте синхронный метод Update вместо UpdateAsync
+                    // или реализуйте UpdateAsync в классе TTrendTag
+                    trend.Update(variable); // Измените на синхронный вызов
+                }
+            }
+            await Task.CompletedTask; // Чтобы соответствовать сигнатуре async
+        }
+
         public void UpdateFaults()
         {
-            if (Faults.GetCount() > 0)
-                if (Variables.GetCount() > 0)
-                    for (int FaultIndex = 0; FaultIndex < Faults.GetCount(); FaultIndex++)
-                        for (int VariableIndex = 0; VariableIndex < Variables.GetCount(); VariableIndex++)
-                            if (Faults.Items[FaultIndex].Name == Variables.Items[VariableIndex].Name)
-                                Faults.Items[FaultIndex].Update(Variables.Items[VariableIndex],Log);
+            if (Faults.GetCount() > 0 && Variables.GetCount() > 0)
+            {
+                for (int FaultIndex = 0; FaultIndex < Faults.GetCount(); FaultIndex++)
+                {
+                    for (int VariableIndex = 0; VariableIndex < Variables.GetCount(); VariableIndex++)
+                    {
+                        if (Faults.Items[FaultIndex].Name == Variables.Items[VariableIndex].Name)
+                        {
+                            Faults.Items[FaultIndex].Update(Variables.Items[VariableIndex], Log);
+                        }
+                    }
+                }
+            }
         }
+
         public void Clear()
         {
             Variables.Clear();
@@ -54,10 +101,15 @@ namespace ProtolScadaRemake
             Faults.Clear();
             Trends.Clear();
         }
+
         public void UpdateTrends()
         {
             Trends.Update(Variables);
         }
+
+        // ============== СТАТИЧЕСКИЕ МЕТОДЫ ДЛЯ РАБОТЫ С ПОТОКАМИ ==============
+        // Эти методы необходимы для TFaultRecord.cs
+
         public static void SaveUInt32ToStream(FileStream Stream, UInt32 Variable)
         {
             UInt32 Ost = Variable;
@@ -69,6 +121,7 @@ namespace ProtolScadaRemake
                 Stream.WriteByte(Convert.ToByte(B0));
             }
         }
+
         public static UInt32 LoadUInt32FromStream(FileStream Stream)
         {
             UInt32 Value = 0;
@@ -79,6 +132,7 @@ namespace ProtolScadaRemake
             Value = (Data2[3] * 16777216) + (Data2[2] * 65536) + (Data2[1] * 256) + Data2[0];
             return Value;
         }
+
         public static void SaveStringToStream(FileStream Stream, string Value)
         {
             UInt16 Len = Convert.ToUInt16(Value.Length);
@@ -94,6 +148,7 @@ namespace ProtolScadaRemake
                 Stream.Write(intBytes2, 0, 2);
             }
         }
+
         public static String LoadStringFromStream(FileStream Stream)
         {
             string Result = "";
@@ -117,11 +172,13 @@ namespace ProtolScadaRemake
             }
             return Result;
         }
+
         public static void SaveDoubleToStream(FileStream Stream, double Value)
         {
             byte[] intBytes = BitConverter.GetBytes(Value);
             if (intBytes.Length > 0) Stream.Write(intBytes, 0, intBytes.Length);
         }
+
         public static double LoadDoubleFromStream(FileStream Stream)
         {
             double D = 0;
@@ -130,6 +187,7 @@ namespace ProtolScadaRemake
             D = BitConverter.ToDouble(Bytes, 0);
             return D;
         }
+
         public static void SaveDateTimeToStream(FileStream Stream, DateTime Value)
         {
             Int64 Ost = Value.ToBinary();
@@ -138,8 +196,8 @@ namespace ProtolScadaRemake
             {
                 Stream.WriteByte(Convert.ToByte(intBytes[i]));
             }
-
         }
+
         public static DateTime LoadDateTimeFromStream(FileStream Stream)
         {
             DateTime Result = DateTime.Now;
@@ -160,11 +218,13 @@ namespace ProtolScadaRemake
             catch { }
             return Result;
         }
+
         public static void SaveIntToStream(FileStream Stream, int Value)
         {
             byte[] intBytes = BitConverter.GetBytes(Value);
             if (intBytes.Length > 0) Stream.Write(intBytes, 0, intBytes.Length);
         }
+
         public static int LoadIntFromStream(FileStream Stream)
         {
             int I = 0;
@@ -173,12 +233,14 @@ namespace ProtolScadaRemake
             I = BitConverter.ToInt32(Bytes, 0);
             return I;
         }
+
         public static void SaveBoolToStream(FileStream Stream, bool Value)
         {
             byte B = 0;
             if (Value) B = 1;
             Stream.WriteByte(B);
         }
+
         public static bool LoadBoolFromStream(FileStream Stream)
         {
             int B = Stream.ReadByte();
@@ -186,11 +248,13 @@ namespace ProtolScadaRemake
             if (B > 0) Result = true;
             return Result;
         }
+
         public static void SaveInt64ToStream(FileStream Stream, Int64 Value)
         {
             byte[] intBytes = BitConverter.GetBytes(Value);
             if (intBytes.Length > 0) Stream.Write(intBytes, 0, intBytes.Length);
         }
+
         public static Int64 LoadInt64FromStream(FileStream Stream)
         {
             Int64 Result = 0;
@@ -199,10 +263,5 @@ namespace ProtolScadaRemake
             Result = BitConverter.ToInt64(Bytes, 0);
             return Result;
         }
-
     }
-
-
-
-
 }
