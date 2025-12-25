@@ -5,6 +5,17 @@
              StartupUri="MainWindow.xaml"
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/">
     <Application.Resources>
-        <svgc:SvgImageExtension x:Key="SvgImage"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Подключаем наш файл с иконками -->
+                <ResourceDictionary Source="IconResource.xaml"/>
+
+                <!-- Здесь можно добавить другие словари -->
+                <!-- <ResourceDictionary Source="Styles.xaml"/> -->
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Здесь можно добавить глобальные ресурсы -->
+            <!-- <SolidColorBrush x:Key="MainColor" Color="Blue"/> -->
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -5,7 +5,7 @@
         Title="Система диспетчерского управления технологическим процессом" 
         Height="1080" Width="1920"
         WindowState="Maximized"
-        Closing="Window_Closing">
+        Closing="Window_Closing" WindowStyle="None">
 
     <Window.Resources>
         <!-- Базовый стиль для кнопок навигации -->
@@ -134,7 +134,7 @@
 
         <!-- MAIN CONTENT AREA -->
         <Border Grid.Row="1" Grid.Column="0" Background="White">
-            <Grid x:Name="ContentGrid">
+            <Grid x:Name="ContentGrid" Height="1000">
                 <TextBlock Text="Выберите раздел" 
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"

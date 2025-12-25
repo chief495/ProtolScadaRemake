@@ -34,9 +34,30 @@ namespace ProtolScadaRemake
     
         private void Initialize()
         {
-            LAHH151.Global = Global;
-            LAHH151.VarName = "LAHH151";
-            LAHH151.Description = "Датчик уровня LAHH151";
+
+           LAHH151.Global = Global;
+           LAHH151.VarName = "LAHH151";
+           LAHH151.Description = "Датчик уровня LAHH151";
+           LAHH151.TagName.Text = "LAHH-151";
+           //P651
+           P651.Global = Global;
+           P651.VarName = "P651";
+           P651.Description = "Насос P651";
+            
+        }
+        private void Window_Loaded(object sender, EventArgs e)
+        {
+            System.Windows.Threading.DispatcherTimer timer = new();
+
+            timer.Tick += new EventHandler(timerTick);
+            timer.Interval = new TimeSpan(0, 0, 0, 100);
+            timer.Start();
+        }
+
+        private void timerTick(object sender, EventArgs e)
+        {
+           // LAHH151.UpdateElement();
+           // P651.UpdateElement();
         }
     }
 }

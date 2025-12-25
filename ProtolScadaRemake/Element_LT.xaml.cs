@@ -49,7 +49,6 @@ namespace ProtolScadaRemake
             Dialog.Initialize();
             Dialog.ShowDialog();
         }
-
     }
 }
 
