@@ -2,6 +2,7 @@
 using SharpVectors.Renderers.Wpf;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -26,10 +27,6 @@ namespace ProtolScadaRemake
         public string Description = ""; // Описание элемента
         public TGlobal Global;
         public string VarName = ""; // Основание для имен
-        private string StopFileName     = "pack://application:,,,/Images/Pump/PumpH_Stop.svg";
-        private string WorkFileName     = "pack://application:,,,/Images/Pump/PumpH_Start.svg";
-        private string ChangeFileName   = "pack://application:,,,/Images/Pump/PumpH_Changed.svg";
-        private string FaultFileName    = "pack://application:,,,/Images/Pump/PumpH_Fault.svg";
         public Element_PumpH()
         {
             InitializeComponent();
@@ -41,27 +38,26 @@ namespace ProtolScadaRemake
             if (Tag != null) if (Tag.ValueReal <= 0) HandImage.Visibility = Visibility.Hidden;
             if (Tag != null) if (Tag.ValueReal > 0) HandImage.Visibility = Visibility.Visible;
             // Состояние по умолчанию
-            svgViewbox.Source = new Uri(StopFileName, UriKind.RelativeOrAbsolute);
+            PumpIcon.Source = FindResource("PumpStopIcon") as ImageSource;
             // Миксер включен
             Tag = Global.Variables.GetByName(VarName + "_IsWork");
-            if (Tag != null) if (Tag.ValueReal > 0) svgViewbox.Source = new Uri(WorkFileName, UriKind.RelativeOrAbsolute);
+            if (Tag != null) if (Tag.ValueReal > 0) PumpIcon.Source = FindResource("PumpStartIcon") as ImageSource;
             // Нет подтверждения состояния
             Tag = Global.Variables.GetByName(VarName + "_FeedbackOk");
-            if (Tag != null) if (Tag.ValueReal < 1) svgViewbox.Source = new Uri(ChangeFileName, UriKind.RelativeOrAbsolute);
+            if (Tag != null) if (Tag.ValueReal < 1) PumpIcon.Source = FindResource("PumpChangedIcon") as ImageSource;
             // Авария
             Tag = Global.Variables.GetByName(VarName + "_Fault");
-            if (Tag != null) if (Tag.ValueReal > 0) svgViewbox.Source = new Uri(FaultFileName, UriKind.RelativeOrAbsolute);
+            if (Tag != null) if (Tag.ValueReal > 0) PumpIcon.Source = FindResource("PumpFaultIcon") as ImageSource;
         }
-        //private void ValueLabel_Click(object sender, EventArgs e)
-        //{
-        //    DialogElementPumpH Dialog = new DialogElementPumpH();
-        //    Dialog.Text = Description;
-        //    Dialog.Global = Global;
-        //    Dialog.VarName = VarName;
-        //    Dialog.Initialize();
-        //    Dialog.ShowDialog();
-        //}
-       
+        private void ValueLabel_Click(object sender, MouseButtonEventArgs e)
+        {
+            DialogElementPump Dialog = new DialogElementPump();
+            Dialog.Title = Description;
+            Dialog.Global = Global;
+            Dialog.VarName = VarName;
+            Dialog.Initialize();
+            Dialog.ShowDialog();
+        }
     }
 }
 

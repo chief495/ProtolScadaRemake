@@ -4,12 +4,10 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:ProtolScadaRemake"
-      mc:Ignorable="d"
-      xmlns:svgc="http://sharpvectors.codeplex.com/svgc/" Width="80" Height="60"
-    >
+      mc:Ignorable="d" MouseDown="ValueLabel_Click">
 
     <Grid Width="80" Height="60">
-        <svgc:SvgViewbox x:Name="svgViewbox" Stretch="Uniform"/>
+        <Image x:Name ="PumpIcon"  Source="{StaticResource PumpHStopIcon}" Width="60" Height="60" Margin="0,0,20,0"/>
         <Image x:Name="HandImage" HorizontalAlignment="Left" Height="24" Margin="60,36,0,0" VerticalAlignment="Top" Width="20" Source="/Hand.png"/>
     </Grid>
 </UserControl>
