@@ -1,60 +1,71 @@
-﻿using System;
+﻿// TTrendTag.cs
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ProtolScadaRemake
 {
     public class TTrendTag
     {
-        public string Name = ""; // Имя тега
-        public string Description = ""; // Описание тега
-        public UInt16 Period = 60; // Период ваполнения записи в секундах
-        public UInt32 MaxLength = 1000; // Максимальное количество записей
-        public TTrendTagRecord[] Records = new TTrendTagRecord[0]; // Массив значений
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Unit { get; set; } = "";
+        public ushort Period { get; set; } = 60;
+        public uint MaxLength { get; set; } = 1000;
+        public string TrendType { get; set; } = "analog";
+        public List<TTrendTagRecord> Records { get; private set; } = new List<TTrendTagRecord>();
 
-        public TTrendTag() // Конструктор
+        public TTrendTag() { }
+
+        public TTrendTag(string name, string description, string unit = "", ushort period = 60, uint maxLength = 1000)
         {
-        }
-        public void Update(TVariableTag Variable)
-        {
-            if(Variable != null)
-            {
-                bool NedUpdate = true;
-                // Определяем, требуется ли запись
-                if(Records.Length > 0) if (Records[Records.Length - 1].datetime.AddSeconds(Period) > DateTime.Now) NedUpdate = false;
-                if (NedUpdate) Add(Variable);
-            } // if(Variable != null)
-        }
-        public TTrendTagRecord Add(TVariableTag Variable)
-        {
-            // Создание нового массива
-            TTrendTagRecord[] NewItems = new TTrendTagRecord[Records.Length + 1];
-            if (Records.Length >= MaxLength) NewItems = new TTrendTagRecord[MaxLength];
-            // Копирование существующих элементов в массив
-            if (Records.Length > 0)
-            {
-                if(Records.Length < MaxLength) for (int i = 0; i < Records.Length; i++) NewItems[i] = Records[i];
-                else for (int i = 0; i < MaxLength - 1; i++) NewItems[i] = Records[i + Records.Length - MaxLength];
-            } // if (Records.Length > 0)
-            // Добавление запмсм
-            int index = NewItems.Length - 1;
-            NewItems[index] = new TTrendTagRecord();
-            NewItems[index].ValueReal = Variable.ValueReal;
-            NewItems[index].ValueString = Variable.ValueString;
-            NewItems[index].datetime = DateTime.Now;
-            NewItems[index].DBId = 0;
-            // Подмена массива
-            Records = NewItems;
-            // Возвращение результата
-            return Records[Records.Length - 1];
-        }
-        public int GetCount()
-        {
-            return Records.Length;
+            Name = name;
+            Description = description;
+            Unit = unit;
+            Period = period;
+            MaxLength = maxLength;
         }
 
+        public bool Update(TVariableTag variable)
+        {
+            if (variable == null) return false;
+
+            bool needUpdate = true;
+            if (Records.Count > 0)
+            {
+                var lastRecord = Records.Last();
+                needUpdate = (DateTime.Now - lastRecord.DateTime).TotalSeconds >= Period;
+            }
+
+            if (needUpdate)
+            {
+                var record = new TTrendTagRecord
+                {
+                    ValueReal = variable.ValueReal,
+                    ValueString = variable.ValueString,
+                    DateTime = DateTime.Now
+                };
+
+                AddRecord(record);
+                return true;
+            }
+
+            return false;
+        }
+
+        private void AddRecord(TTrendTagRecord record)
+        {
+            Records.Add(record);
+
+            if (Records.Count > MaxLength)
+            {
+                Records.RemoveAt(0);
+            }
+        }
+
+        public List<TTrendTagRecord> GetRecordsByTimeRange(DateTime from, DateTime to)
+        {
+            return Records.Where(r => r.DateTime >= from && r.DateTime <= to).ToList();
+        }
     }
 }

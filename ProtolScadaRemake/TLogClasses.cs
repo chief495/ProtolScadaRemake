@@ -1,4 +1,4 @@
-﻿// LogClasses.cs в папке ProtolScadaRemake (не в Views!)
+﻿using ProtolScada;
 using System;
 using System.Collections.Generic;
 
@@ -34,12 +34,18 @@ namespace ProtolScadaRemake
         }
     }
 
-        public class TLogList
+    public class TLogList
     {
         private List<TLogRecord> _records = new List<TLogRecord>();
         private readonly object _lock = new object();
+        private DBUtils _dbUtils;
 
-        public void Add(string group, string text, short imageIndex)
+        public TLogList(DBUtils dbUtils)
+        {
+            _dbUtils = dbUtils;
+        }
+
+        public async Task Add(string group, string text, short imageIndex, bool saveToDb = true)
         {
             var record = new TLogRecord
             {
@@ -55,7 +61,24 @@ namespace ProtolScadaRemake
                 if (_records.Count > 1000) _records.RemoveAt(0);
             }
 
-            System.Diagnostics.Debug.WriteLine($"Добавлено в журнал: [{group}] {text}");
+            // Асинхронно сохраняем в БД
+            if (saveToDb && _dbUtils != null)
+            {
+                await _dbUtils.SaveLogRecordAsync(record);
+            }
+        }
+
+        public async Task LoadFromDatabaseAsync(int limit = 100)
+        {
+            if (_dbUtils == null) return;
+
+            var dbRecords = await _dbUtils.LoadLogRecordsAsync(limit);
+
+            lock (_lock)
+            {
+                _records.Clear();
+                _records.AddRange(dbRecords);
+            }
         }
 
         public List<TLogRecord> GetAllRecords()

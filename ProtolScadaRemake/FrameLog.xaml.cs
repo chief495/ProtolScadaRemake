@@ -1,190 +1,117 @@
-﻿using System;
+﻿using ProtolScadaRemake;
+using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.IO;
-using Microsoft.Win32;
-using ProtolScadaRemake;
 
-namespace ProtolScadaRemake.Views
+namespace ProtolScadaRemake.Views  // Важно: Views, а не просто ProtolScadaRemake
 {
     public partial class FrameLog : UserControl
     {
         private TGlobal _global;
-        private DateTime _filterFromDate;
-        private DateTime _filterToDate;
+        private ProtolScada.DBUtils _dbUtils;
 
-        public FrameLog(TGlobal global)
+        // Конструктор без параметров (обязателен для XAML)
+        public FrameLog()
         {
             InitializeComponent();
+        }
+
+        // Конструктор с параметром (для использования из MainWindow)
+        public FrameLog(TGlobal global) : this()
+        {
             _global = global;
 
-            // Устанавливаем даты по умолчанию (последние сутки)
-            _filterFromDate = DateTime.Now.AddDays(-1);
-            _filterToDate = DateTime.Now;
+            // Инициализация DBUtils с вашими настройками
+            _dbUtils = new ProtolScada.DBUtils
+            {
+                DB_HostName = "localhost",
+                DB_Port = 3306,
+                DB_Name = "protolscadadb",
+                DB_UserLogin = "root",
+                DB_Password = "advengauser"
+            };
 
-            dpFrom.SelectedDate = _filterFromDate;
-            dpTo.SelectedDate = _filterToDate;
+            // Настройка UI элементов
+            InitializeUI();
 
-            // Устанавливаем обработчики событий
-            dpFrom.SelectedDateChanged += DpFrom_SelectedDateChanged;
-            dpTo.SelectedDateChanged += DpTo_SelectedDateChanged;
-
-            chkAlarm.Checked += CheckBox_CheckedChanged;
-            chkAlarm.Unchecked += CheckBox_CheckedChanged;
-            chkWarning.Checked += CheckBox_CheckedChanged;
-            chkWarning.Unchecked += CheckBox_CheckedChanged;
-            chkError.Checked += CheckBox_CheckedChanged;
-            chkError.Unchecked += CheckBox_CheckedChanged;
-            chkFault.Checked += CheckBox_CheckedChanged;
-            chkFault.Unchecked += CheckBox_CheckedChanged;
-            chkUser.Checked += CheckBox_CheckedChanged;
-            chkUser.Unchecked += CheckBox_CheckedChanged;
-            chkSystem.Checked += CheckBox_CheckedChanged;
-            chkSystem.Unchecked += CheckBox_CheckedChanged;
-
-            // Загружаем данные
-            LoadLogData();
+            // Загружаем данные из БД
+            LoadDataFromDatabaseAsync();
         }
 
-        public void RefreshLog()
+        private void InitializeUI()
         {
-            LoadLogData();
+            // Установка начальных дат
+            dpFrom.SelectedDate = DateTime.Now.AddDays(-7);
+            dpTo.SelectedDate = DateTime.Now;
+
+            // Подписка на события фильтров
+            cmbPeriod.SelectionChanged += (s, e) => RefreshLog();
+            dpFrom.SelectedDateChanged += (s, e) => RefreshLog();
+            dpTo.SelectedDateChanged += (s, e) => RefreshLog();
+
+            // Подписка на CheckBox'ы
+            chkAlarm.Checked += (s, e) => RefreshLog();
+            chkAlarm.Unchecked += (s, e) => RefreshLog();
+            chkWarning.Checked += (s, e) => RefreshLog();
+            chkWarning.Unchecked += (s, e) => RefreshLog();
+            chkError.Checked += (s, e) => RefreshLog();
+            chkError.Unchecked += (s, e) => RefreshLog();
+            chkFault.Checked += (s, e) => RefreshLog();
+            chkFault.Unchecked += (s, e) => RefreshLog();
+            chkUser.Checked += (s, e) => RefreshLog();
+            chkUser.Unchecked += (s, e) => RefreshLog();
+            chkSystem.Checked += (s, e) => RefreshLog();
+            chkSystem.Unchecked += (s, e) => RefreshLog();
         }
 
-        private void LoadLogData()
+        public async Task LoadDataFromDatabaseAsync()
         {
             try
             {
-                lvLog.Items.Clear();
+                // Получаем настройки фильтров
+                DateTime? fromDate = dpFrom.SelectedDate;
+                DateTime? toDate = dpTo.SelectedDate?.AddDays(1); // +1 день чтобы включить выбранную дату
 
-                // Получаем все записи
-                var allRecords = _global.Log.GetAllRecords();
-                int filteredCount = 0;
+                // Загружаем данные
+                var records = await _dbUtils.LoadLogRecordsAsync(100, fromDate);
 
-                foreach (var record in allRecords)
-                {
-                    // Фильтрация по дате
-                    if (record.Time < _filterFromDate || record.Time > _filterToDate.AddDays(1))
-                        continue;
+                // Применяем фильтры по типу
+                var filteredRecords = FilterRecordsByType(records);
 
-                    // Фильтрация по типу записи
-                    bool isVisible = IsRecordTypeVisible(record);
-
-                    if (isVisible)
-                    {
-                        lvLog.Items.Add(record);
-                        filteredCount++;
-                    }
-                }
-
-                // Прокрутка к последней записи (самой новой)
-                if (lvLog.Items.Count > 0)
-                {
-                    lvLog.ScrollIntoView(lvLog.Items[0]);
-                }
+                // Обновляем UI
+                lvLog.ItemsSource = null;
+                lvLog.ItemsSource = filteredRecords;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка LoadLogData: {ex.Message}");
+                MessageBox.Show($"Ошибка загрузки журнала: {ex.Message}",
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private bool IsRecordTypeVisible(TLogRecord record)
+        private System.Collections.Generic.List<TLogRecord> FilterRecordsByType(System.Collections.Generic.List<TLogRecord> records)
         {
-            string recordType = GetRecordType(record);
+            var filtered = new System.Collections.Generic.List<TLogRecord>();
 
-            switch (recordType)
+            foreach (var record in records)
             {
-                case "Авария":
-                    return chkAlarm.IsChecked == true;
-                case "Предупреждение":
-                    return chkWarning.IsChecked == true;
-                case "Отказ":
-                    return chkError.IsChecked == true;
-                case "Сбой":
-                    return chkFault.IsChecked == true;
-                case "Пользователь":
-                    return chkUser.IsChecked == true;
-                case "Система":
-                    return chkSystem.IsChecked == true;
-                default:
-                    return true;
-            }
-        }
+                var recordType = record.GetRecordType();
 
-        private string GetRecordType(TLogRecord record)
-        {
-            if (record.GroupName.Contains("Авария")) return "Авария";
-            if (record.GroupName.Contains("Предупреждение")) return "Предупреждение";
-            if (record.GroupName.Contains("Отказ")) return "Отказ";
-            if (record.GroupName.Contains("Сбой") || record.GroupName.Contains("Ошибка")) return "Сбой";
-            if (record.GroupName.Contains("Пользователь")) return "Пользователь";
-            if (record.GroupName.Contains("Система")) return "Система";
-
-            // По умолчанию по ImageIndex
-            return record.ImageIndex switch
-            {
-                0 => "Система",
-                1 => "Пользователь",
-                2 => "Предупреждение",
-                3 => "Событие",
-                4 => "Авария",
-                5 => "Отказ",
-                _ => "Другое"
-            };
-        }
-
-        private void BtnApply_Click(object sender, RoutedEventArgs e)
-        {
-            ApplyPeriodFilter();
-            LoadLogData();
-        }
-
-        private void ApplyPeriodFilter()
-        {
-            DateTime now = DateTime.Now;
-
-            switch (cmbPeriod.SelectedIndex)
-            {
-                case 0: // Сутки
-                    _filterFromDate = now.AddDays(-1);
-                    break;
-                case 1: // Неделя
-                    _filterFromDate = now.AddDays(-7);
-                    break;
-                case 2: // Месяц
-                    _filterFromDate = now.AddMonths(-1);
-                    break;
+                if (recordType == "Авария" && chkAlarm.IsChecked == true) filtered.Add(record);
+                else if (recordType == "Предупреждение" && chkWarning.IsChecked == true) filtered.Add(record);
+                else if (recordType == "Отказ" && chkError.IsChecked == true) filtered.Add(record);
+                else if (recordType == "Сбой" && chkFault.IsChecked == true) filtered.Add(record);
+                else if (recordType == "Пользователь" && chkUser.IsChecked == true) filtered.Add(record);
+                else if (recordType == "Система" && chkSystem.IsChecked == true) filtered.Add(record);
             }
 
-            _filterToDate = now;
-
-            // Обновляем DatePicker
-            dpFrom.SelectedDate = _filterFromDate;
-            dpTo.SelectedDate = _filterToDate;
+            return filtered;
         }
 
-        private void DpFrom_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        public async void RefreshLog()
         {
-            if (dpFrom.SelectedDate.HasValue)
-            {
-                _filterFromDate = dpFrom.SelectedDate.Value;
-                LoadLogData();
-            }
-        }
-
-        private void DpTo_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (dpTo.SelectedDate.HasValue)
-            {
-                _filterToDate = dpTo.SelectedDate.Value;
-                LoadLogData();
-            }
-        }
-
-        private void CheckBox_CheckedChanged(object sender, RoutedEventArgs e)
-        {
-            LoadLogData();
+            await LoadDataFromDatabaseAsync();
         }
     }
 }
