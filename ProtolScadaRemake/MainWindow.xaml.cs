@@ -1,4 +1,5 @@
-﻿using ProtolScadaRemake.Views;
+﻿using ProtolScada;
+using ProtolScadaRemake.Views;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,12 +20,29 @@ namespace ProtolScadaRemake
         private DispatcherTimer _logTestTimer;
         private FrameTrends _trendsPage;
 
+        private DBUtils _dbUtils;
+        private DispatcherTimer _logSyncTimer;
+
         public MainWindow()
         {
             InitializeComponent();
 
             // Инициализация глобального объекта
             _global = new TGlobal();
+
+            _dbUtils = new DBUtils
+            {
+                DB_HostName = "localhost",
+                DB_Port = 3306,
+                DB_Name = "protolscadadb",
+                DB_UserLogin = "root",
+                DB_Password = "advengauser"
+            };
+
+            _logSyncTimer = new DispatcherTimer();
+            _logSyncTimer.Interval = TimeSpan.FromSeconds(30);
+            _logSyncTimer.Tick += async (s, e) => await SyncLogsWithDatabaseAsync();
+            _logSyncTimer.Start();
 
             // Добавление тестовых записей в журнал
             _global.Log.Add("Система", "Приложение запущено", 0);
@@ -50,30 +68,82 @@ namespace ProtolScadaRemake
             // Показываем главную страницу по умолчанию
             ShowMainPage();
         }
+        public async Task AddLogAsync(string group, string text, short imageIndex, bool saveToDatabase = true)
+        {
+            try
+            {
+                // Создаем запись
+                var record = new TLogRecord
+                {
+                    Time = DateTime.Now,
+                    GroupName = group,
+                    Text = text,
+                    ImageIndex = imageIndex
+                };
+
+                // Добавляем в локальную коллекцию
+                _global.Log.Add(group, text, imageIndex);
+
+                // Сохраняем в базу данных (если требуется)
+                if (saveToDatabase)
+                {
+                    await _dbUtils.SaveLogRecordAsync(record);
+                }
+
+                // Обновляем UI, если журнал открыт
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    if (_LogPage != null && ContentGrid.Children.Contains(_LogPage))
+                    {
+                        _LogPage.RefreshLog();
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка добавления лога: {ex.Message}");
+            }
+        }
+
+        // СИНХРОНИЗАЦИЯ ЛОГОВ С БАЗОЙ ДАННЫХ
+        private async Task SyncLogsWithDatabaseAsync()
+        {
+            try
+            {
+                // Загружаем последние записи из БД
+                var dbRecords = await _dbUtils.LoadLogRecordsAsync(50, DateTime.Now.AddHours(-1));
+
+                // Обновляем локальную коллекцию
+                // Здесь можно добавить логику сравнения и синхронизации
+
+                // Обновляем UI
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    if (_LogPage != null && ContentGrid.Children.Contains(_LogPage))
+                    {
+                        _LogPage.RefreshLog();
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка синхронизации логов: {ex.Message}");
+            }
+        }
+
         private void LogTestTimer_Tick(object sender, EventArgs e)
         {
-            // Добавляем тестовую запись каждые 5 секунд
+            // Используем новый метод
             string[] groups = { "Система", "Пользователь", "Оборудование", "Рецептура" };
-            string[] messages = {
-                "Автоматическое обновление данных",
-                "Проверка связи с оборудованием",
-                "Сканирование датчиков",
-                "Обновление трендов",
-                "Резервное копирование данных"
-            };
+            string[] messages = { "Автоматическое обновление данных", "Проверка связи с оборудованием" };
 
             Random rnd = new Random();
             string group = groups[rnd.Next(groups.Length)];
-            string message = messages[rnd.Next(messages.Length)];
+            string message = $"{messages[rnd.Next(messages.Length)]} - {DateTime.Now:HH:mm:ss}";
             short imageIndex = (short)rnd.Next(0, 4);
 
-            _global.Log.Add(group, $"{message} - {DateTime.Now:HH:mm:ss}", imageIndex);
-
-            // Обновляем журнал, если он открыт
-            if (_LogPage != null && ContentGrid.Children.Contains(_LogPage))
-            {
-                _LogPage.RefreshLog();
-            }
+            // Асинхронно добавляем лог
+            _ = AddLogAsync(group, message, imageIndex);
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -95,16 +165,23 @@ namespace ProtolScadaRemake
         }
         private void TrendsButton_Click(object sender, RoutedEventArgs e)
         {
-            ContentGrid.Children.Clear();
-
-            if (_trendsPage == null)
+            try
             {
-                _trendsPage = new FrameTrends(_global);
-            }
+                ContentGrid.Children.Clear();
 
-            ContentGrid.Children.Add(_trendsPage);
-            TitleLabel.Text = "ТРЕНДЫ";
-            SetActiveButton(TrendsButton);
+                if (_trendsPage == null)
+                {
+                    _trendsPage = new FrameTrends();
+                }
+
+                ContentGrid.Children.Add(_trendsPage);
+                TitleLabel.Text = "ТРЕНДЫ";
+                SetActiveButton(TrendsButton);
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Не удалость загрузит тренды: {ex.Message}");  
+            }
         }
 
         private void ShowLogPage()
@@ -325,7 +402,7 @@ namespace ProtolScadaRemake
             var buttons = new[] {
                 MainPageButton, GgdPageButton, GroPageButton,
                 TcPageButton, EmPageButton, ReceptPageButton,
-                AlarmPageButton, LogPageButton
+                AlarmPageButton, LogPageButton, TrendsButton
             };
 
             foreach (var button in buttons)

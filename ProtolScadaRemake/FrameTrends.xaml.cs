@@ -16,18 +16,18 @@ namespace ProtolScadaRemake.Views
         private DateTime _toDate;
         private PlotModel _plotModel;
 
-        public FrameTrends(TGlobal global)
+        public FrameTrends()
         {
             InitializeComponent();
-            _global = global;
-
             InitializePlot();
             SetDefaultDates();
             SetupTimeControls();
-            LoadTrends();
+        }
 
-            // Загружаем тестовые данные
-            LoadTestData();
+        public FrameTrends(TGlobal global) : this()
+        {
+            _global = global;
+            LoadTrends();
         }
 
         private void InitializePlot()
@@ -109,7 +109,7 @@ namespace ProtolScadaRemake.Views
         {
             CmbTrend.Items.Clear();
 
-            if (_global.Trends != null && _global.Trends.Items != null)
+            if (_global?.Trends?.Items != null)
             {
                 foreach (var trend in _global.Trends.Items)
                 {
@@ -123,32 +123,6 @@ namespace ProtolScadaRemake.Views
 
             if (CmbTrend.Items.Count > 0)
                 CmbTrend.SelectedIndex = 0;
-        }
-
-        private void LoadTestData()
-        {
-            // Генерируем тестовые данные для демонстрации
-            var testTrend = _global.Trends.GetByName("Temp1");
-            if (testTrend != null)
-            {
-                var random = new Random();
-                var startTime = DateTime.Now.AddHours(-1);
-
-                for (int i = 0; i < 60; i++)
-                {
-                    var record = new TTrendTagRecord
-                    {
-                        DateTime = startTime.AddMinutes(i),
-                        ValueReal = 50 + random.NextDouble() * 20, // Случайные значения от 50 до 70
-                        ValueString = (50 + random.NextDouble() * 20).ToString("F1")
-                    };
-
-                    if (testTrend.Records.Count < testTrend.MaxLength)
-                    {
-                        testTrend.Records.Add(record);
-                    }
-                }
-            }
         }
 
         private void BtnLoad_Click(object sender, RoutedEventArgs e)
@@ -223,7 +197,7 @@ namespace ProtolScadaRemake.Views
             }
 
             var trendItem = CmbTrend.SelectedItem as TrendItem;
-            if (trendItem == null || trendItem.Trend == null)
+            if (trendItem?.Trend == null)
                 return;
 
             // Очищаем предыдущие серии
@@ -321,15 +295,12 @@ namespace ProtolScadaRemake.Views
             {
                 try
                 {
-                    // Используем только PngExporter - он точно есть в OxyPlot.Wpf
-                    var exporter = new OxyPlot.Wpf.PngExporter
+                    var exporter = new PngExporter
                     {
                         Width = 1200,
                         Height = 800
                     };
 
-                    // Метод ExportToFile доступен в последних версиях OxyPlot
-                    // Если его нет, используем альтернативный способ
                     exporter.ExportToFile(_plotModel, dialog.FileName);
 
                     MessageBox.Show($"График успешно сохранен в {dialog.FileName}", "Успех",
@@ -343,7 +314,6 @@ namespace ProtolScadaRemake.Views
             }
         }
 
-        // Обработчик изменения выбранного тренда
         private void CmbTrend_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (CmbTrend.SelectedItem != null)

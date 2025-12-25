@@ -1,11 +1,7 @@
 ﻿using ProtolScada;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ProtolScadaRemake
@@ -37,28 +33,48 @@ namespace ProtolScadaRemake
         public TTrendList Trends { get; private set; }
 
         // Добавьте новое свойство:
-        public TrendDbManager TrendDb { get; private set; }
+        public DBUtils TrendDb { get; private set; }
 
+        // Добавляем поле _dbUtils
+        private DBUtils _dbUtils;
+
+        // ДВА конструктора для разных случаев использования:
         public TGlobal()
         {
-            Log = new TLogList();
+            Log = new TLogList(_dbUtils);
             Trends = new TTrendList();
-            TrendDb = new TrendDbManager(this);
-
-            InitTestTrends();
         }
 
-        private void InitTestTrends()
+        public TGlobal(DBUtils dbUtils)
         {
-            Trends.Add("Temp1", "Температура бак 1", "°C", 10, 1000);
-            Trends.Add("Temp2", "Температура бак 2", "°C", 10, 1000);
-            Trends.Add("Pressure1", "Давление", "бар", 5, 2000);
-            Trends.Add("Level1", "Уровень", "%", 30, 1000);
+            _dbUtils = dbUtils ?? throw new ArgumentNullException(nameof(dbUtils));
+            Log = new TLogList(_dbUtils);
+            Trends = new TTrendList();
+        }
 
-            Trends.Add("Pump1_Freq", "Частота насоса 1", "Гц", 1, 5000);
-            Trends.Add("Pump1_Curr", "Ток насоса 1", "А", 2, 5000);
-            Trends.Add("Pump2_Freq", "Частота насоса 2", "Гц", 1, 5000);
-            Trends.Add("Pump2_Temp", "Температура насоса 2", "°C", 10, 2000);
+        // Метод для обновления настроек БД
+        public void UpdateDatabaseSettings(string host, int port, string database, string user, string password)
+        {
+            DB_HostName = host;
+            DB_Port = port;
+            DB_Name = database;
+            DB_UserLogin = user;
+            DB_Password = password;
+
+            if (_dbUtils != null)
+            {
+                _dbUtils.DB_HostName = host;
+                _dbUtils.DB_Port = port;
+                _dbUtils.DB_Name = database;
+                _dbUtils.DB_UserLogin = user;
+                _dbUtils.DB_Password = password;
+            }
+        }
+
+        public void SetDatabaseUtils(DBUtils dbUtils)
+        {
+            _dbUtils = dbUtils ?? throw new ArgumentNullException(nameof(dbUtils));
+            Log = new TLogList(_dbUtils);
         }
 
         public async Task UpdateTrendsAsync()
@@ -68,12 +84,10 @@ namespace ProtolScadaRemake
                 var variable = Variables.GetByName(trend.Name);
                 if (variable != null)
                 {
-                    // Используйте синхронный метод Update вместо UpdateAsync
-                    // или реализуйте UpdateAsync в классе TTrendTag
-                    trend.Update(variable); // Измените на синхронный вызов
+                    trend.Update(variable);
                 }
             }
-            await Task.CompletedTask; // Чтобы соответствовать сигнатуре async
+            await Task.CompletedTask;
         }
 
         public void UpdateFaults()
@@ -107,8 +121,7 @@ namespace ProtolScadaRemake
             Trends.Update(Variables);
         }
 
-        // ============== СТАТИЧЕСКИЕ МЕТОДЫ ДЛЯ РАБОТЫ С ПОТОКАМИ ==============
-        // Эти методы необходимы для TFaultRecord.cs
+        // ============== ВСЕ СТАТИЧЕСКИЕ МЕТОДЫ ДЛЯ РАБОТЫ С ПОТОКАМИ ==============
 
         public static void SaveUInt32ToStream(FileStream Stream, UInt32 Variable)
         {
@@ -135,133 +148,161 @@ namespace ProtolScadaRemake
 
         public static void SaveStringToStream(FileStream Stream, string Value)
         {
-            UInt16 Len = Convert.ToUInt16(Value.Length);
-            // Запись длины
-            byte[] intBytes = BitConverter.GetBytes(Len);
-            Stream.WriteByte(Convert.ToByte(intBytes[0]));
-            Stream.WriteByte(Convert.ToByte(intBytes[1]));
-            // Запись строки
-            for (int i = 0; i < Len; i++)
+            if (string.IsNullOrEmpty(Value))
             {
-                int B = Value[i];
-                byte[] intBytes2 = BitConverter.GetBytes(B);
-                Stream.Write(intBytes2, 0, 2);
+                // Сохраняем длину 0
+                Stream.WriteByte(0);
+                Stream.WriteByte(0);
+                return;
+            }
+
+            UInt16 Len = Convert.ToUInt16(Value.Length);
+            byte[] lenBytes = BitConverter.GetBytes(Len);
+            Stream.Write(lenBytes, 0, 2);
+
+            foreach (char c in Value)
+            {
+                byte[] charBytes = BitConverter.GetBytes(c);
+                Stream.Write(charBytes, 0, 2);
             }
         }
 
         public static String LoadStringFromStream(FileStream Stream)
         {
-            string Result = "";
-            // Чтение длины
-            UInt16 Len = 0;
-            byte[] Data = { 0, 0 };
-            UInt16[] Data2 = { 0, 0 };
-            Stream.Read(Data, 0, 2);
-            for (int i = 1; i >= 0; i--)
+            byte[] lenBytes = new byte[2];
+            if (Stream.Read(lenBytes, 0, 2) != 2)
+                return string.Empty;
+
+            UInt16 len = BitConverter.ToUInt16(lenBytes, 0);
+            if (len == 0) return string.Empty;
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder(len);
+            for (int i = 0; i < len; i++)
             {
-                Data2[i] = Data[i];
-                Len = Convert.ToUInt16((Len * 256) + Data2[i]);
+                byte[] charBytes = new byte[2];
+                if (Stream.Read(charBytes, 0, 2) != 2)
+                    break;
+
+                char c = BitConverter.ToChar(charBytes, 0);
+                sb.Append(c);
             }
-            // Чтение строки
-            for (int i = 0; i < Len; i++)
-            {
-                byte[] B = { 0, 0, 0, 0 };
-                Stream.Read(B, 0, 2);
-                char C = BitConverter.ToChar(B, 0);
-                if (C != 0x00) Result = Result + C;
-            }
-            return Result;
+            return sb.ToString();
         }
 
         public static void SaveDoubleToStream(FileStream Stream, double Value)
         {
-            byte[] intBytes = BitConverter.GetBytes(Value);
-            if (intBytes.Length > 0) Stream.Write(intBytes, 0, intBytes.Length);
+            byte[] bytes = BitConverter.GetBytes(Value);
+            Stream.Write(bytes, 0, bytes.Length);
         }
 
         public static double LoadDoubleFromStream(FileStream Stream)
         {
-            double D = 0;
-            byte[] Bytes = BitConverter.GetBytes(D);
-            Stream.Read(Bytes, 0, Bytes.Length);
-            D = BitConverter.ToDouble(Bytes, 0);
-            return D;
+            byte[] bytes = new byte[8];
+            Stream.Read(bytes, 0, 8);
+            return BitConverter.ToDouble(bytes, 0);
         }
 
         public static void SaveDateTimeToStream(FileStream Stream, DateTime Value)
         {
-            Int64 Ost = Value.ToBinary();
-            byte[] intBytes = BitConverter.GetBytes(Ost);
-            for (int i = 0; i < 8; i++)
-            {
-                Stream.WriteByte(Convert.ToByte(intBytes[i]));
-            }
+            long binary = Value.ToBinary();
+            byte[] bytes = BitConverter.GetBytes(binary);
+            Stream.Write(bytes, 0, bytes.Length);
         }
 
         public static DateTime LoadDateTimeFromStream(FileStream Stream)
         {
-            DateTime Result = DateTime.Now;
-            Int64 Binary = 0;
-            byte[] Data = { 0, 0, 0, 0, 0, 0, 0, 0 };
-            Int64[] Data2 = { 0, 0, 0, 0, 0, 0, 0, 0 };
-            Stream.Read(Data, 0, 8);
-            for (int i = 7; i >= 0; i--)
-            {
-                Data2[i] = Data[i];
-                Binary = (Binary * 256) + Data2[i];
-            }
-            Result = DateTime.Now;
-            try
-            {
-                Result = DateTime.FromBinary(Binary);
-            }
-            catch { }
-            return Result;
+            byte[] bytes = new byte[8];
+            Stream.Read(bytes, 0, 8);
+            long binary = BitConverter.ToInt64(bytes, 0);
+            return DateTime.FromBinary(binary);
         }
 
         public static void SaveIntToStream(FileStream Stream, int Value)
         {
-            byte[] intBytes = BitConverter.GetBytes(Value);
-            if (intBytes.Length > 0) Stream.Write(intBytes, 0, intBytes.Length);
+            byte[] bytes = BitConverter.GetBytes(Value);
+            Stream.Write(bytes, 0, bytes.Length);
         }
 
         public static int LoadIntFromStream(FileStream Stream)
         {
-            int I = 0;
-            byte[] Bytes = BitConverter.GetBytes(I);
-            Stream.Read(Bytes, 0, Bytes.Length);
-            I = BitConverter.ToInt32(Bytes, 0);
-            return I;
+            byte[] bytes = new byte[4];
+            Stream.Read(bytes, 0, 4);
+            return BitConverter.ToInt32(bytes, 0);
         }
 
         public static void SaveBoolToStream(FileStream Stream, bool Value)
         {
-            byte B = 0;
-            if (Value) B = 1;
-            Stream.WriteByte(B);
+            byte b = Value ? (byte)1 : (byte)0;
+            Stream.WriteByte(b);
         }
 
         public static bool LoadBoolFromStream(FileStream Stream)
         {
-            int B = Stream.ReadByte();
-            bool Result = false;
-            if (B > 0) Result = true;
-            return Result;
+            int b = Stream.ReadByte();
+            return b > 0;
         }
 
         public static void SaveInt64ToStream(FileStream Stream, Int64 Value)
         {
-            byte[] intBytes = BitConverter.GetBytes(Value);
-            if (intBytes.Length > 0) Stream.Write(intBytes, 0, intBytes.Length);
+            byte[] bytes = BitConverter.GetBytes(Value);
+            Stream.Write(bytes, 0, bytes.Length);
         }
 
         public static Int64 LoadInt64FromStream(FileStream Stream)
         {
-            Int64 Result = 0;
-            byte[] Bytes = BitConverter.GetBytes(Result);
-            Stream.Read(Bytes, 0, Bytes.Length);
-            Result = BitConverter.ToInt64(Bytes, 0);
-            return Result;
+            byte[] bytes = new byte[8];
+            Stream.Read(bytes, 0, 8);
+            return BitConverter.ToInt64(bytes, 0);
+        }
+
+        public static void SaveShortToStream(FileStream Stream, short Value)
+        {
+            byte[] bytes = BitConverter.GetBytes(Value);
+            Stream.Write(bytes, 0, bytes.Length);
+        }
+
+        public static short LoadShortFromStream(FileStream Stream)
+        {
+            byte[] bytes = new byte[2];
+            Stream.Read(bytes, 0, 2);
+            return BitConverter.ToInt16(bytes, 0);
+        }
+
+        public static void SaveByteToStream(FileStream Stream, byte Value)
+        {
+            Stream.WriteByte(Value);
+        }
+
+        public static byte LoadByteFromStream(FileStream Stream)
+        {
+            return (byte)Stream.ReadByte();
+        }
+
+        public static void SaveBytesToStream(FileStream Stream, byte[] Value)
+        {
+            SaveIntToStream(Stream, Value.Length);
+            Stream.Write(Value, 0, Value.Length);
+        }
+
+        public static byte[] LoadBytesFromStream(FileStream Stream)
+        {
+            int length = LoadIntFromStream(Stream);
+            byte[] bytes = new byte[length];
+            Stream.Read(bytes, 0, length);
+            return bytes;
+        }
+
+        public static void SaveFloatToStream(FileStream Stream, float Value)
+        {
+            byte[] bytes = BitConverter.GetBytes(Value);
+            Stream.Write(bytes, 0, bytes.Length);
+        }
+
+        public static float LoadFloatFromStream(FileStream Stream)
+        {
+            byte[] bytes = new byte[4];
+            Stream.Read(bytes, 0, 4);
+            return BitConverter.ToSingle(bytes, 0);
         }
     }
 }
