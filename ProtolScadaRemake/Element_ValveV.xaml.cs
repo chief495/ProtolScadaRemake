@@ -18,13 +18,13 @@ namespace ProtolScadaRemake
     /// <summary>
     /// Логика взаимодействия для Element_ValveH.xaml
     /// </summary>
-    
-    public partial class Element_ValveH : UserControl
+
+    public partial class Element_ValveV : UserControl
     {
         public string Description = ""; // Описание элемента
         public TGlobal Global;
         public string VarName = ""; // Основание для имен
-        public Element_ValveH()
+        public Element_ValveV()
         {
             InitializeComponent();
         }
@@ -49,15 +49,15 @@ namespace ProtolScadaRemake
             Tag = Global.Variables.GetByName(VarName + "_Fault");
             if (Tag != null) if (Tag.ValueReal > 0) ValveIcon.Source = FindResource("ValveHCFaultIcon") as ImageSource;
         }
-         private void ValueLabel_Click(object sender, MouseButtonEventArgs e)
-         {
-             DialogElementValve Dialog = new DialogElementValve();
-             Dialog.Content = Description;
-             Dialog.Global = Global;
-             Dialog.VarName = VarName;
-             Dialog.Initialize();
-             Dialog.ShowDialog();
-         }
+        private void ValueLabel_Click(object sender, MouseButtonEventArgs e)
+        {
+            DialogElementValve Dialog = new DialogElementValve();
+            Dialog.Content = Description;
+            Dialog.Global = Global;
+            Dialog.VarName = VarName;
+            Dialog.Initialize();
+            Dialog.ShowDialog();
+        }
     }
 }
 

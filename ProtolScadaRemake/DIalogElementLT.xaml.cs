@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reflection.PortableExecutable;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -29,6 +30,22 @@ namespace ProtolScadaRemake
         private System.Windows.Media.Brush EditColor = Brushes.Yellow;
         public TGlobal Global;
         public string VarName = ""; // Основание для имен
+        private string _eu;
+        public string EU
+        {
+            get => _eu;
+            set
+            {
+                _eu = value;
+                TextEU1.Content = _eu;
+                TextEU2.Content = _eu;
+                TextEU3.Content = _eu;
+                TextEU4.Content = _eu;
+                TextEU5.Content = _eu;
+                TextEU6.Content = _eu;
+                ManualValueUnits.Content = _eu;
+            }
+        }
         public DialogElementLT()
         {
             InitializeComponent();

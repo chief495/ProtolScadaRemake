@@ -42,10 +42,10 @@
                     <mah:NumericUpDown x:Name="LFNumeric" Background="White" Maximum="100" Minimum="0" FontFamily="Arial" ValueChanged="LFNumeric_ValueChanged"/>
                 </StackPanel>
                 <StackPanel Width="23">
-                    <Label Content="%" FontFamily="Arial" FontSize="10" Width="19" Height="25"/>
-                    <Label Content="%" FontFamily="Arial" FontSize="10" Width="19" Height="25"/>
-                    <Label Content="%" FontFamily="Arial" FontSize="10" Width="19" Height="25"/>
-                    <Label Content="%" FontFamily="Arial" FontSize="10" Width="19" Height="25"/>
+                    <Label x:Name="TextEU1" FontFamily="Arial" FontSize="10" Width="19" Height="25"/>
+                    <Label x:Name="TextEU2" FontFamily="Arial" FontSize="10" Width="19" Height="25"/>
+                    <Label x:Name="TextEU3" FontFamily="Arial" FontSize="10" Width="19" Height="25"/>
+                    <Label x:Name="TextEU4" FontFamily="Arial" FontSize="10" Width="19" Height="25"/>
                 </StackPanel>
             </StackPanel>
         </GroupBox>
@@ -64,14 +64,14 @@
                     <mah:NumericUpDown x:Name="HiCurrNumeric" Background="White" Maximum="30" Minimum="0" ValueChanged="HiCurrNumeric_ValueChanged"/>
                 </StackPanel>
                 <StackPanel Width="37" Margin="0,5,0,0">
-                    <Label Content="%" FontFamily="Arial" FontSize="10" Width="26" Height="26"/>
-                    <Label Content="%" FontFamily="Arial" FontSize="10" Width="26" Height="26"/>
+                    <Label x:Name="TextEU5" FontFamily="Arial" FontSize="10" Width="26" Height="26"/>
+                    <Label x:Name="TextEU6" FontFamily="Arial" FontSize="10" Width="26" Height="26"/>
                     <Label Content="мА" FontFamily="Arial" FontSize="10" Width="26" Height="26"/>
                     <Label Content="мА" FontFamily="Arial" FontSize="10" Width="26" Height="26"/>
                 </StackPanel>
             </StackPanel>
         </GroupBox>
-        <Label x:Name="ManualValueUnits" Content="%" HorizontalAlignment="Left" Margin="187,98,0,0" VerticalAlignment="Top" Height="24" RenderTransformOrigin="0.5,0.5" Width="23" FontFamily="Arial" FontSize="10">
+        <Label x:Name="ManualValueUnits"  HorizontalAlignment="Left" Margin="187,98,0,0" VerticalAlignment="Top" Height="24" RenderTransformOrigin="0.5,0.5" Width="23" FontFamily="Arial" FontSize="10">
             <Label.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform ScaleX="1" ScaleY="1"/>

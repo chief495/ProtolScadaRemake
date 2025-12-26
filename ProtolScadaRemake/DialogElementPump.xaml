@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ProtolScadaRemake"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" x:Class="ProtolScadaRemake.DialogElementPump"
         mc:Ignorable="d"
-        Title="DialogElementPump" Height="187" Width="671" Background="#FFCCC9C9" FontFamily="Arial" Margin="0,0,0,10">
+        Title="DialogElementPump" Height="187" Width="682" Background="#FFCCC9C9" FontFamily="Arial" Margin="0,0,0,10">
     <Grid Margin="0,0,10,10">
         <Grid.RowDefinitions>
             <RowDefinition/>

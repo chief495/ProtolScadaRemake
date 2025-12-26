@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace ProtolScadaRemake
@@ -8,14 +9,38 @@ namespace ProtolScadaRemake
     /// <summary>
     /// Логика взаимодействия для Element_LT.xaml
     /// </summary>
-    public partial class Element_LT : UserControl
+    public partial class Element_AI : UserControl
     {
-        public System.Windows.Media.Brush WarningColor = Brushes.Yellow;  // Цвет предупреждения
-        public System.Windows.Media.Brush FaultColor = Brushes.Red;     // Цвет аварии
-        public string Description = "";
+        public System.Windows.Media.Brush WarningColor = Brushes.Yellow;    // Цвет предупреждения
+        public System.Windows.Media.Brush FaultColor = Brushes.Red;         // Цвет аварии
+        public string Description = "";                                     // Описание
         public TGlobal Global;
-        public string VarName = ""; // Основание для имен
-        public Element_LT()
+        public string VarName = "";                                         // Основание для имен
+        private string _eu;
+        private string _designation;
+        public string EU                                                    // Единицы обозначения
+        {
+            get => _eu;
+            set
+            {
+                _eu = value;
+                TextBlockEU.Text = value;                                   // Прямое присвоение
+            }
+        }
+
+        private string Designation                                          //Измеряемы параметр
+        {
+            get => _designation;
+            set
+            {
+                _designation = value;
+                TextBlockDesignation.Text = value;
+            }
+        }
+
+
+
+        public Element_AI()
         {
             InitializeComponent();
         }
@@ -46,6 +71,7 @@ namespace ProtolScadaRemake
             Dialog.Title = Description;
             Dialog.Global = Global;
             Dialog.VarName = VarName;
+            Dialog.EU = EU;
             Dialog.Initialize();
             Dialog.ShowDialog();
         }
