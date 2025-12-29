@@ -39,7 +39,7 @@ namespace ProtolScadaRemake
             FaultsCount = 0;
         }
 
-        public UInt16 GetModbusTcpHoldingRegisters(TLogList Log) // Изменили LogClasses на TLogList
+        public UInt16 GetModbusTcpHoldingRegisters(TLogList Log) 
         {
             UInt16[] Result = new UInt16[0];
             try
@@ -75,7 +75,7 @@ namespace ProtolScadaRemake
             return FaultsCount;
         }
 
-        public UInt16 GetModbusTcpInputRegisters(TLogList Log) // Изменили TLogClasses на TLogList
+        public UInt16 GetModbusTcpInputRegisters(TLogList Log) 
         {
             UInt16[] Result = new UInt16[0];
             try

@@ -256,6 +256,18 @@
                                Margin="0,5,0,0"/>
                 </StackPanel>
             </Button>
+            <Button x:Name="TrendsButton" 
+        Height="96" 
+        Style="{StaticResource InactiveNavigationButtonStyle}" Click="TrendsButton_Click">
+                <StackPanel>
+                    <Image Source="pack://application:,,,/ProtolScadaRemake;component/Images/TopNavigation/TrendActive.png" 
+               Width="48" Height="48"/>
+                    <TextBlock Text="Тренды" 
+                   TextWrapping="Wrap"
+                   HorizontalAlignment="Center"
+                   Margin="0,5,0,0"/>
+                </StackPanel>
+            </Button>
         </StackPanel>
 
         <!-- BOTTOM PANEL -->

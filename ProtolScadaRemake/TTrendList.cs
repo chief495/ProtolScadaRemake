@@ -1,50 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// TTrendList.cs
+using System;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace ProtolScadaRemake
 {
     public class TTrendList
     {
-        public TTrendTag[] Items = new TTrendTag[0];
-        public TTrendList() // Конструктор
+        public TTrendTag[] Items { get; private set; } = new TTrendTag[0];
+
+        public TTrendList() { }
+
+        public int GetCount() => Items.Length;
+
+        public void Clear()
         {
             Items = new TTrendTag[0];
         }
-        public int GetCount() // Возвращает количество элементов
+
+        public TTrendTag Add(string name, string description, string unit = "", ushort period = 60, uint maxLength = 1000)
         {
-            return Items.Length;
+            var newTag = new TTrendTag(name, description, unit, period, maxLength);
+
+            var newItems = new TTrendTag[Items.Length + 1];
+            Array.Copy(Items, newItems, Items.Length);
+            newItems[Items.Length] = newTag;
+            Items = newItems;
+
+            return newTag;
         }
-        public void Clear() // Отчистка массива
+
+        public TTrendTag GetByName(string name)
         {
-            Items = new TTrendTag[0];
+            return Items.FirstOrDefault(t => t.Name == name);
         }
-        public TTrendTag Add(string Name, string Description, UInt16 Period, UInt32 MaxLength)
-        {
-            // Создание нового массива
-            TTrendTag[] NewItems = new TTrendTag[Items.Length + 1];
-            // Копирование существующих элементов в массив
-            if (Items.Length > 0) for (int i = 0; i < Items.Length; i++) NewItems[i] = Items[i];
-            // Добавление нового элемента
-            NewItems[Items.Length] = new TTrendTag();
-            NewItems[Items.Length].Name = Name;
-            NewItems[Items.Length].Description = Description;
-            NewItems[Items.Length].Period = Period;
-            NewItems[Items.Length].MaxLength = MaxLength;
-            // Подмена массива
-            Items = NewItems;
-            // Возвращение результата
-            return Items[Items.Length - 1];
-        }
+
         public void Update(TVariableList variables)
         {
-            if (Items.Length > 0)
-                for (int i = 0; i < Items.Length; i++)
-                    Items[i].Update(variables.GetByName(Items[i].Name));
+            foreach (var trend in Items)
+            {
+                var variable = variables.GetByName(trend.Name);
+                if (variable != null)
+                {
+                    trend.Update(variable);
+                }
+            }
         }
     }
 }
