@@ -1,6 +1,8 @@
-﻿using ProtolScada;
+﻿using MySql.Data.MySqlClient;
+using ProtolScada;
 using ProtolScadaRemake.Views;
 using System;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -30,21 +32,15 @@ namespace ProtolScadaRemake
             // Инициализация глобального объекта
             _global = new TGlobal();
 
-            _dbUtils = new DBUtils
-            {
-                DB_HostName = "localhost",
-                DB_Port = 3306,
-                DB_Name = "protolscadadb",
-                DB_UserLogin = "root",
-                DB_Password = "advengauser"
-            };
+            // Используйте DBUtils из _global, а не создавайте новый с другим паролем!
+            _dbUtils = _global.GetDbUtils();  // Или _dbUtils = new DBUtils { ... } но с теми же данными что в TGlobal
 
             _logSyncTimer = new DispatcherTimer();
             _logSyncTimer.Interval = TimeSpan.FromSeconds(30);
             _logSyncTimer.Tick += async (s, e) => await SyncLogsWithDatabaseAsync();
             _logSyncTimer.Start();
 
-            // Добавление тестовых записей в журнал
+            // Добавление тестовых записей в журнал - исправьте чтобы сохранялось в БД
             _global.Log.Add("Система", "Приложение запущено", 0);
             _global.Log.Add("Пользователь", "Пользователь вошел в систему", 1);
             _global.Log.Add("Предупреждение", "Низкий уровень бака", 2);
@@ -162,6 +158,8 @@ namespace ProtolScadaRemake
             ReceptPageButton.Click += (s, e) => ShowPage("Рецептура");
             AlarmPageButton.Click += (s, e) => ShowPage("Аварии");
             LogPageButton.Click += (s, e) => ShowLogPage();
+            TrendsButton.Click += (s, e) => TrendsButton_Click(s, e);
+            TestDbButton.Click += (s, e) => TestDbButton_Click(s, e);
         }
         private void TrendsButton_Click(object sender, RoutedEventArgs e)
         {
@@ -171,7 +169,7 @@ namespace ProtolScadaRemake
 
                 if (_trendsPage == null)
                 {
-                    _trendsPage = new FrameTrends();
+                    _trendsPage = new FrameTrends(_global);  // Передайте _global
                 }
 
                 ContentGrid.Children.Add(_trendsPage);
@@ -180,7 +178,8 @@ namespace ProtolScadaRemake
             }
             catch (Exception ex)
             {
-                ShowError($"Не удалость загрузит тренды: {ex.Message}");  
+                ShowError($"Не удалось загрузить тренды: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"TrendsButton_Click error: {ex.Message}\n{ex.StackTrace}");
             }
         }
 
@@ -436,6 +435,112 @@ namespace ProtolScadaRemake
         private void LogPageButton_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+        private async void TestDbButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Простой тест вместо сложного окна
+                var result = await SimpleDatabaseTest();
+                MessageBox.Show(result, "Тест БД",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task<string> SimpleDatabaseTest()
+        {
+            var log = new StringBuilder();
+
+            try
+            {
+                // 1. Тест подключения
+                log.AppendLine("Тестирование подключения к БД...");
+
+                using (var connection = DBUtils.GetDBConnection(
+                    _global.DB_HostName,
+                    _global.DB_Port,
+                    _global.DB_Name,
+                    _global.DB_UserLogin,
+                    _global.DB_Password))
+                {
+                    await connection.OpenAsync();
+                    log.AppendLine("✓ Подключение к MySQL успешно");
+
+                    // Проверяем таблицы
+                    var tables = new List<string> { "log", "trends", "trend_config" };
+                    foreach (var table in tables)
+                    {
+                        string sql = $"SHOW TABLES LIKE '{table}'";
+                        using (var cmd = new MySqlCommand(sql, connection))
+                        {
+                            var exists = await cmd.ExecuteScalarAsync();
+                            log.AppendLine($"  {table}: {(exists != null ? "✓ найдена" : "✗ не найдена")}");
+                        }
+                    }
+                }
+
+                // 2. Тест записи в журнал
+                log.AppendLine("\nТест записи в журнал...");
+                var testRecord = new TLogRecord
+                {
+                    Time = DateTime.Now,
+                    GroupName = "ТестБД",
+                    Text = $"Тестовая запись от {DateTime.Now:HH:mm:ss}",
+                    ImageIndex = 0
+                };
+
+                var id = await _dbUtils.SaveLogRecordAsync(testRecord);
+                log.AppendLine($"✓ Запись добавлена с ID: {id}");
+
+                // 3. Тест чтения из журнала
+                log.AppendLine("\nТест чтения из журнала...");
+                var records = await _dbUtils.LoadLogRecordsAsync(3);
+                log.AppendLine($"✓ Загружено {records.Count} записей");
+
+                // 4. Тест трендов
+                log.AppendLine("\nТест трендов...");
+                try
+                {
+                    var configs = await _dbUtils.LoadTrendConfigsAsync();
+                    log.AppendLine($"✓ Конфигураций трендов: {configs.Count}");
+
+                    if (configs.Count > 0)
+                    {
+                        var firstConfig = configs[0];
+                        var trendData = await _dbUtils.LoadTrendDataAsync(
+                            firstConfig.TagID,
+                            DateTime.Now.AddDays(-1),
+                            DateTime.Now,
+                            10);
+                        log.AppendLine($"✓ Данных тренда '{firstConfig.Name}': {trendData.Count} точек");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.AppendLine($"✗ Ошибка трендов: {ex.Message}");
+                }
+
+                log.AppendLine("\n=== ТЕСТ ЗАВЕРШЕН УСПЕШНО ===");
+            }
+            catch (MySqlException ex)
+            {
+                log.AppendLine($"\n❌ ОШИБКА MYSQL ({ex.Number}): {ex.Message}");
+
+                if (ex.Number == 1045) log.AppendLine("  Проверьте логин/пароль в TGlobal.cs");
+                if (ex.Number == 1049) log.AppendLine("  База данных не найдена. Создайте 'protolscadadb' в phpMyAdmin");
+                if (ex.Number == 2002) log.AppendLine("  MySQL сервер не запущен. Запустите MySQL через XAMPP");
+            }
+            catch (Exception ex)
+            {
+                log.AppendLine($"\n❌ ОБЩАЯ ОШИБКА: {ex.Message}");
+            }
+
+            return log.ToString();
         }
     }
 }

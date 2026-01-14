@@ -1,4 +1,5 @@
-﻿using ProtolScada;
+﻿// TGlobal.cs - исправленная версия
+using ProtolScada;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,11 +12,14 @@ namespace ProtolScadaRemake
         // Настройки подключения к базе данных
         public string DB_HostName = "localhost";
         public int DB_Port = 3306;
-        public string DB_UserLogin = "root";
-        public string DB_Password = "advengauser";
+        public string DB_UserLogin = "root";           // или "scada_user"
+        public string DB_Password = "";                // пустой пароль для root в XAMPP
+                                                       // ИЛИ если создали пользователя:
+        //public string DB_Password = "advengauser";  // пароль для scada_user
         public string DB_Name = "protolscadadb";
+
         public string Password = "Protol251121";
-        public bool Access = false;
+        public bool Access = false;         
         public DateTime PassTime;
 
         // Настройка параметров опрашиваемого оборудования
@@ -28,55 +32,76 @@ namespace ProtolScadaRemake
         public TCommandList Commands = new TCommandList();
         public TFaultList Faults = new TFaultList();
 
-        // Только одно объявление Trends
+        // Журнал и тренды
         public TLogList Log { get; private set; }
-        public TTrendList Trends { get; private set; }
 
-        // Добавьте новое свойство:
-        public DBUtils TrendDb { get; private set; }
-
-        // Добавляем поле _dbUtils
+        // DBUtils для работы с базой данных
         private DBUtils _dbUtils;
 
-        // ДВА конструктора для разных случаев использования:
+        // Конструктор
+        // Тренды
+        public TTrendList Trends { get; private set; }
+        public DatabaseTrendManager TrendManager { get; private set; }
+
+        // Конструктор
         public TGlobal()
         {
-            Log = new TLogList(_dbUtils);
-            Trends = new TTrendList();
-        }
-
-        public TGlobal(DBUtils dbUtils)
-        {
-            _dbUtils = dbUtils ?? throw new ArgumentNullException(nameof(dbUtils));
-            Log = new TLogList(_dbUtils);
-            Trends = new TTrendList();
-        }
-
-        // Метод для обновления настроек БД
-        public void UpdateDatabaseSettings(string host, int port, string database, string user, string password)
-        {
-            DB_HostName = host;
-            DB_Port = port;
-            DB_Name = database;
-            DB_UserLogin = user;
-            DB_Password = password;
-
-            if (_dbUtils != null)
+            // Создаем DBUtils
+            _dbUtils = new DBUtils
             {
-                _dbUtils.DB_HostName = host;
-                _dbUtils.DB_Port = port;
-                _dbUtils.DB_Name = database;
-                _dbUtils.DB_UserLogin = user;
-                _dbUtils.DB_Password = password;
+                DB_HostName = DB_HostName,
+                DB_Port = DB_Port,
+                DB_Name = DB_Name,
+                DB_UserLogin = DB_UserLogin,
+                DB_Password = DB_Password
+            };
+
+            Log = new TLogList(_dbUtils);
+            Trends = new TTrendList();
+            TrendManager = new DatabaseTrendManager(_dbUtils);
+
+            // Инициализируем тренды из БД в фоне
+            _ = InitializeTrendsFromDatabaseAsync();
+        }
+
+        private async Task InitializeTrendsFromDatabaseAsync()
+        {
+            try
+            {
+                await TrendManager.InitializeAsync();
+
+                if (TrendManager.IsInitialized && TrendManager.TrendCount > 0)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Загружено {TrendManager.TrendCount} трендов из БД");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка инициализации трендов из БД: {ex.Message}");
             }
         }
 
-        public void SetDatabaseUtils(DBUtils dbUtils)
+        // Метод для обновления трендов с сохранением в БД
+        public async Task UpdateTrendsWithSaveAsync()
         {
-            _dbUtils = dbUtils ?? throw new ArgumentNullException(nameof(dbUtils));
-            Log = new TLogList(_dbUtils);
+            if (TrendManager.IsInitialized)
+            {
+                await TrendManager.UpdateAllTrendsAsync(Variables);
+            }
+            else
+            {
+                // Используем старый метод если БД не инициализирована
+                Trends.Update(Variables);
+            }
         }
 
+        // Метод для получения DBUtils (для использования в FrameLog)
+        public DBUtils GetDbUtils()
+        {
+            return _dbUtils;
+        }
+
+        // Остальные методы без изменений...
         public async Task UpdateTrendsAsync()
         {
             foreach (var trend in Trends.Items)
@@ -121,9 +146,9 @@ namespace ProtolScadaRemake
             Trends.Update(Variables);
         }
 
-        // ============== ВСЕ СТАТИЧЕСКИЕ МЕТОДЫ ДЛЯ РАБОТЫ С ПОТОКАМИ ==============
+// ============== ВСЕ СТАТИЧЕСКИЕ МЕТОДЫ ДЛЯ РАБОТЫ С ПОТОКАМИ ==============
 
-        public static void SaveUInt32ToStream(FileStream Stream, UInt32 Variable)
+public static void SaveUInt32ToStream(FileStream Stream, UInt32 Variable)
         {
             UInt32 Ost = Variable;
             for (int i = 0; i < 4; i++)

@@ -1,41 +1,31 @@
-﻿using ProtolScadaRemake;
+﻿// FrameLog.xaml.cs - исправленная версия
+using ProtolScada;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace ProtolScadaRemake.Views  // Важно: Views, а не просто ProtolScadaRemake
+namespace ProtolScadaRemake.Views
 {
     public partial class FrameLog : UserControl
     {
         private TGlobal _global;
-        private ProtolScada.DBUtils _dbUtils;
+        private DBUtils _dbUtils;
 
-        // Конструктор без параметров (обязателен для XAML)
         public FrameLog()
         {
             InitializeComponent();
         }
 
-        // Конструктор с параметром (для использования из MainWindow)
         public FrameLog(TGlobal global) : this()
         {
             _global = global;
 
-            // Инициализация DBUtils с вашими настройками
-            _dbUtils = new ProtolScada.DBUtils
-            {
-                DB_HostName = "localhost",
-                DB_Port = 3306,
-                DB_Name = "protolscadadb",
-                DB_UserLogin = "root",
-                DB_Password = "advengauser"
-            };
+            // Получаем DBUtils из TGlobal
+            _dbUtils = _global.GetDbUtils();
 
-            // Настройка UI элементов
             InitializeUI();
-
-            // Загружаем данные из БД
             LoadDataFromDatabaseAsync();
         }
 
@@ -45,12 +35,11 @@ namespace ProtolScadaRemake.Views  // Важно: Views, а не просто Pr
             dpFrom.SelectedDate = DateTime.Now.AddDays(-7);
             dpTo.SelectedDate = DateTime.Now;
 
-            // Подписка на события фильтров
+            // Подписка на события
             cmbPeriod.SelectionChanged += (s, e) => RefreshLog();
             dpFrom.SelectedDateChanged += (s, e) => RefreshLog();
             dpTo.SelectedDateChanged += (s, e) => RefreshLog();
 
-            // Подписка на CheckBox'ы
             chkAlarm.Checked += (s, e) => RefreshLog();
             chkAlarm.Unchecked += (s, e) => RefreshLog();
             chkWarning.Checked += (s, e) => RefreshLog();
@@ -69,19 +58,30 @@ namespace ProtolScadaRemake.Views  // Важно: Views, а не просто Pr
         {
             try
             {
-                // Получаем настройки фильтров
-                DateTime? fromDate = dpFrom.SelectedDate;
-                DateTime? toDate = dpTo.SelectedDate?.AddDays(1); // +1 день чтобы включить выбранную дату
+                // Определяем период для загрузки
+                DateTime? fromDate = null;
+
+                // В зависимости от выбранного периода в ComboBox
+                if (cmbPeriod.SelectedIndex == 0) // Сутки
+                    fromDate = DateTime.Now.AddDays(-1);
+                else if (cmbPeriod.SelectedIndex == 1) // Неделя
+                    fromDate = DateTime.Now.AddDays(-7);
+                else if (cmbPeriod.SelectedIndex == 2) // Месяц
+                    fromDate = DateTime.Now.AddMonths(-1);
+                else if (dpFrom.SelectedDate.HasValue) // Произвольный
+                    fromDate = dpFrom.SelectedDate.Value;
 
                 // Загружаем данные
-                var records = await _dbUtils.LoadLogRecordsAsync(100, fromDate);
+                var records = await _dbUtils.LoadLogRecordsAsync(1000, fromDate);
 
-                // Применяем фильтры по типу
+                // Применяем фильтры
                 var filteredRecords = FilterRecordsByType(records);
 
                 // Обновляем UI
-                lvLog.ItemsSource = null;
                 lvLog.ItemsSource = filteredRecords;
+
+                // Обновляем статус
+                UpdateStatus(filteredRecords.Count);
             }
             catch (Exception ex)
             {
@@ -90,28 +90,64 @@ namespace ProtolScadaRemake.Views  // Важно: Views, а не просто Pr
             }
         }
 
-        private System.Collections.Generic.List<TLogRecord> FilterRecordsByType(System.Collections.Generic.List<TLogRecord> records)
+        private List<TLogRecord> FilterRecordsByType(List<TLogRecord> records)
         {
-            var filtered = new System.Collections.Generic.List<TLogRecord>();
+            var filtered = new List<TLogRecord>();
 
             foreach (var record in records)
             {
                 var recordType = record.GetRecordType();
 
-                if (recordType == "Авария" && chkAlarm.IsChecked == true) filtered.Add(record);
-                else if (recordType == "Предупреждение" && chkWarning.IsChecked == true) filtered.Add(record);
-                else if (recordType == "Отказ" && chkError.IsChecked == true) filtered.Add(record);
-                else if (recordType == "Сбой" && chkFault.IsChecked == true) filtered.Add(record);
-                else if (recordType == "Пользователь" && chkUser.IsChecked == true) filtered.Add(record);
-                else if (recordType == "Система" && chkSystem.IsChecked == true) filtered.Add(record);
+                if (recordType == "Авария" && chkAlarm.IsChecked == true)
+                    filtered.Add(record);
+                else if (recordType == "Предупреждение" && chkWarning.IsChecked == true)
+                    filtered.Add(record);
+                else if (recordType == "Отказ" && chkError.IsChecked == true)
+                    filtered.Add(record);
+                else if (recordType == "Сбой" && chkFault.IsChecked == true)
+                    filtered.Add(record);
+                else if (recordType == "Пользователь" && chkUser.IsChecked == true)
+                    filtered.Add(record);
+                else if (recordType == "Система" && chkSystem.IsChecked == true)
+                    filtered.Add(record);
             }
 
             return filtered;
         }
 
+        private void UpdateStatus(int count)
+        {
+            // Можно добавить статусную строку в XAML
+            // Пока просто выводим в Debug
+            System.Diagnostics.Debug.WriteLine($"Загружено записей: {count}");
+        }
+
         public async void RefreshLog()
         {
             await LoadDataFromDatabaseAsync();
+        }
+
+        // Метод для добавления тестовой записи (для проверки)
+        public async void AddTestRecord()
+        {
+            try
+            {
+                var testRecord = new TLogRecord
+                {
+                    Time = DateTime.Now,
+                    GroupName = "Система",
+                    Text = "Тестовая запись из WPF приложения",
+                    ImageIndex = 0
+                };
+
+                await _dbUtils.SaveLogRecordAsync(testRecord);
+                await LoadDataFromDatabaseAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }
