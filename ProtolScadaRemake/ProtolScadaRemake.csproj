@@ -225,6 +225,7 @@
 
   <ItemGroup>
     <Folder Include="Images\Valves\" />
+    <Folder Include="Properties\" />
   </ItemGroup>
 
   <ItemGroup>

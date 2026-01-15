@@ -431,7 +431,7 @@ namespace ProtolScadaRemake
             // Пустая реализация, обработка уже в InitializeButtons()
         }
 
-     
+
         private void LogPageButton_Click(object sender, RoutedEventArgs e)
         {
 

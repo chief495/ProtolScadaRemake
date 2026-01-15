@@ -143,7 +143,7 @@ namespace ProtolScadaRemake
                 string[] values = Format.Split(';');
                 ValueString = TextBefore + "false" + TextAfter;
                 if (Data[Address]) ValueString = TextBefore + "true" + TextAfter;
-                if(values.Length == 2)
+                if (values.Length == 2)
                 {
                     ValueString = TextBefore + values[0] + TextAfter;
                     if (Data[Address]) ValueString = TextBefore + values[1] + TextAfter;

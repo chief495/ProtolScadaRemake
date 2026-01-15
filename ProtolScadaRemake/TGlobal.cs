@@ -15,11 +15,11 @@ namespace ProtolScadaRemake
         public string DB_UserLogin = "root";           // или "scada_user"
         public string DB_Password = "";                // пустой пароль для root в XAMPP
                                                        // ИЛИ если создали пользователя:
-        //public string DB_Password = "advengauser";  // пароль для scada_user
+                                                       //public string DB_Password = "advengauser";  // пароль для scada_user
         public string DB_Name = "protolscadadb";
 
         public string Password = "Protol251121";
-        public bool Access = false;         
+        public bool Access = false;
         public DateTime PassTime;
 
         // Настройка параметров опрашиваемого оборудования
@@ -146,9 +146,9 @@ namespace ProtolScadaRemake
             Trends.Update(Variables);
         }
 
-// ============== ВСЕ СТАТИЧЕСКИЕ МЕТОДЫ ДЛЯ РАБОТЫ С ПОТОКАМИ ==============
+        // ============== ВСЕ СТАТИЧЕСКИЕ МЕТОДЫ ДЛЯ РАБОТЫ С ПОТОКАМИ ==============
 
-public static void SaveUInt32ToStream(FileStream Stream, UInt32 Variable)
+        public static void SaveUInt32ToStream(FileStream Stream, UInt32 Variable)
         {
             UInt32 Ost = Variable;
             for (int i = 0; i < 4; i++)

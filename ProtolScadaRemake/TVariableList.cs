@@ -23,7 +23,7 @@ namespace ProtolScadaRemake
             // Создание нового массива
             TVariableTag[] NewItems = new TVariableTag[Items.Length + 1];
             // Копирование существующих элементов в массив
-            if(Items.Length > 0 ) for( int i = 0; i < Items.Length; i++) NewItems[i] = Items[i];
+            if (Items.Length > 0) for (int i = 0; i < Items.Length; i++) NewItems[i] = Items[i];
             // Добавление нового элемента
             NewItems[Items.Length] = new TVariableTag();
             NewItems[Items.Length].Name = Name;
@@ -51,8 +51,8 @@ namespace ProtolScadaRemake
         public TVariableTag GetByName(string Name)
         {
             TVariableTag R = null;
-            if(Items.Length > 0)
-                for(int i = 0;i < Items.Length;i++)
+            if (Items.Length > 0)
+                for (int i = 0; i < Items.Length; i++)
                     if (Items[i].Name == Name) R = (TVariableTag)Items[i];
             return R;
         }
@@ -64,7 +64,7 @@ namespace ProtolScadaRemake
             // Сохранение количества записей
             TGlobal.SaveUInt32ToStream(F, Convert.ToUInt32(GetCount()));
             // Сохранение элементов
-            if(Items.Length > 0) for(int i = 0;i < Items.Length;i++) Items[i].SaveToStream(F);
+            if (Items.Length > 0) for (int i = 0; i < Items.Length; i++) Items[i].SaveToStream(F);
             // Сохранение количества записей
             TGlobal.SaveUInt32ToStream(F, Convert.ToUInt32(GetCount()));
             // Закрытие файла
@@ -73,7 +73,7 @@ namespace ProtolScadaRemake
         public bool LoadFromFile(string FileName)
         {
             bool Result = false;
-            if(File.Exists(FileName))
+            if (File.Exists(FileName))
             {
                 // Создание нового массива данных
                 TVariableTag[] NewItems = new TVariableTag[0];
@@ -87,12 +87,12 @@ namespace ProtolScadaRemake
                 if (BeginCount > 0)
                 {
                     NewItems = new TVariableTag[BeginCount];
-                    for(int i = 0;i < BeginCount;i++)
-                    if(Good)
-                    {
-                        NewItems[i] = new TVariableTag();
-                        Good = NewItems[i].LoadFromStream(F);
-                    }
+                    for (int i = 0; i < BeginCount; i++)
+                        if (Good)
+                        {
+                            NewItems[i] = new TVariableTag();
+                            Good = NewItems[i].LoadFromStream(F);
+                        }
                 }
                 // Получение конечного значения количества элементов
                 UInt32 EndCount = TGlobal.LoadUInt32FromStream(F);

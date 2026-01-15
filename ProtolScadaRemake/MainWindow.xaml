@@ -1,9 +1,10 @@
 ﻿<Window
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:ProtolScadaRemake" x:Class="ProtolScadaRemake.MainWindow"
         Title="Система диспетчерского управления технологическим процессом" 
         Height="1080" Width="1920"
+        Icon="/Images/ProtolLogo.ico"
         WindowState="Maximized"
         Closing="Window_Closing" WindowStyle="None">
 
