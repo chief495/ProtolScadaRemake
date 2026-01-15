@@ -1,10 +1,10 @@
 ﻿<Window
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:ProtolScadaRemake" x:Class="ProtolScadaRemake.MainWindow"
         Title="Система диспетчерского управления технологическим процессом" 
         Height="1080" Width="1920"
-        Icon="/Images/ProtolLogo.ico"
+        Icon="Images/ProtolLogo.ico"
         WindowState="Maximized"
         Closing="Window_Closing" WindowStyle="None">
 
@@ -269,23 +269,7 @@
                    Margin="0,5,0,0"/>
                 </StackPanel>
             </Button>
-
-            <!-- После TrendsButton добавьте: -->
-            <Button x:Name="TestDbButton" 
-        Height="96" 
-        Style="{StaticResource InactiveNavigationButtonStyle}"
-        Click="TestDbButton_Click">
-                <StackPanel>
-                    <Image Source="pack://application:,,,/ProtolScadaRemake;component/Images/TopNavigation/LogActive.png" 
-               Width="48" Height="48"/>
-                    <TextBlock Text="Тест БД" 
-                   TextWrapping="Wrap"
-                   HorizontalAlignment="Center"
-                   Margin="0,5,0,0"/>
-                </StackPanel>
-            </Button>
         </StackPanel>
-
         <!-- BOTTOM PANEL -->
         <Border Grid.Row="2" Grid.ColumnSpan="2" Background="#FFE3F2FD">
             <TextBlock HorizontalAlignment="Right" Margin="10,0"><Run Text="Связь с контроллером:" FontWeight="Bold"/><Run Text=" "/><Run x:Name="ControllerConnectionQualityLabel" Text="..." FontStyle="Italic"/></TextBlock>
