@@ -2,11 +2,7 @@
 using ProtolScada;
 using ProtolScadaRemake.Views;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -28,10 +24,6 @@ namespace ProtolScadaRemake
 
         private DBUtils _dbUtils;
         private DispatcherTimer _logSyncTimer;
-        private ModbusManager _modbusManager;
-        private DispatcherTimer _updateTimer;
-        private ModbusController _modbusController;
-        private bool _modbusInitialized = false;
 
         public MainWindow()
         {
@@ -39,16 +31,9 @@ namespace ProtolScadaRemake
 
             // Инициализация глобального объекта
             _global = new TGlobal();
-            Debug.WriteLine("TGlobal создан");
 
             // Используйте DBUtils из _global, а не создавайте новый с другим паролем!
             _dbUtils = _global.GetDbUtils();  // Или _dbUtils = new DBUtils { ... } но с теми же данными что в TGlobal
-            Debug.WriteLine("DBUtils получен");
-
-            // Инициализация Modbus (без блокировки UI)
-            InitializeModbusAsync();
-
-            StartUpdateTimer();
 
             _logSyncTimer = new DispatcherTimer();
             _logSyncTimer.Interval = TimeSpan.FromSeconds(30);
@@ -79,234 +64,6 @@ namespace ProtolScadaRemake
             // Показываем главную страницу по умолчанию
             ShowMainPage();
         }
-
-        private async void InitializeModbusAsync()
-        {
-            try
-            {
-                Debug.WriteLine("Инициализация Modbus...");
-
-                // Создаем ModbusController для прямого доступа
-                _modbusController = new ModbusController("127.0.0.1", 502, 1);
-                Debug.WriteLine("ModbusController создан");
-
-                // Настройка обработчиков событий
-                _modbusController.OnStatusChanged += (message) =>
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        Debug.WriteLine($"Modbus статус: {message}");
-                        UpdateStatusLabel($"Modbus: {message}");
-                    });
-                };
-
-                _modbusController.OnConnectionStateChanged += (isConnected) =>
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        Debug.WriteLine($"Modbus соединение: {(isConnected ? "Установлено" : "Разорвано")}");
-                        UpdateConnectionStatus(isConnected);
-                    });
-                };
-
-                _modbusController.OnRegisterValueChanged += (address, value) =>
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        Debug.WriteLine($"Регистр {address} = {value}");
-                        // Можно обновлять переменные SCADA здесь
-                        UpdateVariableFromRegister(address, value);
-                    });
-                };
-
-                // Пробуем подключиться в фоне с задержкой
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(3000); // Даем время на запуск сервера
-                    try
-                    {
-                        bool connected = await _modbusController.ConnectAsync();
-                        if (connected)
-                        {
-                            Debug.WriteLine("Modbus подключен успешно");
-
-                            // Запускаем опрос регистров конвейера (0-3)
-                            ushort[] registersToPoll = { 0, 1, 2, 3 };
-                            _modbusController.StartPolling(registersToPoll);
-                            Debug.WriteLine("Опрос регистров запущен");
-                        }
-                        else
-                        {
-                            Debug.WriteLine("Не удалось подключиться к Modbus серверу");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Ошибка подключения Modbus: {ex.Message}");
-                    }
-                });
-
-                // Также создаем ModbusManager для расширенной функциональности
-                _modbusManager = new ModbusManager(_global);
-                Debug.WriteLine("ModbusManager создан");
-
-                _modbusInitialized = true;
-                Debug.WriteLine("Modbus инициализация завершена");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Ошибка инициализации Modbus: {ex.Message}");
-                _modbusInitialized = false;
-            }
-        }
-
-        private void UpdateStatusLabel(string message)
-        {
-            // Можно добавить статусную строку в UI если нужно
-            // Пока просто выводим в Debug
-        }
-
-        private void UpdateVariableFromRegister(ushort address, ushort value)
-        {
-            // Маппинг регистров Modbus на теги SCADA
-            switch (address)
-            {
-                case 0: // Конвейер статус
-                    UpdateVariable("CONVEYOR_STATUS", value);
-                    break;
-                case 1: // Скорость конвейера
-                    UpdateVariable("CONVEYOR_SPEED", value);
-                    break;
-                case 2: // Счетчик деталей
-                    UpdateVariable("ITEM_COUNT", value);
-                    break;
-                case 3: // Аварийная остановка
-                    UpdateVariable("EMERGENCY_STOP", value);
-                    break;
-            }
-        }
-
-        private void UpdateVariable(string tagName, ushort value)
-        {
-            try
-            {
-                var variable = _global.Variables.GetByName(tagName);
-                if (variable != null)
-                {
-                    variable.ValueReal = value;
-                }
-                else
-                {
-                    // Создаем переменную если ее нет
-                    // Это для демонстрации, в реальном проекте нужно создать переменные заранее
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Ошибка обновления переменной {tagName}: {ex.Message}");
-            }
-        }
-
-        private void StartUpdateTimer()
-        {
-            _updateTimer = new DispatcherTimer();
-            _updateTimer.Interval = TimeSpan.FromSeconds(2);
-            _updateTimer.Tick += UpdateTimer_Tick;
-            _updateTimer.Start();
-        }
-
-        private void UpdateTimer_Tick(object sender, EventArgs e)
-        {
-            // Обновляем статус соединения
-            bool isConnected = _modbusController?.IsConnected ?? false;
-            UpdateConnectionStatus(isConnected);
-
-            // Обновляем счетчик аварий если нужно
-            UpdateFaultCounter();
-        }
-
-        private void UpdateConnectionStatus(bool isConnected)
-        {
-            try
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    if (ControllerConnectionQualityLabel != null)
-                    {
-                        if (isConnected)
-                        {
-                            ControllerConnectionQualityLabel.Text = "✓ Связь установлена";
-                            ControllerConnectionQualityLabel.Foreground = Brushes.Green;
-                        }
-                        else
-                        {
-                            ControllerConnectionQualityLabel.Text = "✗ Связь отсутствует";
-                            ControllerConnectionQualityLabel.Foreground = Brushes.Red;
-                        }
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Ошибка обновления статуса: {ex.Message}");
-            }
-        }
-
-        private void UpdateFaultCounter()
-        {
-            // Здесь можно обновлять счетчик аварий на основе данных из Modbus
-            // Например, если регистр 3 (аварийная остановка) != 0
-            try
-            {
-                if (_modbusController?.IsConnected == true)
-                {
-                    // Получаем значение регистра аварийной остановки
-                    var emergencyStopValue = _modbusController.GetRegisterValue(3);
-
-                    Dispatcher.Invoke(() =>
-                    {
-                        if (FaultCounterLabel != null)
-                        {
-                            FaultCounterLabel.Text = emergencyStopValue.ToString();
-
-                            // Подсвечиваем если есть аварии
-                            if (emergencyStopValue > 0)
-                            {
-                                FaultCounterLabel.Foreground = Brushes.White;
-                                var border = FaultCounterLabel.Parent as Border;
-                                if (border != null)
-                                {
-                                    border.Background = Brushes.Red;
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Ошибка обновления счетчика аварий: {ex.Message}");
-            }
-        }
-
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            try
-            {
-                _updateTimer?.Stop();
-                _logTestTimer?.Stop();
-                _logSyncTimer?.Stop();
-                _modbusManager?.Disconnect();
-                _modbusController?.Disconnect();
-
-                Debug.WriteLine("Приложение закрывается...");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Ошибка при закрытии: {ex.Message}");
-            }
-        }
-
         public async Task AddLogAsync(string group, string text, short imageIndex, bool saveToDatabase = true)
         {
             try
@@ -340,7 +97,7 @@ namespace ProtolScadaRemake
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Ошибка добавления лога: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка добавления лога: {ex.Message}");
             }
         }
 
@@ -366,7 +123,7 @@ namespace ProtolScadaRemake
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Ошибка синхронизации логов: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка синхронизации логов: {ex.Message}");
             }
         }
 
@@ -402,8 +159,8 @@ namespace ProtolScadaRemake
             AlarmPageButton.Click += (s, e) => ShowPage("Аварии");
             LogPageButton.Click += (s, e) => ShowLogPage();
             TrendsButton.Click += (s, e) => TrendsButton_Click(s, e);
+            TestDbButton.Click += (s, e) => TestDbButton_Click(s, e);
         }
-
         private void TrendsButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -422,7 +179,7 @@ namespace ProtolScadaRemake
             catch (Exception ex)
             {
                 ShowError($"Не удалось загрузить тренды: {ex.Message}");
-                Debug.WriteLine($"TrendsButton_Click error: {ex.Message}\n{ex.StackTrace}");
+                System.Diagnostics.Debug.WriteLine($"TrendsButton_Click error: {ex.Message}\n{ex.StackTrace}");
             }
         }
 
@@ -658,13 +415,15 @@ namespace ProtolScadaRemake
             }
 
             // Активируем выбранную кнопку
-            if (activeButton != null)
-            {
-                activeButton.Background = new SolidColorBrush(Color.FromArgb(255, 187, 222, 251));
-                activeButton.Opacity = 1.0;
-                activeButton.BorderThickness = new Thickness(0, 0, 4, 0);
-                activeButton.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 33, 150, 243));
-            }
+            activeButton.Background = new SolidColorBrush(Color.FromArgb(255, 187, 222, 251));
+            activeButton.Opacity = 1.0;
+            activeButton.BorderThickness = new Thickness(0, 0, 4, 0);
+            activeButton.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 33, 150, 243));
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            timer?.Stop();
         }
 
         private void AlarmPageButton_Click(object sender, RoutedEventArgs e)
@@ -672,9 +431,116 @@ namespace ProtolScadaRemake
             // Пустая реализация, обработка уже в InitializeButtons()
         }
 
+
         private void LogPageButton_Click(object sender, RoutedEventArgs e)
         {
-            // Пустая реализация, обработка уже в InitializeButtons()
+
+        }
+        private async void TestDbButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Простой тест вместо сложного окна
+                var result = await SimpleDatabaseTest();
+                MessageBox.Show(result, "Тест БД",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task<string> SimpleDatabaseTest()
+        {
+            var log = new StringBuilder();
+
+            try
+            {
+                // 1. Тест подключения
+                log.AppendLine("Тестирование подключения к БД...");
+
+                using (var connection = DBUtils.GetDBConnection(
+                    _global.DB_HostName,
+                    _global.DB_Port,
+                    _global.DB_Name,
+                    _global.DB_UserLogin,
+                    _global.DB_Password))
+                {
+                    await connection.OpenAsync();
+                    log.AppendLine("✓ Подключение к MySQL успешно");
+
+                    // Проверяем таблицы
+                    var tables = new List<string> { "log", "trends", "trend_config" };
+                    foreach (var table in tables)
+                    {
+                        string sql = $"SHOW TABLES LIKE '{table}'";
+                        using (var cmd = new MySqlCommand(sql, connection))
+                        {
+                            var exists = await cmd.ExecuteScalarAsync();
+                            log.AppendLine($"  {table}: {(exists != null ? "✓ найдена" : "✗ не найдена")}");
+                        }
+                    }
+                }
+
+                // 2. Тест записи в журнал
+                log.AppendLine("\nТест записи в журнал...");
+                var testRecord = new TLogRecord
+                {
+                    Time = DateTime.Now,
+                    GroupName = "ТестБД",
+                    Text = $"Тестовая запись от {DateTime.Now:HH:mm:ss}",
+                    ImageIndex = 0
+                };
+
+                var id = await _dbUtils.SaveLogRecordAsync(testRecord);
+                log.AppendLine($"✓ Запись добавлена с ID: {id}");
+
+                // 3. Тест чтения из журнала
+                log.AppendLine("\nТест чтения из журнала...");
+                var records = await _dbUtils.LoadLogRecordsAsync(3);
+                log.AppendLine($"✓ Загружено {records.Count} записей");
+
+                // 4. Тест трендов
+                log.AppendLine("\nТест трендов...");
+                try
+                {
+                    var configs = await _dbUtils.LoadTrendConfigsAsync();
+                    log.AppendLine($"✓ Конфигураций трендов: {configs.Count}");
+
+                    if (configs.Count > 0)
+                    {
+                        var firstConfig = configs[0];
+                        var trendData = await _dbUtils.LoadTrendDataAsync(
+                            firstConfig.TagID,
+                            DateTime.Now.AddDays(-1),
+                            DateTime.Now,
+                            10);
+                        log.AppendLine($"✓ Данных тренда '{firstConfig.Name}': {trendData.Count} точек");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.AppendLine($"✗ Ошибка трендов: {ex.Message}");
+                }
+
+                log.AppendLine("\n=== ТЕСТ ЗАВЕРШЕН УСПЕШНО ===");
+            }
+            catch (MySqlException ex)
+            {
+                log.AppendLine($"\n❌ ОШИБКА MYSQL ({ex.Number}): {ex.Message}");
+
+                if (ex.Number == 1045) log.AppendLine("  Проверьте логин/пароль в TGlobal.cs");
+                if (ex.Number == 1049) log.AppendLine("  База данных не найдена. Создайте 'protolscadadb' в phpMyAdmin");
+                if (ex.Number == 2002) log.AppendLine("  MySQL сервер не запущен. Запустите MySQL через XAMPP");
+            }
+            catch (Exception ex)
+            {
+                log.AppendLine($"\n❌ ОБЩАЯ ОШИБКА: {ex.Message}");
+            }
+
+            return log.ToString();
         }
     }
 }
