@@ -9,7 +9,30 @@
             <ResourceDictionary.MergedDictionaries>
                 <!-- Подключаем наш файл с иконками -->
                 <ResourceDictionary Source="IconResource.xaml"/>
-
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/MenuButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/GgdButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/GroButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/LogButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/TcButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/EmButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/ReceptButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/TrendButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/MenuHoverButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/GgdHoverButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/GroHoverButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/LogHoverButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/TcHoverButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/EmHoverButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/ReceptHoverButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/TrendHoverButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/MenuButtonActive.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/GgdButtonActive.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/GroButtonActive.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/LogButtonActive.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/TcButtonActive.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/EmButtonActive.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/ReceptButtonActive.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ImageXaml/TrendButtonActive.xaml"/>
                 <!-- Здесь можно добавить другие словари -->
                 <!-- <ResourceDictionary Source="Styles.xaml"/> -->
             </ResourceDictionary.MergedDictionaries>

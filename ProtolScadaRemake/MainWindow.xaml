@@ -9,51 +9,6 @@
         Closing="Window_Closing" WindowStyle="None">
 
     <Window.Resources>
-        <!-- Базовый стиль для кнопок навигации -->
-        <Style x:Key="NavigationButtonStyle" TargetType="{x:Type Button}">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                              VerticalAlignment="Center"
-                                              Margin="{TemplateBinding Padding}"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FFE3F2FD"/>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#FFBBDEFB"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Стиль для активной кнопки навигации -->
-        <Style x:Key="ActiveNavigationButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource NavigationButtonStyle}">
-            <Setter Property="Background" Value="#FFBBDEFB"/>
-            <Setter Property="BorderBrush" Value="#FF2196F3"/>
-            <Setter Property="BorderThickness" Value="0,0,4,0"/>
-        </Style>
-
-        <!-- Стиль для неактивной кнопки навигации -->
-        <Style x:Key="InactiveNavigationButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource NavigationButtonStyle}">
-            <Setter Property="Opacity" Value="0.7"/>
-        </Style>
-
         <!-- Стиль для текста счетчика аварий -->
         <Style x:Key="FaultCounterTextStyle" TargetType="{x:Type TextBlock}">
             <Setter Property="FontWeight" Value="Bold"/>
@@ -73,7 +28,7 @@
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="130"/>
+            <ColumnDefinition Width="170"/>
         </Grid.ColumnDefinitions>
 
         <!-- TOP PANEL -->
@@ -144,135 +99,341 @@
             </Grid>
         </Border>
 
-        <!-- RIGHT MENU - БЕЗ MouseEnter/MouseLeave/Click в XAML -->
-        <StackPanel Grid.Row="1" Grid.Column="1" Background="#FFE3F2FD">
+        <!-- RIGHT MENU -->
+        <StackPanel Grid.Row="1" Grid.Column="1" Background="#070142">
             <!-- Основной экран -->
             <Button x:Name="MainPageButton" 
-                    Height="90" 
-                    Style="{StaticResource InactiveNavigationButtonStyle}">
-                <StackPanel>
-                    <Image Source="pack://application:,,,/ProtolScadaRemake;component/Images/TopNavigation/MainPageActive.png" 
-                           Width="48" Height="48"/>
-                    <TextBlock Text="Основной экран" 
-                               TextWrapping="Wrap"
-                               HorizontalAlignment="Center"
-                               Margin="0,5,0,0"/>
-                </StackPanel>
+                    Height="125"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Tag="Active">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <!-- Одно изображение, которое меняется в зависимости от состояния -->
+                            <Image x:Name="contentImage" Width="180" Height="120"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <!-- Активное состояние (Tag = "Active") - ВЫСШИЙ ПРИОРИТЕТ -->
+                            <Trigger Property="Tag" Value="Active">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource MenuButtonActive}"/>
+                            </Trigger>
+
+                            <!-- Наведение - работает ТОЛЬКО для НЕактивных кнопок -->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource MenuHoverButton}"/>
+                            </MultiTrigger>
+
+                            <!-- Нормальное состояние - ТОЛЬКО для НЕактивных кнопок, когда курсор не над кнопкой -->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource MenuButton}"/>
+                            </MultiTrigger>
+
+                            <!-- Состояние нажатия (работает для всех кнопок) -->
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource MenuButtonActive}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
 
             <!-- ГГД -->
             <Button x:Name="GgdPageButton" 
-                    Height="96" 
-                    Style="{StaticResource InactiveNavigationButtonStyle}">
-                <StackPanel>
-                    <Image Source="pack://application:,,,/ProtolScadaRemake;component/Images/TopNavigation/GtdActive.png" 
-                           Width="48" Height="48"/>
-                    <TextBlock Text="Подготовка компонентов ГГД" 
-                               TextWrapping="Wrap"
-                               HorizontalAlignment="Center"
-                               Margin="0,5,0,0"/>
-                </StackPanel>
+                    Height="125"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Tag="Normal">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Image x:Name="contentImage" Width="180" Height="120"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="Active">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource GgdButtonActive}"/>
+                            </Trigger>
+
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource GgdHoverButton}"/>
+                            </MultiTrigger>
+
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource GgdButton}"/>
+                            </MultiTrigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource GgdButtonActive}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
 
             <!-- ГРО -->
             <Button x:Name="GroPageButton" 
-                    Height="96" 
-                    Style="{StaticResource InactiveNavigationButtonStyle}">
-                <StackPanel>
-                    <Image Source="pack://application:,,,/ProtolScadaRemake;component/Images/TopNavigation/GroActive.png" 
-                           Width="48" Height="48"/>
-                    <TextBlock Text="Подготовка компонентов ГРО" 
-                               TextWrapping="Wrap"
-                               HorizontalAlignment="Center"
-                               Margin="0,5,0,0"/>
-                </StackPanel>
+                    Height="125"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Tag="Normal">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Image x:Name="contentImage" Width="180" Height="120"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="Active">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource GroButtonActive}"/>
+                            </Trigger>
+
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource GroHoverButton}"/>
+                            </MultiTrigger>
+
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource GroButton}"/>
+                            </MultiTrigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource GroButtonActive}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
 
             <!-- ТС -->
             <Button x:Name="TcPageButton" 
-                    Height="96" 
-                    Style="{StaticResource InactiveNavigationButtonStyle}">
-                <StackPanel>
-                    <Image Source="pack://application:,,,/ProtolScadaRemake;component/Images/TopNavigation/ТcActive.png"
-                           Width="48" Height="48"/>
-                    <TextBlock Text="Подготовка компонентов ТС" 
-                               TextWrapping="Wrap"
-                               HorizontalAlignment="Center"
-                               Margin="0,5,0,0"/>
-                </StackPanel>
+                    Height="125"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Tag="Normal">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Image x:Name="contentImage" Width="180" Height="120"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="Active">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource TcButtonActive}"/>
+                            </Trigger>
+
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource TcHoverButton}"/>
+                            </MultiTrigger>
+
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource TcButton}"/>
+                            </MultiTrigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource TcButtonActive}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
 
             <!-- ЭМ -->
             <Button x:Name="EmPageButton" 
-                    Height="96" 
-                    Style="{StaticResource InactiveNavigationButtonStyle}">
-                <StackPanel>
-                    <Image Source="pack://application:,,,/ProtolScadaRemake;component/Images/TopNavigation/EMActve.png" 
-                           Width="48" Height="48"/>
-                    <TextBlock Text="Производство ЭМ" 
-                               TextWrapping="Wrap"
-                               HorizontalAlignment="Center"
-                               Margin="0,5,0,0"/>
-                </StackPanel>
+                    Height="125"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Tag="Normal">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Image x:Name="contentImage" Width="180" Height="120"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="Active">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource EmButtonActive}"/>
+                            </Trigger>
+
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource EmHoverButton}"/>
+                            </MultiTrigger>
+
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource EmButton}"/>
+                            </MultiTrigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource EmButtonActive}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
 
             <!-- Рецептура -->
             <Button x:Name="ReceptPageButton" 
-                    Height="96" 
-                    Style="{StaticResource InactiveNavigationButtonStyle}">
-                <StackPanel>
-                    <Image Source="pack://application:,,,/ProtolScadaRemake;component/Images/TopNavigation/ReceptActve.png" 
-                           Width="48" Height="48"/>
-                    <TextBlock Text="Рецептура" 
-                               TextWrapping="Wrap"
-                               HorizontalAlignment="Center"
-                               Margin="0,5,0,0"/>
-                </StackPanel>
-            </Button>
+                    Height="125"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Tag="Normal">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Image x:Name="contentImage" Width="180" Height="120"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="Active">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource ReceptButtonActive}"/>
+                            </Trigger>
 
-            <!-- Аварии -->
-            <Button x:Name="AlarmPageButton" 
-                    Height="96" 
-                    Style="{StaticResource InactiveNavigationButtonStyle}" Click="AlarmPageButton_Click">
-                <StackPanel>
-                    <Image Source="pack://application:,,,/ProtolScadaRemake;component/Images/TopNavigation/FaultsActive.png" 
-                           Width="48" Height="48"/>
-                    <TextBlock Text="Список аварий" 
-                               TextWrapping="Wrap"
-                               HorizontalAlignment="Center"
-                               Margin="0,5,0,0"/>
-                </StackPanel>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource ReceptHoverButton}"/>
+                            </MultiTrigger>
+
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource ReceptButton}"/>
+                            </MultiTrigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource ReceptButtonActive}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
 
             <!-- Журнал -->
             <Button x:Name="LogPageButton" 
-                    Height="96" 
-                    Style="{StaticResource InactiveNavigationButtonStyle}" Click="LogPageButton_Click">
-                <StackPanel>
-                    <Image Source="pack://application:,,,/ProtolScadaRemake;component/Images/TopNavigation/LogActive.png" 
-                           Width="48" Height="48"/>
-                    <TextBlock Text="Журнал событий" 
-                               TextWrapping="Wrap"
-                               HorizontalAlignment="Center"
-                               Margin="0,5,0,0"/>
-                </StackPanel>
+                    Height="125"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Tag="Normal">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Image x:Name="contentImage" Width="180" Height="120"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="Active">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource LogButtonActive}"/>
+                            </Trigger>
+
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource LogHoverButton}"/>
+                            </MultiTrigger>
+
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource LogButton}"/>
+                            </MultiTrigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource LogButtonActive}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
+
+            <!-- Тренды -->
             <Button x:Name="TrendsButton" 
-        Height="96" 
-        Style="{StaticResource InactiveNavigationButtonStyle}" Click="TrendsButton_Click">
-                <StackPanel>
-                    <Image Source="pack://application:,,,/ProtolScadaRemake;component/Images/TopNavigation/TrendActive.png" 
-               Width="48" Height="48"/>
-                    <TextBlock Text="Тренды" 
-                   TextWrapping="Wrap"
-                   HorizontalAlignment="Center"
-                   Margin="0,5,0,0"/>
-                </StackPanel>
+                    Height="125"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Tag="Normal">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Image x:Name="contentImage" Width="180" Height="120"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="Active">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource TrendsButtonActive}"/>
+                            </Trigger>
+
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource TrendsHoverButton}"/>
+                            </MultiTrigger>
+
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="Tag" Value="Normal"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource TrendsButton}"/>
+                            </MultiTrigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="contentImage" Property="Source" Value="{StaticResource TrendsButtonActive}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
         </StackPanel>
+
         <!-- BOTTOM PANEL -->
         <Border Grid.Row="2" Grid.ColumnSpan="2" Background="#FFE3F2FD">
-            <TextBlock HorizontalAlignment="Right" Margin="10,0"><Run Text="Связь с контроллером:" FontWeight="Bold"/><Run Text=" "/><Run x:Name="ControllerConnectionQualityLabel" Text="..." FontStyle="Italic"/></TextBlock>
+            <TextBlock HorizontalAlignment="Right" Margin="10,0">
+                <Run Text="Связь с контроллером:" FontWeight="Bold"/>
+                <Run Text=" "/>
+                <Run x:Name="ControllerConnectionQualityLabel" Text="..." FontStyle="Italic"/>
+            </TextBlock>
         </Border>
     </Grid>
 </Window>

@@ -32,6 +32,7 @@ namespace ProtolScadaRemake
         private DispatcherTimer _updateTimer;
         private ModbusController _modbusController;
         private bool _modbusInitialized = false;
+        private Button _activeNavigationButton;
 
         public MainWindow()
         {
@@ -42,7 +43,7 @@ namespace ProtolScadaRemake
             Debug.WriteLine("TGlobal создан");
 
             // Используйте DBUtils из _global, а не создавайте новый с другим паролем!
-            _dbUtils = _global.GetDbUtils();  // Или _dbUtils = new DBUtils { ... } но с теми же данными что в TGlobal
+            _dbUtils = _global.GetDbUtils();
             Debug.WriteLine("DBUtils получен");
 
             // Инициализация Modbus (без блокировки UI)
@@ -55,7 +56,7 @@ namespace ProtolScadaRemake
             _logSyncTimer.Tick += async (s, e) => await SyncLogsWithDatabaseAsync();
             _logSyncTimer.Start();
 
-            // Добавление тестовых записей в журнал - исправьте чтобы сохранялось в БД
+            // Добавление тестовых записей в журнал
             _global.Log.Add("Система", "Приложение запущено", 0);
             _global.Log.Add("Пользователь", "Пользователь вошел в систему", 1);
             _global.Log.Add("Предупреждение", "Низкий уровень бака", 2);
@@ -96,7 +97,6 @@ namespace ProtolScadaRemake
                     Dispatcher.Invoke(() =>
                     {
                         Debug.WriteLine($"Modbus статус: {message}");
-                        UpdateStatusLabel($"Modbus: {message}");
                     });
                 };
 
@@ -114,7 +114,6 @@ namespace ProtolScadaRemake
                     Dispatcher.Invoke(() =>
                     {
                         Debug.WriteLine($"Регистр {address} = {value}");
-                        // Можно обновлять переменные SCADA здесь
                         UpdateVariableFromRegister(address, value);
                     });
                 };
@@ -122,7 +121,7 @@ namespace ProtolScadaRemake
                 // Пробуем подключиться в фоне с задержкой
                 _ = Task.Run(async () =>
                 {
-                    await Task.Delay(3000); // Даем время на запуск сервера
+                    await Task.Delay(3000);
                     try
                     {
                         bool connected = await _modbusController.ConnectAsync();
@@ -160,27 +159,20 @@ namespace ProtolScadaRemake
             }
         }
 
-        private void UpdateStatusLabel(string message)
-        {
-            // Можно добавить статусную строку в UI если нужно
-            // Пока просто выводим в Debug
-        }
-
         private void UpdateVariableFromRegister(ushort address, ushort value)
         {
-            // Маппинг регистров Modbus на теги SCADA
             switch (address)
             {
-                case 0: // Конвейер статус
+                case 0:
                     UpdateVariable("CONVEYOR_STATUS", value);
                     break;
-                case 1: // Скорость конвейера
+                case 1:
                     UpdateVariable("CONVEYOR_SPEED", value);
                     break;
-                case 2: // Счетчик деталей
+                case 2:
                     UpdateVariable("ITEM_COUNT", value);
                     break;
-                case 3: // Аварийная остановка
+                case 3:
                     UpdateVariable("EMERGENCY_STOP", value);
                     break;
             }
@@ -194,11 +186,6 @@ namespace ProtolScadaRemake
                 if (variable != null)
                 {
                     variable.ValueReal = value;
-                }
-                else
-                {
-                    // Создаем переменную если ее нет
-                    // Это для демонстрации, в реальном проекте нужно создать переменные заранее
                 }
             }
             catch (Exception ex)
@@ -217,11 +204,8 @@ namespace ProtolScadaRemake
 
         private void UpdateTimer_Tick(object sender, EventArgs e)
         {
-            // Обновляем статус соединения
             bool isConnected = _modbusController?.IsConnected ?? false;
             UpdateConnectionStatus(isConnected);
-
-            // Обновляем счетчик аварий если нужно
             UpdateFaultCounter();
         }
 
@@ -236,12 +220,10 @@ namespace ProtolScadaRemake
                         if (isConnected)
                         {
                             ControllerConnectionQualityLabel.Text = "✓ Связь установлена";
-                            ControllerConnectionQualityLabel.Foreground = Brushes.Green;
                         }
                         else
                         {
                             ControllerConnectionQualityLabel.Text = "✗ Связь отсутствует";
-                            ControllerConnectionQualityLabel.Foreground = Brushes.Red;
                         }
                     }
                 });
@@ -254,13 +236,10 @@ namespace ProtolScadaRemake
 
         private void UpdateFaultCounter()
         {
-            // Здесь можно обновлять счетчик аварий на основе данных из Modbus
-            // Например, если регистр 3 (аварийная остановка) != 0
             try
             {
                 if (_modbusController?.IsConnected == true)
                 {
-                    // Получаем значение регистра аварийной остановки
                     var emergencyStopValue = _modbusController.GetRegisterValue(3);
 
                     Dispatcher.Invoke(() =>
@@ -269,7 +248,6 @@ namespace ProtolScadaRemake
                         {
                             FaultCounterLabel.Text = emergencyStopValue.ToString();
 
-                            // Подсвечиваем если есть аварии
                             if (emergencyStopValue > 0)
                             {
                                 FaultCounterLabel.Foreground = Brushes.White;
@@ -311,7 +289,6 @@ namespace ProtolScadaRemake
         {
             try
             {
-                // Создаем запись
                 var record = new TLogRecord
                 {
                     Time = DateTime.Now,
@@ -320,16 +297,13 @@ namespace ProtolScadaRemake
                     ImageIndex = imageIndex
                 };
 
-                // Добавляем в локальную коллекцию
                 _global.Log.Add(group, text, imageIndex);
 
-                // Сохраняем в базу данных (если требуется)
                 if (saveToDatabase)
                 {
                     await _dbUtils.SaveLogRecordAsync(record);
                 }
 
-                // Обновляем UI, если журнал открыт
                 await Dispatcher.InvokeAsync(() =>
                 {
                     if (_LogPage != null && ContentGrid.Children.Contains(_LogPage))
@@ -344,18 +318,12 @@ namespace ProtolScadaRemake
             }
         }
 
-        // СИНХРОНИЗАЦИЯ ЛОГОВ С БАЗОЙ ДАННЫХ
         private async Task SyncLogsWithDatabaseAsync()
         {
             try
             {
-                // Загружаем последние записи из БД
                 var dbRecords = await _dbUtils.LoadLogRecordsAsync(50, DateTime.Now.AddHours(-1));
 
-                // Обновляем локальную коллекцию
-                // Здесь можно добавить логику сравнения и синхронизации
-
-                // Обновляем UI
                 await Dispatcher.InvokeAsync(() =>
                 {
                     if (_LogPage != null && ContentGrid.Children.Contains(_LogPage))
@@ -372,7 +340,6 @@ namespace ProtolScadaRemake
 
         private void LogTestTimer_Tick(object sender, EventArgs e)
         {
-            // Используем новый метод
             string[] groups = { "Система", "Пользователь", "Оборудование", "Рецептура" };
             string[] messages = { "Автоматическое обновление данных", "Проверка связи с оборудованием" };
 
@@ -381,7 +348,6 @@ namespace ProtolScadaRemake
             string message = $"{messages[rnd.Next(messages.Length)]} - {DateTime.Now:HH:mm:ss}";
             short imageIndex = (short)rnd.Next(0, 4);
 
-            // Асинхронно добавляем лог
             _ = AddLogAsync(group, message, imageIndex);
         }
 
@@ -399,7 +365,6 @@ namespace ProtolScadaRemake
             TcPageButton.Click += (s, e) => ShowTcPage();
             EmPageButton.Click += (s, e) => ShowEmPage();
             ReceptPageButton.Click += (s, e) => ShowPage("Рецептура");
-            AlarmPageButton.Click += (s, e) => ShowPage("Аварии");
             LogPageButton.Click += (s, e) => ShowLogPage();
             TrendsButton.Click += (s, e) => TrendsButton_Click(s, e);
         }
@@ -412,7 +377,7 @@ namespace ProtolScadaRemake
 
                 if (_trendsPage == null)
                 {
-                    _trendsPage = new FrameTrends(_global);  // Передайте _global
+                    _trendsPage = new FrameTrends(_global);
                 }
 
                 ContentGrid.Children.Add(_trendsPage);
@@ -438,10 +403,7 @@ namespace ProtolScadaRemake
                 }
 
                 ContentGrid.Children.Add(_LogPage);
-
-                // ОБЯЗАТЕЛЬНО ОБНОВЛЯЕМ ЖУРНАЛ ПРИ ОТКРЫТИИ
                 _LogPage.RefreshLog();
-
                 TitleLabel.Text = "ЖУРНАЛ СОБЫТИЙ";
                 SetActiveButton(LogPageButton);
             }
@@ -451,31 +413,23 @@ namespace ProtolScadaRemake
             }
         }
 
-        // ОТОБРАЖЕНИЕ SVG СТРАНИЦЫ
         private void ShowEmPage()
         {
             try
             {
-                // Очищаем ContentGrid
                 ContentGrid.Children.Clear();
 
-                // Создаем или используем существующую страницу
                 if (_emPage == null)
                 {
                     _emPage = new FrameEmPage(_global);
                 }
-                // Добавляем на форму
+
                 ContentGrid.Children.Add(_emPage);
-
-                // Обновляем заголовок
                 TitleLabel.Text = "ПРОИЗВОДСТВО ЭМ";
-
-                // Делаем кнопку активной
                 SetActiveButton(EmPageButton);
             }
             catch (Exception ex)
             {
-                // Показываем ошибку
                 ShowError($"Не удалось загрузить SVG: {ex.Message}");
             }
         }
@@ -484,27 +438,19 @@ namespace ProtolScadaRemake
         {
             try
             {
-                // Очищаем ContentGrid
                 ContentGrid.Children.Clear();
 
-                // Создаем или используем существующую страницу
                 if (_TcPage == null)
                 {
                     _TcPage = new FrameTcPage();
                 }
 
-                // Добавляем на форму
                 ContentGrid.Children.Add(_TcPage);
-
-                // Обновляем заголовок
                 TitleLabel.Text = "ПОДГОТОВКА КОМПОНЕНТОВ ТС";
-
-                // Делаем кнопку активной
                 SetActiveButton(TcPageButton);
             }
             catch (Exception ex)
             {
-                // Показываем ошибку
                 ShowError($"Не удалось загрузить SVG: {ex.Message}");
             }
         }
@@ -513,27 +459,19 @@ namespace ProtolScadaRemake
         {
             try
             {
-                // Очищаем ContentGrid
                 ContentGrid.Children.Clear();
 
-                // Создаем или используем существующую страницу
                 if (_GroPage == null)
                 {
                     _GroPage = new FrameGroPage();
                 }
 
-                // Добавляем на форму
                 ContentGrid.Children.Add(_GroPage);
-
-                // Обновляем заголовок
                 TitleLabel.Text = "ПОДГОТОВКА КОМПОНЕНТОВ ГРО";
-
-                // Делаем кнопку активной
                 SetActiveButton(GroPageButton);
             }
             catch (Exception ex)
             {
-                // Показываем ошибку
                 ShowError($"Не удалось загрузить SVG: {ex.Message}");
             }
         }
@@ -542,27 +480,19 @@ namespace ProtolScadaRemake
         {
             try
             {
-                // Очищаем ContentGrid
                 ContentGrid.Children.Clear();
 
-                // Создаем или используем существующую страницу
                 if (_GgdPage == null)
                 {
                     _GgdPage = new FrameGgdPage();
                 }
 
-                // Добавляем на форму
                 ContentGrid.Children.Add(_GgdPage);
-
-                // Обновляем заголовок
                 TitleLabel.Text = "ПОДГОТОВКА КОМПОНЕНТОВ ГГД";
-
-                // Делаем кнопку активной
                 SetActiveButton(GgdPageButton);
             }
             catch (Exception ex)
             {
-                // Показываем ошибку
                 ShowError($"Не удалось загрузить SVG: {ex.Message}");
             }
         }
@@ -573,7 +503,6 @@ namespace ProtolScadaRemake
             TitleLabel.Text = "ОСНОВНОЙ ЭКРАН";
             SetActiveButton(MainPageButton);
 
-            // Показываем заглушку
             var textBlock = new TextBlock
             {
                 Text = "ОСНОВНОЙ ЭКРАН\n\nГлавная страница системы",
@@ -592,14 +521,12 @@ namespace ProtolScadaRemake
             ContentGrid.Children.Clear();
             TitleLabel.Text = pageName.ToUpper();
 
-            // Определяем какая кнопка активна
             Button? activeButton = pageName switch
             {
                 "ГГД" => GgdPageButton,
                 "ГРО" => GroPageButton,
                 "ТС" => TcPageButton,
                 "Рецептура" => ReceptPageButton,
-                "Аварии" => AlarmPageButton,
                 "Журнал" => LogPageButton,
                 _ => null
             };
@@ -607,7 +534,6 @@ namespace ProtolScadaRemake
             if (activeButton != null)
                 SetActiveButton(activeButton);
 
-            // Заглушка для других страниц
             var textBlock = new TextBlock
             {
                 Text = $"{pageName.ToUpper()}\n\nСтраница в разработке",
@@ -640,24 +566,35 @@ namespace ProtolScadaRemake
 
         private void SetActiveButton(Button activeButton)
         {
-            // Сбрасываем все кнопки
             var buttons = new[] {
                 MainPageButton, GgdPageButton, GroPageButton,
                 TcPageButton, EmPageButton, ReceptPageButton,
-                AlarmPageButton, LogPageButton, TrendsButton
+                LogPageButton, TrendsButton
             };
+
+            _activeNavigationButton = activeButton;
 
             foreach (var button in buttons)
             {
                 if (button != null)
                 {
                     button.Background = Brushes.Transparent;
-                    button.Opacity = 0.7;
+                    button.Opacity = 1;
                     button.BorderThickness = new Thickness(0);
+
+                    // Для всех неактивных кнопок сбрасываем Tag
+                    if (button != activeButton)
+                    {
+                        button.Tag = "Normal";
+                    }
+                    else
+                    {
+                        // Для активной кнопки устанавливаем Tag "Active"
+                        button.Tag = "Active";
+                    }
                 }
             }
 
-            // Активируем выбранную кнопку
             if (activeButton != null)
             {
                 activeButton.Background = new SolidColorBrush(Color.FromArgb(255, 187, 222, 251));
@@ -665,16 +602,6 @@ namespace ProtolScadaRemake
                 activeButton.BorderThickness = new Thickness(0, 0, 4, 0);
                 activeButton.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 33, 150, 243));
             }
-        }
-
-        private void AlarmPageButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Пустая реализация, обработка уже в InitializeButtons()
-        }
-
-        private void LogPageButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Пустая реализация, обработка уже в InitializeButtons()
         }
     }
 }
