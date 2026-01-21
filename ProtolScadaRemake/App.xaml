@@ -9,6 +9,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <!-- Подключаем наш файл с иконками -->
                 <ResourceDictionary Source="IconResource.xaml"/>
+                
                 <ResourceDictionary Source="pack://application:,,,/ImageXaml/MenuButton.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/ImageXaml/GgdButton.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/ImageXaml/GroButton.xaml"/>
