@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -11,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace ProtolScada.Wpf
+namespace ProtolScadaRemake.ImageXaml
 {
     /// <summary>
-    /// Логика взаимодействия для FrameTopFaultPanel.xaml
+    /// Логика взаимодействия для ImageGgdPage.xaml
     /// </summary>
-    public partial class FrameTopFaultPanel : UserControl
+    public partial class ImageGgdPage : UserControl
     {
-        public FrameTopFaultPanel()
+        public ImageGgdPage()
         {
             InitializeComponent();
         }

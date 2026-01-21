@@ -452,7 +452,7 @@ namespace ProtolScadaRemake
 
                 if (_TcPage == null)
                 {
-                    _TcPage = new FrameTcPage();
+                    _TcPage = new FrameTcPage(_global);
                 }
 
                 ContentGrid.Children.Add(_TcPage);
@@ -473,7 +473,7 @@ namespace ProtolScadaRemake
 
                 if (_GroPage == null)
                 {
-                    _GroPage = new FrameGroPage();
+                    _GroPage = new FrameGroPage(_global);
                 }
 
                 ContentGrid.Children.Add(_GroPage);
@@ -494,7 +494,7 @@ namespace ProtolScadaRemake
 
                 if (_GgdPage == null)
                 {
-                    _GgdPage = new FrameGgdPage();
+                    _GgdPage = new FrameGgdPage(_global);
                 }
 
                 ContentGrid.Children.Add(_GgdPage);

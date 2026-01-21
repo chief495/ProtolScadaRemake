@@ -6,10 +6,10 @@
              xmlns:local="clr-namespace:ProtolScadaRemake"
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"            
              xmlns:ImageXaml="clr-namespace:ProtolScadaRemake.ImageXaml" xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" x:Class="ProtolScadaRemake.FrameEmPage"            
-             mc:Ignorable="d" Initialized="Window_Loaded" Width="1790" Height="1020">
+             mc:Ignorable="d" Initialized="Window_Loaded" Width="1790" Height="1010" Margin="0,0,0,0">
 
     <Grid Width="1790" Height="1020" VerticalAlignment="Bottom" HorizontalAlignment="Left">
-        <ImageXaml:ImageEmPage HorizontalAlignment="Center" VerticalAlignment="Top" Width="1790" Height="1020"/>
+        <ImageXaml:ImageEmPage HorizontalAlignment="Center" VerticalAlignment="Top" Width="1790" Height="1020" Margin="0,0,0,0"/>
         <local:Element_PumpH x:Name="P651" HorizontalAlignment="Left" Margin="747,166,0,0" VerticalAlignment="Top"/>
         <local:Element_AI x:Name="LAHH151" HorizontalAlignment="Left" Margin="444,350,0,0" VerticalAlignment="Top"/>
 
