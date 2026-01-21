@@ -231,6 +231,7 @@
   <ItemGroup>
     <PackageReference Include="MahApps.Metro" Version="2.4.11" />
     <PackageReference Include="MahApps.Metro.IconPacks" Version="6.2.1" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.3.0" />
     <PackageReference Include="MySql.Data" Version="9.5.0" />
     <PackageReference Include="NModbus" Version="3.0.81" />
     <PackageReference Include="OxyPlot.Wpf" Version="2.2.0" />
@@ -242,6 +243,21 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="DialogElementPumpUz.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Element_3ValveH.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Element_PumpUz.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Element_PumpUz.xaml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Page>
     <Page Update="Element_PumpH.xaml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Page>

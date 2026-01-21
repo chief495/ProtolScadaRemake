@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace ProtolScadaRemake
@@ -8,14 +9,38 @@ namespace ProtolScadaRemake
     /// <summary>
     /// Логика взаимодействия для Element_LT.xaml
     /// </summary>
-    public partial class Element_LT : UserControl
+    public partial class Element_AI : UserControl
     {
-        public System.Windows.Media.Brush WarningColor = Brushes.Yellow;  // Цвет предупреждения
-        public System.Windows.Media.Brush FaultColor = Brushes.Red;     // Цвет аварии
-        public string Description = "";
+        public System.Windows.Media.Brush WarningColor = System.Windows.Media.Brushes.Yellow;    // Цвет предупреждения
+        public System.Windows.Media.Brush FaultColor = System.Windows.Media.Brushes.Red;         // Цвет аварии
+        public string Description = "";                                     // Описание
         public TGlobal Global;
-        public string VarName = ""; // Основание для имен
-        public Element_LT()
+        public string VarName = "";                                         // Основание для имен
+        private string _eu;
+        private string _designation;
+        public string EU                                                    // Единицы обозначения
+        {
+            get => _eu;
+            set
+            {
+                _eu = value;
+                TextBlockEU.Text = value;                                   // Прямое присвоение
+            }
+        }
+
+        private string Designation                                          //Измеряемы параметр
+        {
+            get => _designation;
+            set
+            {
+                _designation = value;
+                TextBlockDesignation.Text = value;
+            }
+        }
+
+
+
+        public Element_AI()
         {
             InitializeComponent();
         }
@@ -30,7 +55,7 @@ namespace ProtolScadaRemake
             Tag = Global.Variables.GetByName(VarName + "_Value");
             if (Tag != null) ValueLabel.Text = Tag.ValueString;
             // Аварии и предупреждения
-            ValueRect.Fill = Brushes.Transparent;
+            ValueRect.Fill = System.Windows.Media.Brushes.Transparent;
             Tag = Global.Variables.GetByName(VarName + "_Warning_Low");
             if (Tag != null) if (Tag.ValueReal > 0) ValueRect.Fill = WarningColor;
             Tag = Global.Variables.GetByName(VarName + "_Warning_Hi");
@@ -42,10 +67,11 @@ namespace ProtolScadaRemake
         }
         private void ValueLabel_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            DialogElementLT Dialog = new DialogElementLT();
+            DialogElementAI Dialog = new DialogElementAI();
             Dialog.Title = Description;
             Dialog.Global = Global;
             Dialog.VarName = VarName;
+            Dialog.EU = EU;
             Dialog.Initialize();
             Dialog.ShowDialog();
         }

@@ -11,6 +11,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using NModbus;
+using NModbus.Device;
 
 namespace ProtolScadaRemake
 {
@@ -34,6 +36,14 @@ namespace ProtolScadaRemake
         private bool _modbusInitialized = false;
         private Button _activeNavigationButton;
 
+        TWordsArea HR_0000 = new TWordsArea("127.0.0.1", 502, 1, 0x0000, 0x60);
+        // Объявление потоков
+        private Thread ReadDeviceDataThread;
+        private Thread WriteDeviceDataThread;
+        private Thread FaultUpdatesThread;
+        private Thread TrendUpdatesThread;
+        private Thread DBUpdatesThread;
+        private Thread ReadVariablesThread;
         public MainWindow()
         {
             InitializeComponent();

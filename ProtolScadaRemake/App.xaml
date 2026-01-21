@@ -9,7 +9,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <!-- Подключаем наш файл с иконками -->
                 <ResourceDictionary Source="IconResource.xaml"/>
-                
+
                 <ResourceDictionary Source="pack://application:,,,/ImageXaml/MenuButton.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/ImageXaml/GgdButton.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/ImageXaml/GroButton.xaml"/>
@@ -34,6 +34,9 @@
                 <ResourceDictionary Source="pack://application:,,,/ImageXaml/EmButtonActive.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/ImageXaml/ReceptButtonActive.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/ImageXaml/TrendButtonActive.xaml"/>
+                <ResourceDictionary Source="/ImageXaml/PumpH_Start_test.xaml"/>
+
+
                 <!-- Здесь можно добавить другие словари -->
                 <!-- <ResourceDictionary Source="Styles.xaml"/> -->
             </ResourceDictionary.MergedDictionaries>

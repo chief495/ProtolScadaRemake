@@ -5,13 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ProtolScadaRemake"
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"            
-             xmlns:ImageXaml="clr-namespace:ProtolScadaRemake.ImageXaml" x:Class="ProtolScadaRemake.FrameEmPage"            
-             mc:Ignorable="d" Initialized="Window_Loaded" Width="1920" Height="1080">
+             xmlns:ImageXaml="clr-namespace:ProtolScadaRemake.ImageXaml" xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" x:Class="ProtolScadaRemake.FrameEmPage"            
+             mc:Ignorable="d" Initialized="Window_Loaded" Width="1790" Height="1020">
 
-    <Grid Width="1920" Height="1080" VerticalAlignment="Bottom" HorizontalAlignment="Left">
-        <ImageXaml:ImageEmPage HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="1790" Height="999"/>
-        <local:Element_PumpH x:Name="P651" HorizontalAlignment="Left" Margin="588,188,0,0" VerticalAlignment="Top"/>
-        <local:Element_LT x:Name="LAHH151" HorizontalAlignment="Left" Margin="439,61,0,0" VerticalAlignment="Top"/>
+    <Grid Width="1790" Height="1020" VerticalAlignment="Bottom" HorizontalAlignment="Left">
+        <ImageXaml:ImageEmPage HorizontalAlignment="Center" VerticalAlignment="Top" Width="1790" Height="1020"/>
+        <local:Element_PumpH x:Name="P651" HorizontalAlignment="Left" Margin="747,166,0,0" VerticalAlignment="Top"/>
+        <local:Element_AI x:Name="LAHH151" HorizontalAlignment="Left" Margin="444,350,0,0" VerticalAlignment="Top"/>
 
 
     </Grid>

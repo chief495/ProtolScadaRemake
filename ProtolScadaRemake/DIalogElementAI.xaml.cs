@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reflection.PortableExecutable;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -21,15 +22,31 @@ using System.Windows.Threading;
 
 namespace ProtolScadaRemake
 {
-    public partial class DialogElementLT : Window
+    public partial class DialogElementAI : Window
     {
-        private System.Windows.Media.Brush ButtonDeactiveColor = Brushes.White;
-        private System.Windows.Media.Brush ButtonActiveColor = Brushes.Green;
-        private System.Windows.Media.Brush NormalColor = Brushes.White;
-        private System.Windows.Media.Brush EditColor = Brushes.Yellow;
+        private System.Windows.Media.Brush ButtonDeactiveColor = System.Windows.Media.Brushes.White;
+        private System.Windows.Media.Brush ButtonActiveColor = System.Windows.Media.Brushes.Green;
+        private System.Windows.Media.Brush NormalColor = System.Windows.Media.Brushes.White;
+        private System.Windows.Media.Brush EditColor = System.Windows.Media.Brushes.Yellow;
         public TGlobal Global;
         public string VarName = ""; // Основание для имен
-        public DialogElementLT()
+        private string _eu;
+        public string EU
+        {
+            get => _eu;
+            set
+            {
+                _eu = value;
+                TextEU1.Content = _eu;
+                TextEU2.Content = _eu;
+                TextEU3.Content = _eu;
+                TextEU4.Content = _eu;
+                TextEU5.Content = _eu;
+                TextEU6.Content = _eu;
+                ManualValueUnits.Content = _eu;
+            }
+        }
+        public DialogElementAI()
         {
             InitializeComponent();
         }
