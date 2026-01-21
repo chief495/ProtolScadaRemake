@@ -9,6 +9,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <!-- Подключаем наш файл с иконками -->
                 <ResourceDictionary Source="IconResource.xaml"/>
+                <ResourceDictionary Source="/ImageXaml/PumpH_Start_test.xaml"/>
+
 
                 <!-- Здесь можно добавить другие словари -->
                 <!-- <ResourceDictionary Source="Styles.xaml"/> -->

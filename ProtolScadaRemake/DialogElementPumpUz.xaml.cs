@@ -17,7 +17,7 @@ namespace ProtolScadaRemake
     /// <summary>
     /// Логика взаимодействия для DialogElementPump.xaml
     /// </summary>
-    public partial class DialogElementPump : Window
+    public partial class DialogElementPumpUz : Window
     {
         public TGlobal Global;
         private System.Windows.Media.Brush ButtonDeactiveColor = Brushes.White;
@@ -25,7 +25,7 @@ namespace ProtolScadaRemake
         private System.Windows.Media.Brush NormalColor = Brushes.White;
         private System.Windows.Media.Brush EditColor = Brushes.Yellow;
         public string VarName = ""; // Основание для имен
-        public DialogElementPump()
+        public DialogElementPumpUz()
         {
             InitializeComponent();
         }
@@ -39,13 +39,19 @@ namespace ProtolScadaRemake
                 {
                     RBAuto.IsChecked = false;
                     RBManual.IsChecked = true;
+                    ManualSpeed.Visibility = Visibility.Visible;
                 }
                 else
                 {
                     RBAuto.IsChecked = true;
                     RBManual.IsChecked = false;
+                    ManualSpeed.Visibility = Visibility.Hidden;
                 }
             }
+
+            // Ручное значение
+            VariableTag = Global.Variables.GetByName(VarName + "_ManualSpeed");
+            if (VariableTag != null) if (VariableTag.ValueReal >= 0) if (VariableTag.ValueReal <= 100) ManualSpeedNumeric.Value = VariableTag.ValueReal;
             // Время запуска
             VariableTag = Global.Variables.GetByName(VarName + "_StartTime");
             if (VariableTag != null) StartTimeNumeric.Value = VariableTag.ValueReal;
@@ -77,30 +83,19 @@ namespace ProtolScadaRemake
                         RBManual.Background = EditColor;
             }
             // Режим работы и значение ручного режима
-            if (RBAuto.IsChecked  == true)
-            {
-                StartButton.Visibility = Visibility.Hidden;
-                StopButton.Visibility = Visibility.Hidden;
-                RBManual.IsChecked = false;
-            }
-            if (RBManual.IsChecked == true)
-            {
-                StartButton.Visibility = Visibility.Visible;
-                StopButton.Visibility = Visibility.Visible;
-                RBAuto.IsChecked = false;
-            }
-            // Режим работы и значение ручного режима
             if (RBAuto.IsChecked == true)
             {
                 RBManual.IsChecked = false;
                 StartButton.Visibility = Visibility.Hidden;
                 StopButton.Visibility = Visibility.Hidden;
+                ManualSpeed.Visibility = Visibility.Hidden;
             }
             if (RBManual.IsChecked == true)
             {
                 RBAuto.IsChecked = false;
                 StartButton.Visibility = Visibility.Visible;
                 StopButton.Visibility = Visibility.Visible;
+                ManualSpeed.Visibility = Visibility.Visible;
                 TVariableTag VariableTag2 = Global.Variables.GetByName(VarName + "_ManualStart");
                 if (VariableTag2 != null)
                     if (VariableTag2.ValueReal > 0)
@@ -113,6 +108,16 @@ namespace ProtolScadaRemake
                         StartButton.Background = ButtonDeactiveColor;
                         StopButton.Background = ButtonActiveColor;
                     }
+            }
+
+            // Скорость в ручном режиме
+            TVariableTag ManualSpeedVariable = Global.Variables.GetByName(VarName + "_ManualSpeed");
+            if (ManualSpeedNumeric.IsFocused == false)
+            {
+                ManualSpeedNumeric.Background = NormalColor;
+                if (ManualSpeedVariable != null)
+                    if (ManualSpeedVariable.ValueReal != Convert.ToDouble(ManualSpeedNumeric.Value))
+                        ManualSpeedNumeric.Background = EditColor;
             }
             // Время запуска
             TVariableTag StartTimeVariable = Global.Variables.GetByName(VarName + "_StartTime");
@@ -194,6 +199,21 @@ namespace ProtolScadaRemake
                         ManualValueCommand.NeedToWrite = true;
                         Global.Commands.SendToController();
                         await Global.Log.Add("Пользователь", Content?.ToString() + ". Значение ручного режима изменено на 'Отключено'.", 1);
+                    }
+        }
+
+        private async void ManualSpeedNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
+        {
+            TVariableTag StartTimeVariable = Global.Variables.GetByName(VarName + "_ManualSpeed");
+            TCommandTag StartTimeCommand = Global.Commands.GetByName(VarName + "_ManualSpeed");
+            if (StartTimeVariable != null)
+                if (StartTimeCommand != null)
+                    if (StartTimeVariable.ValueReal != Convert.ToDouble(ManualSpeedNumeric.Value))
+                    {
+                        StartTimeCommand.WriteValue = ManualSpeedNumeric.Value.ToString();
+                        StartTimeCommand.NeedToWrite = true;
+                        Global.Commands.SendToController();
+                        await Global.Log.Add("Пользователь", Content?.ToString() + ". Скорость в ручном режиме изменена на " + StartTimeCommand.WriteValue + " %.", 1);
                     }
         }
 

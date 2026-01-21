@@ -19,7 +19,7 @@ namespace ProtolScadaRemake
         public DateTime PassTime;
 
         // Настройка параметров опрашиваемого оборудования
-        public string Plc_IpAddress = "192.168.100.5";
+        public string Plc_IpAddress = "127.0.0.1";
         public int Plc_PortNum = 502;
         public int Plc_DeviceAddress = 1;
 

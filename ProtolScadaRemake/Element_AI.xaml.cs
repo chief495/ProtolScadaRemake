@@ -11,8 +11,8 @@ namespace ProtolScadaRemake
     /// </summary>
     public partial class Element_AI : UserControl
     {
-        public System.Windows.Media.Brush WarningColor = Brushes.Yellow;    // Цвет предупреждения
-        public System.Windows.Media.Brush FaultColor = Brushes.Red;         // Цвет аварии
+        public System.Windows.Media.Brush WarningColor = System.Windows.Media.Brushes.Yellow;    // Цвет предупреждения
+        public System.Windows.Media.Brush FaultColor = System.Windows.Media.Brushes.Red;         // Цвет аварии
         public string Description = "";                                     // Описание
         public TGlobal Global;
         public string VarName = "";                                         // Основание для имен
@@ -55,7 +55,7 @@ namespace ProtolScadaRemake
             Tag = Global.Variables.GetByName(VarName + "_Value");
             if (Tag != null) ValueLabel.Text = Tag.ValueString;
             // Аварии и предупреждения
-            ValueRect.Fill = Brushes.Transparent;
+            ValueRect.Fill = System.Windows.Media.Brushes.Transparent;
             Tag = Global.Variables.GetByName(VarName + "_Warning_Low");
             if (Tag != null) if (Tag.ValueReal > 0) ValueRect.Fill = WarningColor;
             Tag = Global.Variables.GetByName(VarName + "_Warning_Hi");
@@ -67,7 +67,7 @@ namespace ProtolScadaRemake
         }
         private void ValueLabel_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            DialogElementLT Dialog = new DialogElementLT();
+            DialogElementAI Dialog = new DialogElementAI();
             Dialog.Title = Description;
             Dialog.Global = Global;
             Dialog.VarName = VarName;

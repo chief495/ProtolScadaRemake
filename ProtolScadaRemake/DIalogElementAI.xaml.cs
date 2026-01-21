@@ -22,12 +22,12 @@ using System.Windows.Threading;
 
 namespace ProtolScadaRemake
 {
-    public partial class DialogElementLT : Window
+    public partial class DialogElementAI : Window
     {
-        private System.Windows.Media.Brush ButtonDeactiveColor = Brushes.White;
-        private System.Windows.Media.Brush ButtonActiveColor = Brushes.Green;
-        private System.Windows.Media.Brush NormalColor = Brushes.White;
-        private System.Windows.Media.Brush EditColor = Brushes.Yellow;
+        private System.Windows.Media.Brush ButtonDeactiveColor = System.Windows.Media.Brushes.White;
+        private System.Windows.Media.Brush ButtonActiveColor = System.Windows.Media.Brushes.Green;
+        private System.Windows.Media.Brush NormalColor = System.Windows.Media.Brushes.White;
+        private System.Windows.Media.Brush EditColor = System.Windows.Media.Brushes.Yellow;
         public TGlobal Global;
         public string VarName = ""; // Основание для имен
         private string _eu;
@@ -46,7 +46,7 @@ namespace ProtolScadaRemake
                 ManualValueUnits.Content = _eu;
             }
         }
-        public DialogElementLT()
+        public DialogElementAI()
         {
             InitializeComponent();
         }

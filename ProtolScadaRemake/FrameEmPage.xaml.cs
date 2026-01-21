@@ -44,6 +44,12 @@ namespace ProtolScadaRemake
            P651.Global = Global;
            P651.VarName = "P651";
            P651.Description = "Насос P651";
+           P651.TAGNAME.Text = "P651";
+          // HE700
+           //HE_700.Global = Global;
+           //HE_700.VarName = "HE-700";
+           //HE_700.Description = "Нагреватель HE-700";
+
 
         }
         private void Window_Loaded(object sender, EventArgs e)

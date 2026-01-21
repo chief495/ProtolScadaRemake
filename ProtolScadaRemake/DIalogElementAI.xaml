@@ -1,5 +1,5 @@
 ﻿<Window
-        x:Class="ProtolScadaRemake.DialogElementLT"
+        x:Class="ProtolScadaRemake.DialogElementAI"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,7 +8,7 @@
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
-        Title="DIalogElementLT" Height="320" Width="570" Background="#FFCCC9C9" ResizeMode="NoResize">
+        Title="DIalogElementAI" Height="320" Width="570" Background="#FFCCC9C9" ResizeMode="NoResize">
     <Grid Background="#FFCCC9C9" Height="310">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

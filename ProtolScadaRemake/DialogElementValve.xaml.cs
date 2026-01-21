@@ -125,7 +125,7 @@ namespace ProtolScadaRemake
 
        
         }
-        private void RBAuto_CheckedChanged(object sender, RoutedEventArgs e)
+        private async void RBAuto_CheckedChanged(object sender, RoutedEventArgs e)
         {
             TVariableTag ManualVariable = Global.Variables.GetByName(VarName + "_Manual");
             TCommandTag ManualCommand = Global.Commands.GetByName(VarName + "_Manual");
@@ -137,12 +137,12 @@ namespace ProtolScadaRemake
                             ManualCommand.WriteValue = "false";
                             ManualCommand.NeedToWrite = true;
                             Global.Commands.SendToController();
-                            Global.Log.Add("Пользователь", Content?.ToString() + ". Переведен в автоматический режим.", 1);
+                            await Global.Log.Add("Пользователь", Content?.ToString() + ". Переведен в автоматический режим.", 1);
                             CloseButton_Click(sender, e);
                         }
         }
 
-        private void RBManual_CheckedChanged(object sender, RoutedEventArgs e)
+        private async void RBManual_CheckedChanged(object sender, RoutedEventArgs e)
         {
             TVariableTag ManualVariable = Global.Variables.GetByName(VarName + "_Manual");
             TCommandTag ManualCommand = Global.Commands.GetByName(VarName + "_Manual");
@@ -154,12 +154,12 @@ namespace ProtolScadaRemake
                             ManualCommand.WriteValue = "true";
                             ManualCommand.NeedToWrite = true;
                             Global.Commands.SendToController();
-                            Global.Log.Add("Пользователь", Content?.ToString() + ". Переведен в ручной режим.", 1);
+                            await Global.Log.Add("Пользователь", Content?.ToString() + ". Переведен в ручной режим.", 1);
                             CloseButton_Click(sender, e);
                         }
         }
 
-        private void OpenButton_Click(object sender, RoutedEventArgs e)
+        private async void OpenButton_Click(object sender, RoutedEventArgs e)
         {
             TVariableTag ManualOpenVariable = Global.Variables.GetByName(VarName + "_ManualOpen");
             TCommandTag ManualOpenCommand = Global.Commands.GetByName(VarName + "_ManualOpen");
@@ -176,11 +176,11 @@ namespace ProtolScadaRemake
                                 ManualCloseCommand.WriteValue = "false";
                                 ManualCloseCommand.NeedToWrite = true;
                                 Global.Commands.SendToController();
-                                Global.Log.Add("Пользователь", Content?.ToString() + ". Значение ручного режима изменено на 'Открыть'.", 1);
+                                await Global.Log.Add("Пользователь", Content?.ToString() + ". Значение ручного режима изменено на 'Открыть'.", 1);
                             }
         }
 
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        private async void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             TVariableTag ManualOpenVariable = Global.Variables.GetByName(VarName + "_ManualOpen");
             TCommandTag ManualOpenCommand = Global.Commands.GetByName(VarName + "_ManualOpen");
@@ -197,11 +197,11 @@ namespace ProtolScadaRemake
                                 ManualCloseCommand.WriteValue = "true";
                                 ManualCloseCommand.NeedToWrite = true;
                                 Global.Commands.SendToController();
-                                Global.Log.Add("Пользователь", Content?.ToString() + ". Значение ручного режима изменено на 'Закрыть'.", 1);
+                                await Global.Log.Add("Пользователь", Content?.ToString() + ". Значение ручного режима изменено на 'Закрыть'.", 1);
                             }
         }
 
-        private void OpenTimeNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
+        private async void OpenTimeNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
             TVariableTag OpenTimeVariable = Global.Variables.GetByName(VarName + "_OpenTime");
             TCommandTag OpenTimeCommand = Global.Commands.GetByName(VarName + "_OpenTime");
@@ -212,11 +212,11 @@ namespace ProtolScadaRemake
                         OpenTimeCommand.WriteValue = OpenTimeNumeric.Value.ToString();
                         OpenTimeCommand.NeedToWrite = true;
                         Global.Commands.SendToController();
-                        Global.Log.Add("Пользователь", Content?.ToString() + ". Время открытия изменено на " + OpenTimeCommand.WriteValue + " сек.", 1);
+                        await Global.Log.Add("Пользователь", Content?.ToString() + ". Время открытия изменено на " + OpenTimeCommand.WriteValue + " сек.", 1);
                     }
         }
 
-        private void CloseTimeNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
+        private async void CloseTimeNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
             TVariableTag CloseTimeVariable = Global.Variables.GetByName(VarName + "_CloseTime");
             TCommandTag CloseTimeCommand = Global.Commands.GetByName(VarName + "_CloseTime");
@@ -227,7 +227,7 @@ namespace ProtolScadaRemake
                         CloseTimeCommand.WriteValue = CloseTimeNumeric.Value.ToString();
                         CloseTimeCommand.NeedToWrite = true;
                         Global.Commands.SendToController();
-                        Global.Log.Add("Пользователь", Content?.ToString() + ". Время закрытия изменено на " + CloseTimeCommand.WriteValue + " сек.", 1);
+                        await Global.Log.Add("Пользователь", Content?.ToString() + ". Время закрытия изменено на " + CloseTimeCommand.WriteValue + " сек.", 1);
                     }
         }
     }
