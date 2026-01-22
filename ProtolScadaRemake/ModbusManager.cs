@@ -16,7 +16,7 @@ public class ModbusManager
         { "ITEM_COUNT", 2 },
         { "EMERGENCY_STOP", 3 },
         
-        // Примеры для ваших тегов SCADA
+        // Примеры 
         { "LAHH151_Value", 10 },
         { "LAHH151_Manual", 11 },
         { "P651_IsWork", 12 },

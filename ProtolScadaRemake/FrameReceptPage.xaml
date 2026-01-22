@@ -1,12 +1,558 @@
-﻿<UserControl x:Class="ProtolScada.Wpf.FrameReceptPage"
+﻿<UserControl x:Class="ProtolScadaRemake.Controls.FrameReceptPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Height="268" Width="156">
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ProtolScadaRemake.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="1010" d:DesignWidth="1790">
 
-    <Grid Background="Teal">
-        <TextBlock Text="Рецептура" 
-                   HorizontalAlignment="Center" 
-                   VerticalAlignment="Center"
-                   FontSize="20"/>
+    <UserControl.Resources>
+        <!-- Стиль для заголовков разделов -->
+        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Стиль для меток параметров -->
+        <Style x:Key="ParameterLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,5,0,0"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="TextAlignment" Value="Right"/>
+        </Style>
+
+        <!-- ControlTemplate для полей ввода со скругленными углами -->
+        <ControlTemplate x:Key="RoundedTextBoxTemplate" TargetType="TextBox">
+            <Border Background="#FFE0E0E0" 
+                    BorderBrush="{TemplateBinding BorderBrush}" 
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="5">
+                <ScrollViewer x:Name="PART_ContentHost" 
+                              Margin="{TemplateBinding Padding}"
+                              Background="Transparent"/>
+            </Border>
+        </ControlTemplate>
+
+        <Style x:Key="ParameterValueStyle" TargetType="TextBox">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="#FF666666"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="3"/>
+            <Setter Property="Template" Value="{StaticResource RoundedTextBoxTemplate}"/>
+            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="Width" Value="120"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="10,5,0,0"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+        </Style>
+
+        <!-- ControlTemplate для кнопок со скругленными углами -->
+        <ControlTemplate x:Key="RoundedButtonTemplate" TargetType="Button">
+            <Border Background="{TemplateBinding Background}" 
+                    BorderBrush="{TemplateBinding BorderBrush}" 
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="5"
+                    Padding="{TemplateBinding Padding}">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+        </ControlTemplate>
+
+        <!-- Стиль для кнопок редактирования -->
+        <Style x:Key="EditButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#1E5945"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="#00FF7F"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,10,0,5"/>
+            <Setter Property="Content" Value="РЕДАКТИРОВАТЬ"/>
+            <Setter Property="Template" Value="{StaticResource RoundedButtonTemplate}"/>
+        </Style>
+
+        <!-- Стиль для кнопок автонастройки -->
+        <Style x:Key="TuneButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FF0078D7"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#FF005A9E"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,5,0,0"/>
+            <Setter Property="Content" Value="АВТОНАСТРОЙКА"/>
+            <Setter Property="Template" Value="{StaticResource RoundedButtonTemplate}"/>
+        </Style>
+
+        <!-- Стиль для кнопок управления -->
+        <Style x:Key="ControlButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template" Value="{StaticResource RoundedButtonTemplate}"/>
+        </Style>
+
+        <!-- Стиль для статуса компрессора -->
+        <Style x:Key="StatusTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Стиль для чекбокса -->
+        <Style x:Key="CheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,5,5,0"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="#ff1a263d">
+        <!-- Основной контейнер с выравниванием по правому краю -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="20,10,10,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ========== КОЛОНКА 1 ========== -->
+                <StackPanel Grid.Column="0" Margin="0,0,15,0" Width="420">
+                    <!-- РАСТВОР ГРО -->
+                    <Border Margin="0,0,0,15"
+                            Background="Transparent" BorderBrush="#FF666666" BorderThickness="3" CornerRadius="5">
+                        <StackPanel>
+                            <!-- Заголовок раздела -->
+                            <Border Background="Transparent" Padding="8,6" BorderBrush="#FF666666" BorderThickness="0,0,0,1" CornerRadius="5,5,0,0">
+                                <TextBlock Text="РАСТВОР ГРО" Style="{StaticResource SectionTitleStyle}"/>
+                            </Border>
+
+                            <!-- Содержимое в одну колонку -->
+                            <StackPanel Margin="15,3,15,3">
+                                <!-- Селитра -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Селитра" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="GroRecept_Selitra" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="GRO_Recept_Selitra"/>
+                                </StackPanel>
+
+                                <!-- Вода -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Вода" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="GroRecept_Water" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="GRO_Recept_Water"/>
+                                </StackPanel>
+
+                                <!-- Использовать кислоту ГГД -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Использовать кислоту ГГД" Style="{StaticResource ParameterLabelStyle}" Width="170"/>
+                                    <CheckBox x:Name="GroRecept_UseAcidCheck" Style="{StaticResource CheckBoxStyle}" Tag="GRO_Recept_KislotaEnable"
+                                              Margin="5,5,10,0"/>
+                                    <TextBox x:Name="GroRecept_Acid" Style="{StaticResource ParameterValueStyle}" Width="120"
+                                             Tag="GRO_Recept_Kislota"/>
+                                </StackPanel>
+
+                                <!-- Максимальная температура -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Задание максимальной температуры" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="GroRecept_TempMax" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="GRO_Recept_Tmax"/>
+                                </StackPanel>
+
+                                <!-- Дельта максимальной температуры -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Дельта максимальной температуры" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="GroRecept_TempMaxDelta" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="GRO_Recept_TmaxDelta"/>
+                                </StackPanel>
+
+                                <!-- Минимальная температура -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Задание минимальной температуры" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="GroRecept_TempMin" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="GRO_Recept_Tmin"/>
+                                </StackPanel>
+
+                                <!-- Температура блокировки шнека -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Температура блокировки шнека" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="GroRecept_ScrewBlockTemp" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="GRO_Recept_A100BlockTemp"/>
+                                </StackPanel>
+
+                                <!-- Минимальная масса блокировки шнека -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Минимальная масса блокировки шнека" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="GroRecept_ScrewBlockMass" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="GRO_Recept_A100BlockWeith"/>
+                                </StackPanel>
+
+                                <!-- Номинальная скорость P-100 -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Номинальная скорость P-100" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P100_NominalSpeed" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P100_SpeedHi"/>
+                                </StackPanel>
+
+                                <!-- Минимальная скорость P-100 -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Минимальная скорость P-100" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P100_MinSpeed" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P100_SpeedLow"/>
+                                </StackPanel>
+
+                                <!-- Минимальная масса для P-100 -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Минимальная масса для P-100" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P100_MinMass" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P100_MinMass"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Кнопка редактирования -->
+                            <Button x:Name="GroEditButton" Style="{StaticResource EditButtonStyle}" HorizontalAlignment="Center" Click="GroEditButton_Click_1"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ОТГРУЗКА ПРОДУКЦИИ -->
+                    <Border Margin="0,0,0,15"
+                            Background="Transparent" BorderBrush="#FF666666" BorderThickness="3" CornerRadius="5">
+                        <StackPanel>
+                            <!-- Заголовок раздела -->
+                            <Border Background="Transparent" Padding="8,6" BorderBrush="#FF666666" BorderThickness="0,0,0,1" CornerRadius="5,5,0,0">
+                                <TextBlock Text="ОТГРУЗКА ПРОДУКЦИИ" Style="{StaticResource SectionTitleStyle}"/>
+                            </Border>
+
+                            <!-- Содержимое -->
+                            <StackPanel Margin="15,3,15,3">
+                                <!-- Время реверса P-700 -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Время реверса P-700" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="Unload_ReverseTime" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="EM_Recept_ReverseTime"/>
+                                </StackPanel>
+
+                                <!-- Кнопка редактирования -->
+                                <Button x:Name="UnloadEditButton" Style="{StaticResource EditButtonStyle}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- КОМПРЕССОР -->
+                    <Border Background="Transparent" BorderBrush="#FF666666" BorderThickness="3" CornerRadius="5">
+                        <StackPanel>
+                            <!-- Заголовок раздела -->
+                            <Border Background="Transparent" Padding="8,6" BorderBrush="#FF666666" BorderThickness="0,0,0,1" CornerRadius="5,5,0,0">
+                                <TextBlock Text="КОМПРЕССОР" Style="{StaticResource SectionTitleStyle}"/>
+                            </Border>
+
+                            <!-- Содержимое -->
+                            <StackPanel Margin="15,3,15,3" HorizontalAlignment="Center">
+                                <!-- Статус -->
+                                <Border Background="#80666666" CornerRadius="5" Margin="0,5">
+                                    <TextBlock x:Name="CompressorStatus" Text="ОТКЛЮЧЕН" 
+                                               Style="{StaticResource StatusTextStyle}" Foreground="White"/>
+                                </Border>
+
+                                <!-- Кнопки управления -->
+                                <StackPanel Orientation="Horizontal" Margin="0,5">
+                                    <Button x:Name="CompressorStartButton" Content="ВКЛЮЧИТЬ" 
+                                            Style="{StaticResource ControlButtonStyle}" Margin="0,0,10,0"
+                                            Background="#1E5945" BorderBrush="#00FF7F"/>
+                                    <Button x:Name="CompressorStopButton" Content="ОТКЛЮЧИТЬ" 
+                                            Style="{StaticResource ControlButtonStyle}"
+                                            Background="#7B001C" BorderBrush="#FF0033"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- ========== КОЛОНКА 2 ========== -->
+                <StackPanel Grid.Column="1" Margin="0,0,15,0" Width="420">
+                    <!-- РАСТВОР ТС -->
+                    <Border Margin="0,0,0,15"
+                            Background="Transparent" BorderBrush="#FF666666" BorderThickness="3" CornerRadius="5">
+                        <StackPanel>
+                            <!-- Заголовок раздела -->
+                            <Border Background="Transparent" Padding="8,6" BorderBrush="#FF666666" BorderThickness="0,0,0,1" CornerRadius="5,5,0,0">
+                                <TextBlock Text="РАСТВОР ТС" Style="{StaticResource SectionTitleStyle}"/>
+                            </Border>
+
+                            <!-- Содержимое в одну колонку -->
+                            <StackPanel Margin="15,3,15,3">
+                                <!-- Дизельное топливо -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Дизельное топливо" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="TcRecept_Diesel" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="TC_Recept_Disel"/>
+                                </StackPanel>
+
+                                <!-- Эмульгатор -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Эмульгатор" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="TcRecept_Emulsifier" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="TC_Recept_Emulgator"/>
+                                </StackPanel>
+
+                                <!-- Температура в T-200 -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Задание температуры в T-200" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="TcRecept_TempT200" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="TC_Recept_Temperature_T200"/>
+                                </StackPanel>
+
+                                <!-- Температура в T-250 -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Задание температуры в T-250" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="TcRecept_TempT250" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="TC_Recept_Temperature_T250"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Кнопка редактирования -->
+                            <Button x:Name="TcEditButton" Style="{StaticResource EditButtonStyle}" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ПРОИЗВОДСТВО ЭМ -->
+                    <Border Background="Transparent" BorderBrush="#FF666666" BorderThickness="3" CornerRadius="5">
+                        <StackPanel>
+                            <!-- Заголовок раздела -->
+                            <Border Background="Transparent" Padding="8,6" BorderBrush="#FF666666" BorderThickness="0,0,0,1" CornerRadius="5,5,0,0">
+                                <TextBlock Text="ПРОИЗВОДСТВО ЭМ" Style="{StaticResource SectionTitleStyle}"/>
+                            </Border>
+
+                            <!-- Содержимое в одну колонку -->
+                            <StackPanel Margin="15,3,15,3">
+                                <!-- Подача раствора ГРО -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Подача раствора ГРО" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="EmRecept_Gro" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="EM_Recept_GRO"/>
+                                </StackPanel>
+
+                                <!-- Подача топливной смеси -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Подача топливной смеси" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="EmRecept_FuelMix" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="EM_Recept_Disel"/>
+                                </StackPanel>
+
+                                <!-- Масса топлива промывки -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Масса топлива промывки" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="EmRecept_WashFuelMass" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="EM_ReceptDiaeslLast"/>
+                                </StackPanel>
+
+                                <!-- Масса затравки -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Масса затравки" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="EmRecept_PrimerMass" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="EM_ReceptZatravkaMass"/>
+                                </StackPanel>
+
+                                <!-- Время затравки -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Время затравки" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="EmRecept_PrimerTime" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="EM_ReceptZatravkaTime"/>
+                                </StackPanel>
+
+                                <!-- Рабочий уровень в T-650 -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Рабочий уровень в T-650" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="EmRecept_T650Level" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="EM_ReceptWorkLevel"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Кнопка редактирования -->
+                            <Button x:Name="EmEditButton" Style="{StaticResource EditButtonStyle}" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- ========== КОЛОНКА 3 ========== -->
+                <StackPanel Grid.Column="2" Width="420">
+                    <!-- PID-регулятор насоса P-601 -->
+                    <Border Margin="0,0,0,15"
+                            Background="Transparent" BorderBrush="#FF666666" BorderThickness="3" CornerRadius="5">
+                        <StackPanel>
+                            <!-- Заголовок раздела -->
+                            <Border Background="Transparent" Padding="8,6" BorderBrush="#FF666666" BorderThickness="0,0,0,1" CornerRadius="5,5,0,0">
+                                <TextBlock Text="PID-регулятор насоса P-601" Style="{StaticResource SectionTitleStyle}"/>
+                            </Border>
+
+                            <!-- Содержимое в одну колонку -->
+                            <StackPanel Margin="15,3,15,3">
+                                <!-- Коэффициент P -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Коэффициент P" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P601_PID_P" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P601_PID_P"/>
+                                </StackPanel>
+
+                                <!-- Коэффициент I -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Коэффициент I" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P601_PID_I" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P601_PID_I"/>
+                                </StackPanel>
+
+                                <!-- Коэффициент D -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Коэффициент D" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P601_PID_D" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P601_PID_D"/>
+                                </StackPanel>
+
+                                <!-- Коэффициент T -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Коэффициент T" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P601_PID_T" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P601_PID_T"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Кнопки редактирования и автонастройки -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
+                                <Button x:Name="P601EditButton" Style="{StaticResource EditButtonStyle}" 
+                                        Content="РЕДАКТИРОВАТЬ" Margin="0,0,10,0"/>
+                                <Button x:Name="P601TuneButton" Style="{StaticResource TuneButtonStyle}" 
+                                        Content="АВТОНАСТРОЙКА"
+                                        BorderBrush="#FFFFFF"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- PID-регулятор насоса P-602 -->
+                    <Border Margin="0,0,0,15"
+                            Background="Transparent" BorderBrush="#FF666666" BorderThickness="3" CornerRadius="5">
+                        <StackPanel>
+                            <!-- Заголовок раздела -->
+                            <Border Background="Transparent" Padding="8,6" BorderBrush="#FF666666" BorderThickness="0,0,0,1" CornerRadius="5,5,0,0">
+                                <TextBlock Text="PID-регулятор насоса P-602" Style="{StaticResource SectionTitleStyle}"/>
+                            </Border>
+
+                            <!-- Содержимое в одну колонку -->
+                            <StackPanel Margin="15,3,15,3">
+                                <!-- Коэффициент P -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Коэффициент P" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P602_PID_P" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P602_PID_P"/>
+                                </StackPanel>
+
+                                <!-- Коэффициент I -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Коэффициент I" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P602_PID_I" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P602_PID_I"/>
+                                </StackPanel>
+
+                                <!-- Коэффициент D -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Коэффициент D" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P602_PID_D" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P602_PID_D"/>
+                                </StackPanel>
+
+                                <!-- Коэффициент T -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Коэффициент T" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P602_PID_T" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P602_PID_T"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Кнопки редактирования и автонастройки -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
+                                <Button x:Name="P602EditButton" Style="{StaticResource EditButtonStyle}" 
+                                        Content="РЕДАКТИРОВАТЬ" Margin="0,0,10,0"/>
+                                <Button x:Name="P602TuneButton" Style="{StaticResource TuneButtonStyle}" 
+                                        Content="АВТОНАСТРОЙКА"
+                                        BorderBrush="#FFFFFF"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- PID-регулятор насоса P-651 -->
+                    <Border Background="Transparent" BorderBrush="#FF666666" BorderThickness="3" CornerRadius="5">
+                        <StackPanel>
+                            <!-- Заголовок раздела -->
+                            <Border Background="Transparent" Padding="8,6" BorderBrush="#FF666666" BorderThickness="0,0,0,1" CornerRadius="5,5,0,0">
+                                <TextBlock Text="PID-регулятор насоса P-651" Style="{StaticResource SectionTitleStyle}"/>
+                            </Border>
+
+                            <!-- Содержимое в одну колонку -->
+                            <StackPanel Margin="15,3,15,3">
+                                <!-- Коэффициент P -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Коэффициент P" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P651_PID_P" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P651_PID_P"/>
+                                </StackPanel>
+
+                                <!-- Коэффициент I -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Коэффициент I" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P651_PID_I" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P651_PID_I"/>
+                                </StackPanel>
+
+                                <!-- Коэффициент D -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Коэффициент D" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P651_PID_D" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P651_PID_D"/>
+                                </StackPanel>
+
+                                <!-- Коэффициент T -->
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <TextBlock Text="Коэффициент T" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
+                                    <TextBox x:Name="P651_PID_T" Style="{StaticResource ParameterValueStyle}"
+                                             Tag="P651_PID_T"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Кнопки редактирования и автонастройки -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5">
+                                <Button x:Name="P651EditButton" Style="{StaticResource EditButtonStyle}" 
+                                        Content="РЕДАКТИРОВАТЬ" Margin="0,0,10,0"/>
+                                <Button x:Name="P651TuneButton" Style="{StaticResource TuneButtonStyle}" 
+                                        Content="АВТОНАСТРОЙКА"
+                                        BorderBrush=" #FFFFFF"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Пустая колонка для смещения вправо -->
+                <Grid Grid.Column="3"/>
+
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>

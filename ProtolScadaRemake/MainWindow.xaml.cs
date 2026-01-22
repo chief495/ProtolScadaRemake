@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using NModbus;
 using NModbus.Device;
+using ProtolScadaRemake.Controls;
 
 namespace ProtolScadaRemake
 {
@@ -27,6 +28,7 @@ namespace ProtolScadaRemake
         private FrameLog? _LogPage;
         private DispatcherTimer _logTestTimer;
         private FrameTrends _trendsPage;
+        private FrameReceptPage? _ReceptPage;
 
         private DBUtils _dbUtils;
         private DispatcherTimer _logSyncTimer;
@@ -379,9 +381,32 @@ namespace ProtolScadaRemake
             GroPageButton.Click += (s, e) => ShowGroPage();
             TcPageButton.Click += (s, e) => ShowTcPage();
             EmPageButton.Click += (s, e) => ShowEmPage();
-            ReceptPageButton.Click += (s, e) => ShowPage("Рецептура");
+            ReceptPageButton.Click += (s, e) => ShowReceptPage();    
             LogPageButton.Click += (s, e) => ShowLogPage();
             TrendsButton.Click += (s, e) => TrendsButton_Click(s, e);
+        }
+
+        private void ShowReceptPage()
+        {
+            try
+            {
+                ContentGrid.Children.Clear();
+
+                if (_ReceptPage == null)
+                {
+                    _ReceptPage = new FrameReceptPage();
+                    _ReceptPage.Global = _global; // Передаем глобальный объект
+                }
+
+                ContentGrid.Children.Add(_ReceptPage);
+                TitleLabel.Text = "СТРАНИЦА РЕЦЕПТУРЫ";
+                SetActiveButton(ReceptPageButton);
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Не удалось загрузить страницу рецептуры: {ex.Message}");
+                Debug.WriteLine($"ShowReceptPage error: {ex.Message}\n{ex.StackTrace}");
+            }
         }
 
         private void TrendsButton_Click(object sender, RoutedEventArgs e)
@@ -542,36 +567,36 @@ namespace ProtolScadaRemake
             _productStatistics.VerticalAlignment = VerticalAlignment.Center;
         }
 
-        private void ShowPage(string pageName)
-        {
-            ContentGrid.Children.Clear();
-            TitleLabel.Text = pageName.ToUpper();
+        //private void ShowPage(string pageName)
+        //{
+        //    ContentGrid.Children.Clear();
+        //    TitleLabel.Text = pageName.ToUpper();
 
-            Button? activeButton = pageName switch
-            {
-                "ГГД" => GgdPageButton,
-                "ГРО" => GroPageButton,
-                "ТС" => TcPageButton,
-                "Рецептура" => ReceptPageButton,
-                "Журнал" => LogPageButton,
-                _ => null
-            };
+        //    Button? activeButton = pageName switch
+        //    {
+        //        "ГГД" => GgdPageButton,
+        //        "ГРО" => GroPageButton,
+        //        "ТС" => TcPageButton,
+        //        "Рецептура" => ReceptPageButton,
+        //        "Журнал" => LogPageButton,
+        //        _ => null
+        //    };
 
-            if (activeButton != null)
-                SetActiveButton(activeButton);
+        //    if (activeButton != null)
+        //        SetActiveButton(activeButton);
 
-            var textBlock = new TextBlock
-            {
-                Text = $"{pageName.ToUpper()}\n\nСтраница в разработке",
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                FontSize = 24,
-                FontWeight = FontWeights.Bold,
-                TextAlignment = TextAlignment.Center,
-                Foreground = Brushes.Gray
-            };
-            ContentGrid.Children.Add(textBlock);
-        }
+        //    var textBlock = new TextBlock
+        //    {
+        //        Text = $"{pageName.ToUpper()}\n\nСтраница в разработке",
+        //        HorizontalAlignment = HorizontalAlignment.Center,
+        //        VerticalAlignment = VerticalAlignment.Center,
+        //        FontSize = 24,
+        //        FontWeight = FontWeights.Bold,
+        //        TextAlignment = TextAlignment.Center,
+        //        Foreground = Brushes.Gray
+        //    };
+        //    ContentGrid.Children.Add(textBlock);
+        //}
 
         private void ShowError(string message)
         {
@@ -592,41 +617,30 @@ namespace ProtolScadaRemake
 
         private void SetActiveButton(Button activeButton)
         {
-            var buttons = new[] {
+            try
+            {
+                var buttons = new[] {
                 MainPageButton, GgdPageButton, GroPageButton,
                 TcPageButton, EmPageButton, ReceptPageButton,
                 LogPageButton, TrendsButton
-            };
+                };
 
-            _activeNavigationButton = activeButton;
+                _activeNavigationButton = activeButton;
 
-            foreach (var button in buttons)
-            {
-                if (button != null)
+                foreach (var button in buttons)
                 {
-                    button.Background = Brushes.Transparent;
-                    button.Opacity = 1;
-                    button.BorderThickness = new Thickness(0);
-
-                    // Для всех неактивных кнопок сбрасываем Tag
-                    if (button != activeButton)
+                    if (button != null)
                     {
-                        button.Tag = "Normal";
-                    }
-                    else
-                    {
-                        // Для активной кнопки устанавливаем Tag "Active"
-                        button.Tag = "Active";
+                        // Для кнопок с Template установим Tag
+                        button.Tag = button == activeButton ? "Active" : "Normal";
                     }
                 }
-            }
 
-            if (activeButton != null)
+                Debug.WriteLine($"Установлена активная кнопка: {activeButton?.Name}");
+            }
+            catch (Exception ex)
             {
-                activeButton.Background = new SolidColorBrush(Color.FromArgb(255, 187, 222, 251));
-                activeButton.Opacity = 1.0;
-                activeButton.BorderThickness = new Thickness(0, 0, 4, 0);
-                activeButton.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 33, 150, 243));
+                Debug.WriteLine($"Ошибка в SetActiveButton: {ex.Message}");
             }
         }
     }
