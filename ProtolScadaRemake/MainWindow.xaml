@@ -89,7 +89,7 @@
         </Border>
 
         <!-- MAIN CONTENT AREA -->
-        <Border Grid.Row="1" Grid.Column="0" Background="White">
+        <Border Grid.Row="1" Grid.Column="0" Background="#ff1a263d">
             <Grid x:Name="ContentGrid" Height="1000">
                 <TextBlock Text="Выберите раздел" 
                            HorizontalAlignment="Center"

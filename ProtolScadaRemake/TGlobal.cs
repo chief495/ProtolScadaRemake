@@ -38,7 +38,6 @@ namespace ProtolScadaRemake
         // DBUtils для работы с базой данных
         private DBUtils _dbUtils;
 
-        // Конструктор
         // Тренды
         public TTrendList Trends { get; private set; }
         public DatabaseTrendManager TrendManager { get; private set; }
@@ -101,7 +100,6 @@ namespace ProtolScadaRemake
             return _dbUtils;
         }
 
-        // Остальные методы без изменений...
         public async Task UpdateTrendsAsync()
         {
             foreach (var trend in Trends.Items)

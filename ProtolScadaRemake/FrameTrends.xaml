@@ -15,121 +15,151 @@
         </Grid.RowDefinitions>
 
         <!-- Панель управления -->
-        <StackPanel Grid.Row="0" Margin="10">
-            <!-- Выбор тренда -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <TextBlock Text="Тренд:" 
-                           VerticalAlignment="Center" 
-                           Margin="0,0,10,0"/>
-                <ComboBox x:Name="CmbTrend" 
-                          Width="300"
-                          DisplayMemberPath="DisplayText"
-                          SelectionChanged="CmbTrend_SelectionChanged"/>
+        <Border Grid.Row="0" 
+                Background="#F5F5F5" 
+                Padding="10" 
+                Margin="10,10,10,5"
+                BorderBrush="LightGray"
+                BorderThickness="0,0,0,1">
+            <StackPanel>
+                <!-- Выбор тренда -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="Тренд:" 
+                               VerticalAlignment="Center" 
+                               Margin="0,0,10,0"
+                               FontWeight="SemiBold"/>
+                    <ComboBox x:Name="CmbTrend" 
+                              Width="300"
+                              DisplayMemberPath="DisplayText"
+                              SelectionChanged="CmbTrend_SelectionChanged"/>
+                </StackPanel>
+
+                <!-- Выбор периода -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="Период:" 
+                               VerticalAlignment="Center" 
+                               Margin="0,0,10,0"
+                               FontWeight="SemiBold"/>
+                    <RadioButton x:Name="RbHour" 
+                                 Content="Час" 
+                                 GroupName="Period" 
+                                 IsChecked="True"
+                                 Margin="5,0"/>
+                    <RadioButton x:Name="RbDay" 
+                                 Content="Сутки" 
+                                 GroupName="Period" 
+                                 Margin="10,0"/>
+                    <RadioButton x:Name="RbWeek" 
+                                 Content="Неделя" 
+                                 GroupName="Period" 
+                                 Margin="10,0"/>
+                    <RadioButton x:Name="RbCustom" 
+                                 Content="Произвольный" 
+                                 GroupName="Period" 
+                                 Margin="10,0"/>
+                </StackPanel>
+
+                <!-- Произвольный период -->
+                <StackPanel x:Name="CustomPanel" 
+                            Orientation="Horizontal" 
+                            Margin="0,0,0,10">
+                    <DatePicker x:Name="DpFromDate" 
+                                Width="120"
+                                Margin="0,0,5,0"/>
+                    <TextBlock Text="с" 
+                               VerticalAlignment="Center" 
+                               Margin="0,0,5,0"/>
+                    <ComboBox x:Name="CmbFromHour" 
+                              Width="50" 
+                              Margin="0,0,5,0"/>
+                    <TextBlock Text=":" 
+                               VerticalAlignment="Center"/>
+                    <ComboBox x:Name="CmbFromMinute" 
+                              Width="50" 
+                              Margin="5,0,10,0"/>
+
+                    <TextBlock Text="по" 
+                               VerticalAlignment="Center" 
+                               Margin="0,0,5,0"/>
+                    <DatePicker x:Name="DpToDate" 
+                                Width="120"
+                                Margin="0,0,5,0"/>
+                    <TextBlock Text="с" 
+                               VerticalAlignment="Center" 
+                               Margin="0,0,5,0"/>
+                    <ComboBox x:Name="CmbToHour" 
+                              Width="50" 
+                              Margin="0,0,5,0"/>
+                    <TextBlock Text=":" 
+                               VerticalAlignment="Center"/>
+                    <ComboBox x:Name="CmbToMinute" 
+                              Width="50" 
+                              Margin="5,0,10,0"/>
+                </StackPanel>
+
+                <!-- Кнопки управления -->
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="BtnLoad" 
+                            Content="Загрузить" 
+                            Width="100" 
+                            Height="30" 
+                            Background="#FF007ACC"
+                            Foreground="White"
+                            Click="BtnLoad_Click"
+                            Cursor="Hand"/>
+                    <Button x:Name="BtnYesterday" 
+                            Content="Вчера" 
+                            Width="80" 
+                            Height="30" 
+                            Margin="10,0,0,0" 
+                            Background="#FF007ACC"
+                            Foreground="White"
+                            Click="BtnYesterday_Click"
+                            Cursor="Hand"/>
+                    <Button x:Name="BtnToday" 
+                            Content="Сегодня" 
+                            Width="80" 
+                            Height="30" 
+                            Margin="10,0,0,0" 
+                            Background="#FF007ACC"
+                            Foreground="White"
+                            Click="BtnToday_Click"
+                            Cursor="Hand"/>
+                    <Button x:Name="BtnWeek" 
+                            Content="Неделя" 
+                            Width="80" 
+                            Height="30" 
+                            Margin="10,0,0,0" 
+                            Background="#FF007ACC"
+                            Foreground="White"
+                            Click="BtnWeek_Click"
+                            Cursor="Hand"/>
+                    <Button x:Name="BtnExport" 
+                            Content="Экспорт" 
+                            Width="80" 
+                            Height="30" 
+                            Margin="10,0,0,0" 
+                            Background="#FF007ACC"
+                            Foreground="White"
+                            Click="BtnExport_Click"
+                            Cursor="Hand"/>
+                </StackPanel>
             </StackPanel>
+        </Border>
 
-            <!-- Выбор периода -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <TextBlock Text="Период:" 
-                           VerticalAlignment="Center" 
-                           Margin="0,0,10,0"/>
-                <RadioButton x:Name="RbHour" 
-                             Content="Час" 
-                             GroupName="Period" 
-                             IsChecked="True"/>
-                <RadioButton x:Name="RbDay" 
-                             Content="Сутки" 
-                             GroupName="Period" 
-                             Margin="10,0,0,0"/>
-                <RadioButton x:Name="RbWeek" 
-                             Content="Неделя" 
-                             GroupName="Period" 
-                             Margin="10,0,0,0"/>
-                <RadioButton x:Name="RbCustom" 
-                             Content="Произвольный" 
-                             GroupName="Period" 
-                             Margin="10,0,0,0"/>
-            </StackPanel>
-
-            <!-- Произвольный период -->
-            <StackPanel x:Name="CustomPanel" 
-                        Orientation="Horizontal" 
-                        Margin="0,0,0,10">
-                <DatePicker x:Name="DpFromDate" 
-                            Width="120"/>
-                <TextBlock Text="с" 
-                           VerticalAlignment="Center" 
-                           Margin="5,0"/>
-                <ComboBox x:Name="CmbFromHour" 
-                          Width="50" 
-                          Margin="0,0,5,0"/>
-                <TextBlock Text=":" 
-                           VerticalAlignment="Center"/>
-                <ComboBox x:Name="CmbFromMinute" 
-                          Width="50" 
-                          Margin="5,0,10,0"/>
-
-                <TextBlock Text="по" 
-                           VerticalAlignment="Center" 
-                           Margin="0,0,5,0"/>
-                <DatePicker x:Name="DpToDate" 
-                            Width="120"/>
-                <TextBlock Text="с" 
-                           VerticalAlignment="Center" 
-                           Margin="5,0"/>
-                <ComboBox x:Name="CmbToHour" 
-                          Width="50" 
-                          Margin="0,0,5,0"/>
-                <TextBlock Text=":" 
-                           VerticalAlignment="Center"/>
-                <ComboBox x:Name="CmbToMinute" 
-                          Width="50" 
-                          Margin="5,0,10,0"/>
-            </StackPanel>
-
-            <!-- Кнопки управления -->
-            <StackPanel Orientation="Horizontal">
-                <Button x:Name="BtnLoad" 
-                        Content="Загрузить" 
-                        Width="100" 
-                        Height="30" 
-                        Click="BtnLoad_Click"/>
-                <Button x:Name="BtnYesterday" 
-                        Content="Вчера" 
-                        Width="80" 
-                        Height="30" 
-                        Margin="10,0,0,0" 
-                        Click="BtnYesterday_Click"/>
-                <Button x:Name="BtnToday" 
-                        Content="Сегодня" 
-                        Width="80" 
-                        Height="30" 
-                        Margin="10,0,0,0" 
-                        Click="BtnToday_Click"/>
-                <Button x:Name="BtnWeek" 
-                        Content="Неделя" 
-                        Width="80" 
-                        Height="30" 
-                        Margin="10,0,0,0" 
-                        Click="BtnWeek_Click"/>
-                <Button x:Name="BtnExport" 
-                        Content="Экспорт" 
-                        Width="80" 
-                        Height="30" 
-                        Margin="10,0,0,0" 
-                        Click="BtnExport_Click"/>
-            </StackPanel>
-        </StackPanel>
-
-        <!-- График -->
+        <!-- График - растягивается на все доступное пространство -->
         <oxy:PlotView x:Name="TrendPlot" 
                       Grid.Row="1" 
-                      Margin="10"/>
+                      Margin="10,5,10,5"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"/>
 
         <!-- Строка состояния -->
-        <StatusBar Grid.Row="2">
+        <StatusBar Grid.Row="2" Background="#F0F0F0">
             <StatusBarItem>
                 <TextBlock x:Name="TxtStatus" 
-                           Text="Готово"/>
+                           Text="Готово"
+                           Margin="10,2"/>
             </StatusBarItem>
         </StatusBar>
     </Grid>

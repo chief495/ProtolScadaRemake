@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProtolScadaRemake"
         mc:Ignorable="d"
-        Title="DialogElementValve" Height="182" Width="671" Background="#FFCCC9C9" FontFamily="Arial" Margin="0,0,0,10">
+        Title="DialogElementValve" Height="182" Width="671" Background="#FFCCC9C9" FontFamily="Arial" Margin="0,0,0,10"
+        Icon="Images/ProtolLogo.ico">
     <Grid Margin="0,0,10,10">
         <Grid.RowDefinitions>
             <RowDefinition/>

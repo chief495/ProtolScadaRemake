@@ -124,6 +124,158 @@ namespace ProtolScada
 
             return records;
         }
+        // ============ ДОПОЛНИТЕЛЬНЫЕ МЕТОДЫ ДЛЯ ЖУРНАЛА ============
+
+        public async Task<List<TLogRecord>> LoadLogRecordsByDateAsync(DateTime? fromDate, DateTime? toDate, int limit = 1000)
+        {
+            var records = new List<TLogRecord>();
+
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    await connection.OpenAsync();
+
+                    // Строим динамический запрос
+                    string sql = @"SELECT `ID`, `Time`, `GroupName`, `Text`, `ImageIndex` 
+                         FROM `log` 
+                         WHERE 1=1";
+
+                    // Добавляем условия фильтрации по дате
+                    if (fromDate.HasValue)
+                    {
+                        sql += " AND `Time` >= @FromDate";
+                    }
+
+                    if (toDate.HasValue)
+                    {
+                        sql += " AND `Time` <= @ToDate";
+                    }
+
+                    sql += " ORDER BY `Time` DESC LIMIT @Limit";
+
+                    using (var command = new MySqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@Limit", limit);
+
+                        if (fromDate.HasValue)
+                            command.Parameters.AddWithValue("@FromDate", fromDate.Value);
+                        else
+                            command.Parameters.AddWithValue("@FromDate", DBNull.Value);
+
+                        if (toDate.HasValue)
+                            command.Parameters.AddWithValue("@ToDate", toDate.Value);
+                        else
+                            command.Parameters.AddWithValue("@ToDate", DBNull.Value);
+
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                records.Add(new TLogRecord
+                                {
+                                    // ID = reader.GetInt64(0), // Если нужно ID
+                                    Time = reader.GetDateTime(1),
+                                    GroupName = reader.GetString(2),
+                                    Text = reader.GetString(3),
+                                    ImageIndex = reader.GetInt16(4)
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка загрузки логов по дате: {ex.Message}");
+            }
+
+            return records;
+        }
+
+        public async Task<List<TLogRecord>> LoadLogRecordsByPeriodAsync(string periodType, int limit = 1000)
+        {
+            DateTime? fromDate = null;
+            var now = DateTime.Now;
+
+            switch (periodType)
+            {
+                case "За сутки":
+                    fromDate = now.AddDays(-1);
+                    break;
+                case "За неделю":
+                    fromDate = now.AddDays(-7);
+                    break;
+                case "За месяц":
+                    fromDate = now.AddDays(-30);
+                    break;
+                default:
+                    fromDate = now.AddDays(-1); // По умолчанию сутки
+                    break;
+            }
+
+            return await LoadLogRecordsByDateAsync(fromDate, now, limit);
+        }
+
+        // ============ ДОПОЛНИТЕЛЬНЫЕ МЕТОДЫ ДЛЯ ЭКСПОРТА ============
+
+        public async Task<List<TLogRecord>> LoadAllLogRecordsForExportAsync(DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            var records = new List<TLogRecord>();
+
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    await connection.OpenAsync();
+
+                    string sql = @"SELECT `Time`, `GroupName`, `Text`, `ImageIndex` 
+                         FROM `log` 
+                         WHERE 1=1";
+
+                    if (fromDate.HasValue)
+                    {
+                        sql += " AND `Time` >= @FromDate";
+                    }
+
+                    if (toDate.HasValue)
+                    {
+                        sql += " AND `Time` <= @ToDate";
+                    }
+
+                    sql += " ORDER BY `Time` DESC";
+
+                    using (var command = new MySqlCommand(sql, connection))
+                    {
+                        if (fromDate.HasValue)
+                            command.Parameters.AddWithValue("@FromDate", fromDate.Value);
+
+                        if (toDate.HasValue)
+                            command.Parameters.AddWithValue("@ToDate", toDate.Value);
+
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                records.Add(new TLogRecord
+                                {
+                                    Time = reader.GetDateTime(0),
+                                    GroupName = reader.GetString(1),
+                                    Text = reader.GetString(2),
+                                    ImageIndex = reader.GetInt16(3)
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка загрузки логов для экспорта: {ex.Message}");
+            }
+
+            return records;
+        }
 
         // ============ МЕТОДЫ ДЛЯ ТРЕНДОВ ============
 

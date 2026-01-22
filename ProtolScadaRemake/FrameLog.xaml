@@ -6,7 +6,10 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
 
-    <Grid Background="White" Margin="10">
+    <Grid Background="White">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -14,39 +17,45 @@
         </Grid.RowDefinitions>
 
         <!-- Панель фильтров -->
-        <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="0,0,0,1" Padding="0,0,0,10" Margin="0,0,0,10">
+        <Border Grid.Row="0" 
+                BorderBrush="LightGray" BorderThickness="0,0,0,1" 
+                Padding="10" Margin="10,10,10,5">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <!-- Левый блок: Приход и Интервал -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <!-- Приход -->
+                <!-- Левый блок: Период -->
+                <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+                    <!-- Период -->
                     <StackPanel Orientation="Vertical" Margin="0,0,20,0">
-                        <TextBlock Text="Приход" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <ComboBox x:Name="cmbPeriod" Width="100" SelectedIndex="0">
-                            <ComboBoxItem Content="Сутки"/>
-                            <ComboBoxItem Content="Неделя"/>
-                            <ComboBoxItem Content="Месяц"/>
+                        <TextBlock Text="Период" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="cmbPeriod" Width="150" SelectedIndex="0" SelectionChanged="cmbPeriod_SelectionChanged">
+                            <ComboBoxItem Content="За сутки"/>
+                            <ComboBoxItem Content="За неделю"/>
+                            <ComboBoxItem Content="За месяц"/>
+                            <ComboBoxItem Content="Произвольный период"/>
                         </ComboBox>
                     </StackPanel>
 
                     <!-- Интервал -->
-                    <StackPanel Orientation="Vertical" Margin="0,0,20,0">
+                    <StackPanel x:Name="DateIntervalPanel" Orientation="Vertical" Margin="0,0,20,0">
                         <TextBlock Text="Интервал" FontWeight="Bold" Margin="0,0,0,5"/>
                         <StackPanel Orientation="Horizontal">
-                            <DatePicker x:Name="dpFrom" Width="120" SelectedDateFormat="Short"/>
+                            <DatePicker x:Name="dpFrom" Width="120" SelectedDateFormat="Short" IsEnabled="False"/>
                             <TextBlock Text="по:" VerticalAlignment="Center" Margin="5,0,5,0"/>
-                            <DatePicker x:Name="dpTo" Width="120" SelectedDateFormat="Short"/>
+                            <DatePicker x:Name="dpTo" Width="120" SelectedDateFormat="Short" IsEnabled="False"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
 
                 <!-- Центральный блок: Тип записи -->
-                <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Center">
+                <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Vertical" Margin="0,10,0,0">
                     <TextBlock Text="Тип записи" FontWeight="Bold" Margin="0,0,0,5"/>
                     <WrapPanel>
                         <CheckBox x:Name="chkAlarm" Content="Авария" Margin="5,2" IsChecked="True"/>
@@ -57,14 +66,37 @@
                         <CheckBox x:Name="chkSystem" Content="Система" Margin="5,2" IsChecked="True"/>
                     </WrapPanel>
                 </StackPanel>
+
+                <!-- Кнопки справа -->
+                <StackPanel Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" 
+                            HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button x:Name="btnRefresh" 
+                            Content="Обновить" 
+                            Width="100" 
+                            Height="30" 
+                            Margin="0,0,0,10"
+                            Background="#FF007ACC"
+                            Foreground="White"
+                            Click="btnRefresh_Click"
+                            Cursor="Hand"/>
+                    <Button x:Name="btnExport" 
+                            Content="Экспорт" 
+                            Width="100" 
+                            Height="30"
+                            Background="#FF007ACC"
+                            Foreground="White"
+                            Click="btnExport_Click"
+                            Cursor="Hand"/>
+                </StackPanel>
             </Grid>
         </Border>
 
         <!-- Заголовок таблицы -->
-        <Border Grid.Row="1" Background="#F5F5F5" Padding="5" Margin="0,0,0,5">
+        <Border Grid.Row="1" 
+                Background="#F5F5F5" Padding="5" Margin="10,5,10,5">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="150"/>
                     <ColumnDefinition Width="150"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
@@ -76,7 +108,9 @@
         </Border>
 
         <!-- Список событий -->
-        <ListView x:Name="lvLog" Grid.Row="2" BorderThickness="0">
+        <ListView x:Name="lvLog" Grid.Row="2" 
+                  BorderThickness="0" Margin="10,0,10,10"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="BorderThickness" Value="0,0,0,1"/>
@@ -88,7 +122,7 @@
             <ListView.View>
                 <GridView>
                     <!-- Время -->
-                    <GridViewColumn Width="120">
+                    <GridViewColumn Width="150">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Time, StringFormat='dd.MM.yyyy HH:mm:ss'}" 
@@ -108,7 +142,7 @@
                     </GridViewColumn>
 
                     <!-- Текст -->
-                    <GridViewColumn Width="500">
+                    <GridViewColumn Width="Auto">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Text}" 

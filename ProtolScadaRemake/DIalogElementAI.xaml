@@ -8,7 +8,8 @@
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
-        Title="DIalogElementAI" Height="320" Width="570" Background="#FFCCC9C9" ResizeMode="NoResize">
+        Title="DIalogElementAI" Height="320" Width="570" Background="#FFCCC9C9" ResizeMode="NoResize"
+        Icon="Images/ProtolLogo.ico">
     <Grid Background="#FFCCC9C9" Height="310">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

@@ -44,6 +44,8 @@ namespace ProtolScadaRemake
         private Thread TrendUpdatesThread;
         private Thread DBUpdatesThread;
         private Thread ReadVariablesThread;
+
+        private FrameProductStatistics _productStatistics;
         public MainWindow()
         {
             InitializeComponent();
@@ -81,7 +83,7 @@ namespace ProtolScadaRemake
             // Таймер для добавления тестовых записей
             _logTestTimer = new DispatcherTimer();
             _logTestTimer.Interval = TimeSpan.FromSeconds(5);
-            _logTestTimer.Tick += LogTestTimer_Tick;
+            //_logTestTimer.Tick += LogTestTimer_Tick;
             _logTestTimer.Start();
 
             // Инициализация кнопок
@@ -287,6 +289,9 @@ namespace ProtolScadaRemake
                 _modbusManager?.Disconnect();
                 _modbusController?.Disconnect();
 
+                // Остановить таймер панели статистики
+                _productStatistics?.StopTimer();
+
                 Debug.WriteLine("Приложение закрывается...");
             }
             catch (Exception ex)
@@ -348,18 +353,18 @@ namespace ProtolScadaRemake
             }
         }
 
-        private void LogTestTimer_Tick(object sender, EventArgs e)
-        {
-            string[] groups = { "Система", "Пользователь", "Оборудование", "Рецептура" };
-            string[] messages = { "Автоматическое обновление данных", "Проверка связи с оборудованием" };
+        //private void LogTestTimer_Tick(object sender, EventArgs e)
+        //{
+        //    string[] groups = { "Система", "Пользователь", "Оборудование", "Рецептура" };
+        //    string[] messages = { "Автоматическое обновление данных", "Проверка связи с оборудованием" };
 
-            Random rnd = new Random();
-            string group = groups[rnd.Next(groups.Length)];
-            string message = $"{messages[rnd.Next(messages.Length)]} - {DateTime.Now:HH:mm:ss}";
-            short imageIndex = (short)rnd.Next(0, 4);
+        //    Random rnd = new Random();
+        //    string group = groups[rnd.Next(groups.Length)];
+        //    string message = $"{messages[rnd.Next(messages.Length)]} - {DateTime.Now:HH:mm:ss}";
+        //    short imageIndex = (short)rnd.Next(0, 4);
 
-            _ = AddLogAsync(group, message, imageIndex);
-        }
+        //    _ = AddLogAsync(group, message, imageIndex);
+        //}
 
         private void Timer_Tick(object sender, EventArgs e)
         {
@@ -513,17 +518,28 @@ namespace ProtolScadaRemake
             TitleLabel.Text = "ОСНОВНОЙ ЭКРАН";
             SetActiveButton(MainPageButton);
 
-            var textBlock = new TextBlock
+            // Создаем панель статистики если еще не создана
+            if (_productStatistics == null)
             {
-                Text = "ОСНОВНОЙ ЭКРАН\n\nГлавная страница системы",
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                FontSize = 28,
-                FontWeight = FontWeights.Bold,
-                TextAlignment = TextAlignment.Center,
-                Foreground = Brushes.Gray
-            };
-            ContentGrid.Children.Add(textBlock);
+                _productStatistics = new FrameProductStatistics(_global);
+            }
+            else
+            {
+                // Если панель уже существует, создаем новый экземпляр
+                // Или удаляем из предыдущего родителя
+                if (_productStatistics.Parent != null)
+                {
+                    var parent = _productStatistics.Parent as Panel;
+                    parent?.Children.Remove(_productStatistics);
+                }
+            }
+
+            // Добавляем панель статистики напрямую в ContentGrid
+            ContentGrid.Children.Add(_productStatistics);
+
+            // Центрируем панель (как в WinForms коде)
+            _productStatistics.HorizontalAlignment = HorizontalAlignment.Center;
+            _productStatistics.VerticalAlignment = VerticalAlignment.Center;
         }
 
         private void ShowPage(string pageName)

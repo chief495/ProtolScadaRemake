@@ -9,7 +9,8 @@
         Width="504" 
         Title="DialogElementDI" 
         Height="161" 
-        Background="#FFCCC9C9">
+        Background="#FFCCC9C9"
+        Icon="Images/ProtolLogo.ico">
     <Grid Margin="0,0,51,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="266*"/>
