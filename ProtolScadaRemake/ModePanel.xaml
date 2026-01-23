@@ -1,0 +1,96 @@
+﻿<UserControl x:Class="ProtolScadaRemake.ModePanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:ProtolScadaRemake"
+             Name="ModeControl"
+             Background="Transparent"
+             Height="220" 
+             Width="200">
+
+    <Border BorderBrush="#666666" 
+            BorderThickness="1"
+            Background="Transparent"
+            CornerRadius="8"
+            Padding="15">
+
+        <StackPanel>
+            <!-- Заголовок панели -->
+            <TextBlock Text="РЕЖИМ РАБОТЫ"
+                       FontWeight="Heavy"
+                       FontSize="16"
+                       Foreground="White"
+                       Margin="0,0,0,15"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"/>
+
+            <!-- OFF режим -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <local:ToggleSwitch x:Name="OffToggle"
+                                   Height="35"
+                                   Width="75"
+                                   OnText="OFF"
+                                   OffText="OFF"
+                                   StateChanged="ToggleSwitch_StateChanged"/>
+
+                <TextBlock Grid.Column="1"
+                           Text="ВЫКЛЮЧЕН"
+                           FontWeight="Bold"
+                           FontSize="14"
+                           Foreground="White"
+                           Margin="10,0,-1,0"
+                           VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- ПОЛУАВТО режим -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <local:ToggleSwitch x:Name="SemiAutoToggle"
+                                   Height="35"
+                                   Width="75"
+                                   OnText="ON"
+                                   OffText="OFF"
+                                   StateChanged="ToggleSwitch_StateChanged"/>
+
+                <TextBlock Grid.Column="1"
+                           Text="ПОЛУАВТО"
+                           FontWeight="Bold"
+                           FontSize="14"
+                           Foreground="White"
+                           Margin="10,0,0,0"
+                           VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- АВТО режим -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <local:ToggleSwitch x:Name="AutoToggle"
+                                   Height="35"
+                                   Width="75"
+                                   OnText="ON"
+                                   OffText="OFF"
+                                   StateChanged="ToggleSwitch_StateChanged"/>
+
+                <TextBlock Grid.Column="1"
+                           Text="АВТО"
+                           FontWeight="Bold"
+                           FontSize="14"
+                           Foreground="White"
+                           Margin="10,0,0,0"
+                           VerticalAlignment="Center"/>
+            </Grid>
+        </StackPanel>
+    </Border>
+</UserControl>

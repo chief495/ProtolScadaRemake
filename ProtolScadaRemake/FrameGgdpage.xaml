@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:ProtolScadaRemake"
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"            
              xmlns:ImageXaml="clr-namespace:ProtolScadaRemake.ImageXaml" xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" x:Class="ProtolScadaRemake.FrameGgdPage"            
-             mc:Ignorable="d" Initialized="Window_Loaded" Width="1790" Height="1010" Margin="0,0,0,0">
+             mc:Ignorable="d" Initialized="Window_Loaded" Width="1790" Height="1010" Margin="0,0,0,0">  
 
     <Grid Width="1790" Height="1020" VerticalAlignment="Bottom" HorizontalAlignment="Left">
         <ImageXaml:ImageGgdPage HorizontalAlignment="Center" VerticalAlignment="Top" Width="1790" Height="1020" Margin="0,0,0,0"/>
