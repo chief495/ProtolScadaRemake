@@ -5,14 +5,34 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ProtolScadaRemake"
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"            
-             xmlns:ImageXaml="clr-namespace:ProtolScadaRemake.ImageXaml" xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" x:Class="ProtolScadaRemake.FrameEmPage"            
-             mc:Ignorable="d" Initialized="Window_Loaded" Width="1790" Height="1010" Margin="0,0,0,0">
+             xmlns:ImageXaml="clr-namespace:ProtolScadaRemake.ImageXaml" 
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
+             x:Class="ProtolScadaRemake.FrameEmPage"            
+             mc:Ignorable="d" 
+             Initialized="Window_Loaded" 
+             Width="1790" 
+             Height="1010" 
+             Margin="0,0,0,0">
 
     <Grid Width="1790" Height="1020" VerticalAlignment="Bottom" HorizontalAlignment="Left">
+        <!-- Фоновая картинка -->
         <ImageXaml:ImageEmPage HorizontalAlignment="Center" VerticalAlignment="Top" Width="1790" Height="1020" Margin="0,0,0,0"/>
+
+        <!-- Панель выбора режима (верхний левый угол) -->
+        <local:ModePanel x:Name="EmModePanel"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Margin="20,20,0,0"
+                        Width="204"
+                        Height="207"
+                        ModbusRegisterAddress="102"
+                        UnitId="1"
+                        ModeChanged="EmModePanel_ModeChanged"
+                        ModbusCommandRequested="EmModePanel_ModbusCommandRequested"/>
+
+        <!-- Элементы управления -->
         <local:Element_PumpH x:Name="P651" HorizontalAlignment="Left" Margin="747,166,0,0" VerticalAlignment="Top"/>
         <local:Element_AI x:Name="LAHH151" HorizontalAlignment="Left" Margin="444,350,0,0" VerticalAlignment="Top"/>
-
-
     </Grid>
 </UserControl>

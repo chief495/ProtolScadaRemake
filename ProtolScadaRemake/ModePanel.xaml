@@ -4,8 +4,8 @@
              xmlns:local="clr-namespace:ProtolScadaRemake"
              Name="ModeControl"
              Background="Transparent"
-             Height="220" 
-             Width="200">
+             Height="200" 
+             Width="180">
 
     <Border BorderBrush="#666666" 
             BorderThickness="1"
@@ -31,10 +31,8 @@
                 </Grid.ColumnDefinitions>
 
                 <local:ToggleSwitch x:Name="OffToggle"
-                                   Height="35"
-                                   Width="75"
-                                   OnText="OFF"
-                                   OffText="OFF"
+                                   Height="25"
+                                   Width="50"
                                    StateChanged="ToggleSwitch_StateChanged"/>
 
                 <TextBlock Grid.Column="1"
@@ -42,7 +40,7 @@
                            FontWeight="Bold"
                            FontSize="14"
                            Foreground="White"
-                           Margin="10,0,-1,0"
+                           Margin="10,0,0,0"
                            VerticalAlignment="Center"/>
             </Grid>
 
@@ -54,10 +52,8 @@
                 </Grid.ColumnDefinitions>
 
                 <local:ToggleSwitch x:Name="SemiAutoToggle"
-                                   Height="35"
-                                   Width="75"
-                                   OnText="ON"
-                                   OffText="OFF"
+                                   Height="25"
+                                   Width="50"
                                    StateChanged="ToggleSwitch_StateChanged"/>
 
                 <TextBlock Grid.Column="1"
@@ -77,10 +73,8 @@
                 </Grid.ColumnDefinitions>
 
                 <local:ToggleSwitch x:Name="AutoToggle"
-                                   Height="35"
-                                   Width="75"
-                                   OnText="ON"
-                                   OffText="OFF"
+                                   Height="25"
+                                   Width="50"
                                    StateChanged="ToggleSwitch_StateChanged"/>
 
                 <TextBlock Grid.Column="1"

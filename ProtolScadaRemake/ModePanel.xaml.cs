@@ -39,35 +39,13 @@ namespace ProtolScadaRemake
         {
             InitializeComponent();
 
-            // Инициализация переключателей
-            InitializeToggleSwitches();
-
-            // Устанавливаем начальное состояние после загрузки
-            this.Loaded += ModePanel_Loaded;
-        }
-
-        private void InitializeToggleSwitches()
-        {
-            // Подписываемся на события каждого переключателя
+            // Подписываемся на события
             OffToggle.StateChanged += ToggleSwitch_StateChanged;
             SemiAutoToggle.StateChanged += ToggleSwitch_StateChanged;
             AutoToggle.StateChanged += ToggleSwitch_StateChanged;
 
-            // Устанавливаем текст для OFF переключателя
-            OffToggle.OnText = "OFF";
-            OffToggle.OffText = "OFF";
-
-            // Устанавливаем текст для остальных переключателей
-            SemiAutoToggle.OnText = "ON";
-            SemiAutoToggle.OffText = "OFF";
-            AutoToggle.OnText = "ON";
-            AutoToggle.OffText = "OFF";
-        }
-
-        private void ModePanel_Loaded(object sender, RoutedEventArgs e)
-        {
-            // Устанавливаем начальный режим после загрузки
-            SetMode(OperationMode.Off);
+            // Устанавливаем начальный режим
+            OffToggle.IsChecked = true;
         }
 
         private void ToggleSwitch_StateChanged(object sender, bool isChecked)
@@ -103,8 +81,7 @@ namespace ProtolScadaRemake
             }
             else
             {
-                // Если выключили текущий активный режим - предотвращаем это
-                // Используем Dispatcher чтобы избежать рекурсии
+                // Если выключили текущий активный режим
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
                     if ((toggle == OffToggle && CurrentMode == OperationMode.Off) ||
@@ -138,7 +115,6 @@ namespace ProtolScadaRemake
         // Метод для внешнего обновления режима
         public void SetMode(OperationMode mode)
         {
-            // Используем Dispatcher для безопасного обновления UI
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 // Сначала сбрасываем все

@@ -261,9 +261,6 @@
     <Page Update="Element_PumpH.xaml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Page>
-    <Page Update="ImageXaml\ImageEmPage.xaml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Page>
   </ItemGroup>
 
 </Project>

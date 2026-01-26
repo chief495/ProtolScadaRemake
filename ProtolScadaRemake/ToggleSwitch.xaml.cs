@@ -28,19 +28,9 @@ namespace ProtolScadaRemake
             }
         }
 
-        private string _onText = "ON";
-        public string OnText
-        {
-            get { return _onText; }
-            set { _onText = value; UpdateVisualState(); }
-        }
-
-        private string _offText = "OFF";
-        public string OffText
-        {
-            get { return _offText; }
-            set { _offText = value; UpdateVisualState(); }
-        }
+        // Свойства можно оставить, но они не используются в UI
+        public string OnText { get; set; } = "ON";
+        public string OffText { get; set; } = "OFF";
 
         public ToggleSwitch()
         {
@@ -55,7 +45,6 @@ namespace ProtolScadaRemake
                 // Включено - зеленый фон
                 BackgroundBorder.Background = new SolidColorBrush(Color.FromRgb(76, 175, 80));
                 BackgroundBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(56, 142, 60));
-                StateText.Text = OnText;
 
                 // Анимация переключения
                 var animation = (Storyboard)Resources["TurnOnAnimation"];
@@ -67,7 +56,6 @@ namespace ProtolScadaRemake
                 // Выключено - серый фон
                 BackgroundBorder.Background = new SolidColorBrush(Color.FromRgb(158, 158, 158));
                 BackgroundBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(97, 97, 97));
-                StateText.Text = OffText;
 
                 // Анимация переключения
                 var animation = (Storyboard)Resources["TurnOffAnimation"];
