@@ -1,24 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace ProtolScadaRemake
 {
     /// <summary>
     /// Логика взаимодействия для Element_ValveH.xaml
     /// </summary>
-    
+
     public partial class Element_ValveH : UserControl
     {
         public string Description = ""; // Описание элемента
@@ -49,15 +39,15 @@ namespace ProtolScadaRemake
             Tag = Global.Variables.GetByName(VarName + "_Fault");
             if (Tag != null) if (Tag.ValueReal > 0) ValveIcon.Source = FindResource("ValveHCFaultIcon") as ImageSource;
         }
-         private void ValueLabel_Click(object sender, MouseButtonEventArgs e)
-         {
-             DialogElementValve Dialog = new DialogElementValve();
-             Dialog.Content = Description;
-             Dialog.Global = Global;
-             Dialog.VarName = VarName;
-             Dialog.Initialize();
-             Dialog.ShowDialog();
-         }
+        private void ValueLabel_Click(object sender, MouseButtonEventArgs e)
+        {
+            DialogElementValve Dialog = new DialogElementValve();
+            Dialog.Content = Description;
+            Dialog.Global = Global;
+            Dialog.VarName = VarName;
+            Dialog.Initialize();
+            Dialog.ShowDialog();
+        }
     }
 }
 

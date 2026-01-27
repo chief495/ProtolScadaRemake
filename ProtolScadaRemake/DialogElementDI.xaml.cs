@@ -1,23 +1,10 @@
-﻿using ProtolScadaRemake;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
+﻿using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Media.Media3D;
-using System.Windows.Shapes;
 
 
 namespace ProtolScadaRemake
 {
-    public partial class DialogElementDI : Window 
+    public partial class DialogElementDI : Window
     {
         public TGlobal Global;
         public string VarName = ""; // Основание для имен
@@ -37,8 +24,8 @@ namespace ProtolScadaRemake
             {
                 if (VariableTag.ValueReal > 0)
                 {
-                    RBAuto.IsChecked = false; 
-                    RBManual.IsChecked = true; 
+                    RBAuto.IsChecked = false;
+                    RBManual.IsChecked = true;
                 }
                 else
                 {
@@ -264,7 +251,7 @@ namespace ProtolScadaRemake
                         OffDelayCommand.WriteValue = OffDelayNumeric.Value.ToString();
                         OffDelayCommand.NeedToWrite = true;
                         Global.Commands.SendToController();
-                        await Global.Log.Add("Пользователь", Content?.ToString() +". Задержка отключения изменена на " + OffDelayCommand.WriteValue + " сек.", 1);
+                        await Global.Log.Add("Пользователь", Content?.ToString() + ". Задержка отключения изменена на " + OffDelayCommand.WriteValue + " сек.", 1);
                     }
 
         }

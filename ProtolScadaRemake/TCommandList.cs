@@ -107,7 +107,7 @@ namespace ProtolScadaRemake
         }
         public void SendToController()
         {
-            if(Items.Length > 0) for(int i = 0; i < Items.Length;i++) Items[i].SendToController();
+            if (Items.Length > 0) for (int i = 0; i < Items.Length; i++) Items[i].SendToController();
         }
         public TCommandTag GetByName(string Name)
         {

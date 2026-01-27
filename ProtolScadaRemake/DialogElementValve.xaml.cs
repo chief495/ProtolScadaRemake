@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
+﻿using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Media.Media3D;
-using System.Windows.Shapes;
 
 namespace ProtolScadaRemake
 {
@@ -36,7 +24,7 @@ namespace ProtolScadaRemake
             {
                 if (VariableTag.ValueReal > 0)
                 {
-                    
+
                     RBAuto.IsChecked = false;
                     RBManual.IsChecked = true;
                 }
@@ -53,8 +41,8 @@ namespace ProtolScadaRemake
             VariableTag = Global.Variables.GetByName(VarName + "_CloseTime");
             if (VariableTag != null) CloseTimeNumeric.Value = VariableTag.ValueReal;
             // Включение таймера
-            GroupBox2.IsEnabled = Global.Access;      
-      
+            GroupBox2.IsEnabled = Global.Access;
+
             bool ActivateOkButton = true;
             // Режим работы и значение ручного режима
             if (RBAuto.IsChecked == true)
@@ -123,7 +111,7 @@ namespace ProtolScadaRemake
                         CloseTimeNumeric.Background = EditColor;
             }
 
-       
+
         }
         private async void RBAuto_CheckedChanged(object sender, RoutedEventArgs e)
         {

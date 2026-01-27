@@ -1,10 +1,6 @@
 ﻿// ModbusController.cs
-using System;
-using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Sockets;
 
 namespace ProtolScadaRemake
 {

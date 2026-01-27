@@ -17,7 +17,7 @@ namespace ProtolScadaRemake
         {
             Items = new TFaultRecord[0];
         }
-        public void Add(string Name, string Group, string Description, string Type, string FaultValue, string PassiveValue, string ActiveValue, bool WriteToLog, 
+        public void Add(string Name, string Group, string Description, string Type, string FaultValue, string PassiveValue, string ActiveValue, bool WriteToLog,
                 string LogDeactivationText, string LogActivationText, string LogGroupName, Int16 LogImageIndex, bool ShowPopupDeactivation,
                 bool ShowPopupActivation) // Добавление записи
         {
@@ -103,14 +103,14 @@ namespace ProtolScadaRemake
                                 if (!IsFind)
                                 {
                                     Add(NewItems[NewItemsIndex].Name, NewItems[NewItemsIndex].Group, NewItems[NewItemsIndex].Description, NewItems[NewItemsIndex].Type,
-                                        NewItems[NewItemsIndex].FaultValue, NewItems[NewItemsIndex].PassiveValue, NewItems[NewItemsIndex].ActiveValue, 
+                                        NewItems[NewItemsIndex].FaultValue, NewItems[NewItemsIndex].PassiveValue, NewItems[NewItemsIndex].ActiveValue,
                                         NewItems[NewItemsIndex].WriteToLog, NewItems[NewItemsIndex].LogDeactivationText, NewItems[NewItemsIndex].LogActivationText,
                                         NewItems[NewItemsIndex].LogGroupName, NewItems[NewItemsIndex].LogImageIndex, NewItems[NewItemsIndex].ShowPopupDeactivation,
                                         NewItems[NewItemsIndex].ShowPopupActivation);
 
                                 } // if (!IsFind)
                             } // for (int NewItemsIndex = 0; NewItemsIndex < NewItems.Length; NewItemsIndex++)
-                                Result = true;
+                        Result = true;
                     } // if (EndCount == BeginCount)
                 // Закрытие файла
                 F.Close();

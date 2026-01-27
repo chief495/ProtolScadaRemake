@@ -6,23 +6,77 @@ namespace ProtolScadaRemake
 {
     public partial class FrameEmPage : UserControl
     {
-        private ModbusManager _modbusManager;
-        public string Description = "";
-        public TGlobal Global;
-        public string VarName = ""; // Основание для имен
+        private TGlobal _global;
 
         public FrameEmPage(TGlobal global)
         {
             InitializeComponent();
-            Global = global;
-
-            // Инициализация ModbusManager
-            _modbusManager = new ModbusManager(global);
-
-            // Инициализация элементов
+            _global = global;
             Initialize();
+        }
 
-            // Подписка на события панели режима
+        private async void Initialize()
+        {
+            try
+            {
+                // Инициализация LAHH151
+                LAHH151.Global = _global;
+                LAHH151.VarName = "LAHH151";
+                LAHH151.Description = "Датчик уровня LAHH151";
+                LAHH151.TagName.Text = "LAHH-151";
+                LAHH151.EU = "%";
+
+                // Инициализация P651
+                P651.Global = _global;
+                P651.VarName = "P651";
+                P651.Description = "Насос P651";
+                P651.TAGNAME.Text = "P651";
+
+                // Инициализация панелей
+                if (StartupPanelControl != null)
+                {
+                    StartupPanelControl.Global = _global;
+                    SubscribeToStartupPanelEvents();
+                }
+
+                if (PerformancePanelControl != null)
+                {
+                    PerformancePanelControl.Global = _global;
+                    SubscribeToPerformancePanelEvents();
+                }
+
+                if (UnloadPanelControl != null)
+                {
+                    UnloadPanelControl.Global = _global;
+                }
+
+                if (EmModePanel != null)
+                {
+                    EmModePanel.SetMode(OperationMode.Off);
+                    SubscribeToModePanelEvents();
+                }
+
+                // Подписка на события глобального объекта
+                _global.OnVariablesUpdated += OnGlobalVariablesUpdated;
+
+                // Инициализация Modbus
+                await _global.InitializeModbusAsync();
+
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка инициализации FrameEmPage: {ex.Message}");
+            }
+        }
+
+        private void UserControl_Initialized(object sender, EventArgs e)
+        {
+            // Этот метод вызывается при инициализации UserControl
+            System.Diagnostics.Debug.WriteLine("FrameEmPage инициализирован");
+        }
+
+        private void SubscribeToModePanelEvents()
+        {
             if (EmModePanel != null)
             {
                 EmModePanel.ModeChanged += EmModePanel_ModeChanged;
@@ -30,75 +84,125 @@ namespace ProtolScadaRemake
             }
         }
 
-        private void Initialize()
+        private void SubscribeToStartupPanelEvents()
         {
-            // Инициализация LAHH151
-            LAHH151.Global = Global;
-            LAHH151.VarName = "LAHH151";
-            LAHH151.Description = "Датчик уровня LAHH151";
-            LAHH151.TagName.Text = "LAHH-151";
-            LAHH151.EU = "%";
-
-            // Инициализация P651
-            P651.Global = Global;
-            P651.VarName = "P651";
-            P651.Description = "Насос P651";
-            P651.TAGNAME.Text = "P651";
-
-            // Установка начального режима
-            if (EmModePanel != null)
+            if (StartupPanelControl != null)
             {
-                EmModePanel.SetMode(OperationMode.Off);
+                StartupPanelControl.StartStartupButtonClick += StartupPanel_StartStartupButtonClick;
+                StartupPanelControl.StopStartupButtonClick += StartupPanel_StopStartupButtonClick;
+                StartupPanelControl.AutoModeButtonClick += StartupPanel_AutoModeButtonClick;
+                StartupPanelControl.OffModeButtonClick += StartupPanel_OffModeButtonClick;
             }
         }
 
-        private void Window_Loaded(object sender, EventArgs e)
+        private void SubscribeToPerformancePanelEvents()
         {
-            System.Windows.Threading.DispatcherTimer timer = new();
-
-            timer.Tick += new EventHandler(timerTick);
-            timer.Interval = new TimeSpan(0, 0, 0, 100);
-            timer.Start();
-        }
-
-        private void timerTick(object sender, EventArgs e)
-        {
-            // Обновление элементов
-            LAHH151.UpdateElement();
-            P651.UpdateElement();
-
-            // Дополнительная логика в зависимости от режима
-            UpdateModeDependentLogic();
-        }
-
-        private void UpdateModeDependentLogic()
-        {
-            if (EmModePanel == null) return;
-
-            var currentMode = EmModePanel.CurrentMode;
-
-            switch (currentMode)
+            if (PerformancePanelControl != null)
             {
-                case OperationMode.Off:
-                    // Логика для выключенного режима
-                    // Например, остановка оборудования
-                    break;
-
-                case OperationMode.SemiAuto:
-                    // Логика для полуавтоматического режима
-                    // Например, ручное управление с некоторой автоматизацией
-                    break;
-
-                case OperationMode.Auto:
-                    // Логика для автоматического режима
-                    // Например, полная автоматизация процессов
-                    break;
+                PerformancePanelControl.SetMassFlowButtonClick += PerformancePanel_SetMassFlowButtonClick;
+                PerformancePanelControl.StartProcessButtonClick += PerformancePanel_StartProcessButtonClick;
+                PerformancePanelControl.StopProcessButtonClick += PerformancePanel_StopProcessButtonClick;
+                PerformancePanelControl.DojatProcessButtonClick += PerformancePanel_DojatProcessButtonClick;
+                PerformancePanelControl.EmergencyStopButtonClick += PerformancePanel_EmergencyStopButtonClick;
             }
         }
 
+        private void OnGlobalVariablesUpdated(object sender, EventArgs e)
+        {
+            // Обновляем панели при изменении глобальных переменных
+            Dispatcher.Invoke(() =>
+            {
+                if (StartupPanelControl != null)
+                    StartupPanelControl.UpdateFromGlobal();
+
+                if (PerformancePanelControl != null)
+                    PerformancePanelControl.UpdateFromGlobal();
+
+                // Обновляем другие элементы UI
+                UpdateUIFromVariables();
+            });
+        }
+
+        private void UpdateUIFromVariables()
+        {
+            // Обновление LAHH151
+            var lahh151Var = _global.Variables.GetByName("LAHH151_Value");
+            if (lahh151Var != null && LAHH151 != null)
+            {
+                // Здесь должен быть код обновления элемента LAHH151
+            }
+
+            // Обновление P651
+            var p651Var = _global.Variables.GetByName("P651_IsWork");
+            if (p651Var != null && P651 != null)
+            {
+                // Здесь должен быть код обновления элемента P651
+            }
+        }
+
+        // Обработчики событий панели затравки
+        private void StartupPanel_StartStartupButtonClick(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Запуск затравки");
+            _global.SendCommand("EM_ZatravkaStart", "true");
+        }
+
+        private void StartupPanel_StopStartupButtonClick(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Остановка затравки");
+            _global.SendCommand("EM_ZatravkaStop", "true");
+        }
+
+        private void StartupPanel_AutoModeButtonClick(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Режим АВТОМАТ для затравки");
+            _global.SendCommand("EM_RejimToAuto", "true");
+        }
+
+        private void StartupPanel_OffModeButtonClick(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Режим ВЫКЛ для затравки");
+            _global.SendCommand("EM_RejimToOff", "true");
+        }
+
+        // Обработчики событий панели производительности
+        private void PerformancePanel_SetMassFlowButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (PerformancePanelControl != null)
+            {
+                int massFlow = PerformancePanelControl.GetMassFlowSetpoint();
+                System.Diagnostics.Debug.WriteLine($"Установка производительности: {massFlow} кг/ч");
+                _global.SendCommand("EM_AutoMassFlowSp", massFlow.ToString());
+            }
+        }
+
+        private void PerformancePanel_StartProcessButtonClick(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Запуск процесса производства");
+            _global.SendCommand("EM_AutoStart", "true");
+        }
+
+        private void PerformancePanel_StopProcessButtonClick(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Остановка процесса производства");
+            _global.SendCommand("EM_AutoStop", "true");
+        }
+
+        private void PerformancePanel_DojatProcessButtonClick(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Запуск дожима");
+            _global.SendCommand("EM_AutoDojat", "true");
+        }
+
+        private void PerformancePanel_EmergencyStopButtonClick(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Аварийный останов");
+            _global.SendCommand("EM_AutoFastStop", "true");
+        }
+
+        // Обработчики событий панели режима
         private void EmModePanel_ModeChanged(object sender, OperationMode mode)
         {
-            // Обработка изменения режима для EM страницы
             string modeText = mode switch
             {
                 OperationMode.Off => "Выключен",
@@ -107,136 +211,25 @@ namespace ProtolScadaRemake
                 _ => "Неизвестно"
             };
 
-            // Обновление переменных в SCADA
-            UpdateSCADAVariables(mode);
-
-            // Логирование
             System.Diagnostics.Debug.WriteLine($"Режим EM изменен на: {modeText}");
-
-            // Применение логики в зависимости от режима
-            ApplyModeLogic(mode);
-        }
-
-        private void UpdateSCADAVariables(OperationMode mode)
-        {
-            if (Global != null && Global.Variables != null)
-            {
-                var variable = Global.Variables.GetByName("EM_MODE");
-                if (variable != null)
-                {
-                    variable.ValueReal = (ushort)mode;
-                }
-
-                // Можно также обновить связанные переменные
-                // Например, управление насосом в зависимости от режима
-                if (mode == OperationMode.Auto)
-                {
-                    // Автоматическое управление
-                    // Global.Variables.GetByName("P651_AUTO").ValueReal = 1;
-                }
-            }
-        }
-
-        private void ApplyModeLogic(OperationMode mode)
-        {
-            // Применение логики в зависимости от выбранного режима
-            switch (mode)
-            {
-                case OperationMode.Off:
-                    // Отключение всех автоматических функций
-                    // P651.SetManualMode();
-                    break;
-
-                case OperationMode.SemiAuto:
-                    // Включение полуавтоматического режима
-                    // P651.SetSemiAutoMode();
-                    break;
-
-                case OperationMode.Auto:
-                    // Включение полной автоматизации
-                    // P651.SetAutoMode();
-                    break;
-            }
         }
 
         private void EmModePanel_ModbusCommandRequested(object sender, ModbusCommandEventArgs e)
         {
-            // Отправка команды через ModbusManager для EM
-            if (_modbusManager != null)
+            bool success = _global.ProcessModeCommand(e.UnitId, e.RegisterAddress, e.Value, e.Description);
+            if (success)
             {
-                bool success = _modbusManager.ProcessModeCommand(
-                    e.UnitId,
-                    e.RegisterAddress,
-                    e.Value,
-                    e.Description);
-
-                if (success)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Команда Modbus для EM отправлена: {e.Description}");
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"Ошибка отправки команды Modbus для EM: {e.Description}");
-                }
+                System.Diagnostics.Debug.WriteLine($"Команда Modbus для EM отправлена: {e.Description}");
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine($"Тест команды для EM: {e.Description}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка отправки команды Modbus для EM: {e.Description}");
             }
         }
 
-        // Методы для внешнего управления режимом EM
-        public void SetEmMode(OperationMode mode)
-        {
-            if (EmModePanel != null)
-            {
-                EmModePanel.SetMode(mode);
-            }
-        }
-
-        public OperationMode GetCurrentEmMode()
-        {
-            return EmModePanel?.CurrentMode ?? OperationMode.Off;
-        }
-
-        // Пример: обработка команд из других частей приложения
-        public void ProcessExternalCommand(string command)
-        {
-            if (command == "EM_OFF")
-            {
-                SetEmMode(OperationMode.Off);
-            }
-            else if (command == "EM_SEMI_AUTO")
-            {
-                SetEmMode(OperationMode.SemiAuto);
-            }
-            else if (command == "EM_AUTO")
-            {
-                SetEmMode(OperationMode.Auto);
-            }
-        }
-
-        // Обновление режима из Modbus (например, при чтении значения из ПЛК)
-        public void UpdateModeFromModbus(ushort modeValue)
-        {
-            OperationMode mode = modeValue switch
-            {
-                0 => OperationMode.Off,
-                1 => OperationMode.SemiAuto,
-                2 => OperationMode.Auto,
-                _ => OperationMode.Off
-            };
-
-            SetEmMode(mode);
-        }
-
-        // Очистка ресурсов
         public void Cleanup()
         {
-            if (_modbusManager != null)
-            {
-                _modbusManager.Disconnect();
-            }
+            _global.DisconnectAll();
         }
     }
 }

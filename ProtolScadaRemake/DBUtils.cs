@@ -1,8 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
 using ProtolScadaRemake;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ProtolScada
 {

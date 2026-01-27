@@ -12,22 +12,12 @@ namespace ProtolScadaRemake
         private TGlobal _global;
 
         // Карта соответствия тегов SCADA и Modbus регистров
-        private Dictionary<string, ushort> _tagToRegisterMap = new Dictionary<string, ushort>
-        {
-            // Конвейер (из вашего Modbus сервера)
-            { "CONVEYOR_STATUS", 0 },
-            { "CONVEYOR_SPEED", 1 },
-            { "ITEM_COUNT", 2 },
-            { "EMERGENCY_STOP", 3 },
-            
-            // Примеры 
-            { "LAHH151_Value", 10 },
-            { "LAHH151_Manual", 11 },
-            { "P651_IsWork", 12 },
-            { "P651_Manual", 13 }
-        };
+        private Dictionary<string, ushort> _tagToRegisterMap;
 
-        // Событие для уведомления о командах
+        // Публичные события (должны быть public)
+        public event Action<string> OnStatusChanged;
+        public event Action<bool> OnConnectionStateChanged;
+        public event Action<ushort, ushort> OnRegisterValueChanged;
         public event EventHandler<string> OnCommandExecuted;
 
         public ModbusManager(TGlobal global, string ip = "127.0.0.1", int port = 502)
@@ -35,13 +25,53 @@ namespace ProtolScadaRemake
             _global = global;
             _modbusController = new ModbusController(ip, port);
 
+            // Инициализируем карту регистров
+            InitializeTagMap();
+
             // Подписка на события
             _modbusController.OnRegisterValueChanged += OnRegisterValueChanged;
             _modbusController.OnStatusChanged += OnModbusStatusChanged;
             _modbusController.OnConnectionStateChanged += OnConnectionStateChanged;
         }
 
-        public async Task InitializeAsync()
+        private void InitializeTagMap()
+        {
+            _tagToRegisterMap = new Dictionary<string, ushort>
+            {
+                // EM режимы и управление
+                { "EM_MODE", 100 },
+                { "EM_Rejim", 100 },
+                { "EM_StartCommand", 101 },
+                { "EM_StopCommand", 102 },
+                { "EM_EmergencyStop", 103 },
+                
+                // Производительность
+                { "EM_AutoMassFlowSp", 200 },
+                { "FM601_Value", 201 },
+                
+                // Затравка
+                { "EM_ReceptZatravkaMass", 300 },
+                { "EM_ReceptZatravkaTime", 301 },
+                { "EM_ZatravkaStart", 302 },
+                { "EM_ZatravkaStop", 303 },
+                
+                // Отгрузка
+                { "EM_Unload_Speed", 400 },
+                { "EM_UnloadCounter", 401 },
+                { "EM_Unloading_Rejim", 402 },
+                
+                // Датчики
+                { "LAHH151_Value", 500 },
+                { "LAHH151_Manual", 501 },
+                
+                // Насосы
+                { "P651_IsWork", 600 },
+                { "P651_Manual", 601 },
+                { "P651_Speed", 602 }
+            };
+        }
+
+        public async Task<bool> InitializeAsync()
         {
             try
             {
@@ -51,42 +81,22 @@ namespace ProtolScadaRemake
                     // Запускаем опрос нужных регистров
                     var registersToPoll = _tagToRegisterMap.Values.ToArray();
                     _modbusController.StartPolling(registersToPoll);
+                    return true;
                 }
+                return false;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Ошибка инициализации Modbus: {ex.Message}");
-            }
-        }
-
-        private void OnRegisterValueChanged(ushort address, ushort value)
-        {
-            // Находим тег по адресу регистра
-            var tagName = _tagToRegisterMap.FirstOrDefault(x => x.Value == address).Key;
-
-            if (!string.IsNullOrEmpty(tagName))
-            {
-                // Обновляем переменную в SCADA
-                var variable = _global.Variables.GetByName(tagName);
-                if (variable != null)
-                {
-                    variable.ValueReal = value;
-                    Debug.WriteLine($"Обновлен тег {tagName}: {value}");
-                }
+                OnStatusChanged?.Invoke($"Ошибка инициализации: {ex.Message}");
+                return false;
             }
         }
 
         private void OnModbusStatusChanged(string message)
         {
             Debug.WriteLine($"Modbus: {message}");
-
-            // Можно обновлять статус в UI
-            _global.Log.Add("Modbus", message, 0);
-        }
-
-        private void OnConnectionStateChanged(bool isConnected)
-        {
-            Debug.WriteLine($"Modbus соединение: {(isConnected ? "Установлено" : "Разорвано")}");
+            OnStatusChanged?.Invoke(message);
         }
 
         // Метод для записи в Modbus
@@ -101,20 +111,20 @@ namespace ProtolScadaRemake
                     // Уведомляем о выполнении команды
                     string message = $"Записано в {tagName}: {value} (регистр {address})";
                     OnCommandExecuted?.Invoke(this, message);
-                    _global.Log.Add("Команда", message, 0);
 
                     return true;
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Ошибка записи в Modbus: {ex.Message}");
-                    _global.Log.Add("Ошибка", $"Не удалось записать в {tagName}: {ex.Message}", 2);
+                    OnStatusChanged?.Invoke($"Ошибка записи в {tagName}: {ex.Message}");
                     return false;
                 }
             }
             else
             {
                 Debug.WriteLine($"Тег {tagName} не найден в карте регистров");
+                OnStatusChanged?.Invoke($"Тег {tagName} не найден");
                 return false;
             }
         }
@@ -131,14 +141,13 @@ namespace ProtolScadaRemake
                     : description;
 
                 OnCommandExecuted?.Invoke(this, message);
-                _global.Log.Add("Команда", message, 0);
 
                 return true;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Ошибка записи в регистр {address}: {ex.Message}");
-                _global.Log.Add("Ошибка", $"Не удалось записать в регистр {address}: {ex.Message}", 2);
+                OnStatusChanged?.Invoke($"Ошибка записи в регистр {address}: {ex.Message}");
                 return false;
             }
         }
@@ -151,7 +160,23 @@ namespace ProtolScadaRemake
 
         public void Disconnect()
         {
-            _modbusController.Disconnect();
+            _modbusController?.Disconnect();
+        }
+
+        // Метод для получения значения регистра
+        public ushort GetRegisterValue(ushort address)
+        {
+            return _modbusController?.GetRegisterValue(address) ?? 0;
+        }
+
+        // Метод для получения значения тега
+        public ushort GetTagValue(string tagName)
+        {
+            if (_tagToRegisterMap.TryGetValue(tagName, out ushort address))
+            {
+                return GetRegisterValue(address);
+            }
+            return 0;
         }
     }
 }

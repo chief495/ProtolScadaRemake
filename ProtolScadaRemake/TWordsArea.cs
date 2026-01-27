@@ -1,11 +1,5 @@
 ﻿using NModbus;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace ProtolScadaRemake
 {
@@ -39,7 +33,7 @@ namespace ProtolScadaRemake
             FaultsCount = 0;
         }
 
-        public UInt16 GetModbusTcpHoldingRegisters(TLogList Log) 
+        public UInt16 GetModbusTcpHoldingRegisters(TLogList Log)
         {
             UInt16[] Result = new UInt16[0];
             try
@@ -75,7 +69,7 @@ namespace ProtolScadaRemake
             return FaultsCount;
         }
 
-        public UInt16 GetModbusTcpInputRegisters(TLogList Log) 
+        public UInt16 GetModbusTcpInputRegisters(TLogList Log)
         {
             UInt16[] Result = new UInt16[0];
             try

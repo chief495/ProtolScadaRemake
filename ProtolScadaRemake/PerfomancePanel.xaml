@@ -1,0 +1,349 @@
+﻿<UserControl x:Class="ProtolScadaRemake.PerformancePanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Name="PerformanceControl"
+             Background="Transparent"
+             Width="280" 
+             Height="304">
+
+    <Border BorderBrush="#666666" 
+            BorderThickness="1"
+            Background="Transparent"
+            CornerRadius="8"
+            Padding="10">
+
+        <StackPanel>
+            <!-- Заголовок панели -->
+            <TextBlock Text="ПРОИЗВОДИТЕЛЬНОСТЬ"
+                       FontWeight="Bold"
+                       FontSize="14"
+                       Foreground="White"
+                       Margin="0,0,0,10"
+                       HorizontalAlignment="Center"/>
+
+            <!-- Уставка производительности -->
+            <Border Background="Transparent"
+                    CornerRadius="6"
+                    Padding="8"
+                    Margin="0,0,0,10">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Задание производительности -->
+                    <Grid Grid.Row="0"
+                          Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="30"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="ЗАДАНИЕ ПРОИЗВОДИТЕЛЬНОСТИ"
+                                   FontSize="11"
+                                   Foreground="White"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBox x:Name="MassFlowSetpointTextBox"
+                                 Grid.Column="1"
+                                 Height="22"
+                                 FontSize="11"
+                                 Foreground="White"
+                                 Background="#444444"
+                                 BorderBrush="#666666"
+                                 Text="0"
+                                 TextAlignment="Right"
+                                 VerticalAlignment="Center"
+                                 Margin="5,0,5,0"/>
+
+                        <TextBlock Grid.Column="2"
+                                   Text="кг/ч"
+                                   FontSize="11"
+                                   Foreground="White"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Кнопка установки уставки -->
+                    <Button Grid.Row="1"
+                            x:Name="SetMassFlowButton"
+                            Content="УСТАНОВИТЬ"
+                            Width="120"
+                            Height="24"
+                            Background="#FF1E5945"
+                            BorderBrush="#FF00FF00"
+                            BorderThickness="1"
+                            Foreground="White"
+                            FontSize="11"
+                            FontWeight="Bold"
+                            HorizontalAlignment="Center"
+                            Click="SetMassFlowButton_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" 
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="12">
+                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Текущие параметры -->
+            <Border Background="Transparent"
+                    CornerRadius="6"
+                    Padding="8"
+                    Margin="0,0,0,10">
+
+                <StackPanel>
+                    <TextBlock Text="ТЕКУЩИЕ ПАРАМЕТРЫ"
+                               FontSize="11"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               Margin="0,0,0,8"
+                               HorizontalAlignment="Center"/>
+
+                    <!-- Производительность -->
+                    <Grid Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="ПРОИЗВОДИТЕЛЬНОСТЬ"
+                                   FontSize="11"
+                                   Foreground="White"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock x:Name="MassFlowValueText"
+                                   Grid.Column="1"
+                                   Text="0"
+                                   FontWeight="Bold"
+                                   FontSize="13"
+                                   Foreground="#4CAF50"
+                                   VerticalAlignment="Center"
+                                   Margin="5,0,2,0"/>
+
+                        <TextBlock Grid.Column="2"
+                                   Text="кг/ч"
+                                   FontSize="11"
+                                   Foreground="White"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Давление -->
+                    <Grid Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="ДАВЛЕНИЕ"
+                                   FontSize="11"
+                                   Foreground="White"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock x:Name="PressureValueText"
+                                   Grid.Column="1"
+                                   Text="0"
+                                   FontWeight="Bold"
+                                   FontSize="13"
+                                   Foreground="#4CAF50"
+                                   VerticalAlignment="Center"
+                                   Margin="5,0,2,0"/>
+
+                        <TextBlock Grid.Column="2"
+                                   Text="бар"
+                                   FontSize="11"
+                                   Foreground="White"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Температура -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="ТЕМПЕРАТУРА"
+                                   FontSize="11"
+                                   Foreground="White"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock x:Name="TemperatureValueText"
+                                   Grid.Column="1"
+                                   Text="0"
+                                   FontWeight="Bold"
+                                   FontSize="13"
+                                   Foreground="#4CAF50"
+                                   VerticalAlignment="Center"
+                                   Margin="5,0,2,0"/>
+
+                        <TextBlock Grid.Column="2"
+                                   Text="°C"
+                                   FontSize="11"
+                                   Foreground="White"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Кнопки управления процессом -->
+            <StackPanel>
+                <!-- Кнопка ПУСК -->
+                <Button x:Name="StartProcessButton"
+                        Content="ПУСК ПРОЦЕССА"
+                        Background="#2196F3"
+                        BorderBrush="#4FC3F7"
+                        BorderThickness="1"
+                        Foreground="White"
+                        FontSize="11"
+                        FontWeight="Bold"
+                        Height="28"
+                        Margin="0,0,0,5"
+                        Click="StartProcessButton_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border" 
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="14">
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <!-- Кнопка СТОП -->
+                <Button x:Name="StopProcessButton"
+                        Content="СТОП ПРОЦЕССА"
+                        Background="#7B001C"
+                        BorderBrush="#FF0033"
+                        BorderThickness="1"
+                        Foreground="White"
+                        FontSize="11"
+                        FontWeight="Bold"
+                        Height="28"
+                        Margin="0,0,0,5"
+                        Click="StopProcessButton_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border" 
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="14">
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <!-- Кнопка ДОЖИМ -->
+                <Button x:Name="DojatProcessButton"
+                        Content="ДОЖИМ"
+                        Background="#3F51B5"
+                        BorderBrush="#2196F3"
+                        BorderThickness="1"
+                        Foreground="White"
+                        FontSize="11"
+                        FontWeight="Bold"
+                        Height="28"
+                        Margin="0,0,0,5"
+                        Click="DojatProcessButton_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border" 
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="14">
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <!-- Кнопка АВАРИЙНЫЙ СТОП -->
+                <Button x:Name="EmergencyStopButton"
+                        Content="АВАРИЙНЫЙ СТОП"
+                        Background="#D32F2F"
+                        BorderBrush="#F44336"
+                        BorderThickness="1"
+                        Foreground="White"
+                        FontSize="11"
+                        FontWeight="Bold"
+                        Height="28"
+                        Click="EmergencyStopButton_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border" 
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="14">
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

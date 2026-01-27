@@ -1,8 +1,8 @@
-﻿// TGlobal.cs - исправленная версия
-using ProtolScada;
+﻿using ProtolScada;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ProtolScadaRemake
@@ -12,40 +12,53 @@ namespace ProtolScadaRemake
         // Настройки подключения к базе данных
         public string DB_HostName = "localhost";
         public int DB_Port = 3306;
-        public string DB_UserLogin = "root";           // или "scada_user"
-        public string DB_Password = "";                // пустой пароль для root в XAMPP
-                                                       // ИЛИ если создали пользователя:
-                                                       //public string DB_Password = "advengauser";  // пароль для scada_user
+        public string DB_UserLogin = "root";
+        public string DB_Password = "";
         public string DB_Name = "protolscadadb";
 
+        // Настройки безопасности
         public string Password = "Protol251121";
         public bool Access = false;
         public DateTime PassTime;
 
-        // Настройка параметров опрашиваемого оборудования
+        // Настройки Modbus
         public string Plc_IpAddress = "127.0.0.1";
         public int Plc_PortNum = 502;
         public int Plc_DeviceAddress = 1;
 
         // Объекты данных
-        public TVariableList Variables = new TVariableList();
-        public TCommandList Commands = new TCommandList();
-        public TFaultList Faults = new TFaultList();
-
-        // Журнал и тренды
+        public TVariableList Variables { get; private set; }
+        public TCommandList Commands { get; private set; }
+        public TFaultList Faults { get; private set; }
         public TLogList Log { get; private set; }
-
-        // DBUtils для работы с базой данных
-        private DBUtils _dbUtils;
-
-        // Тренды
         public TTrendList Trends { get; private set; }
-        public DatabaseTrendManager TrendManager { get; private set; }
+
+        // Менеджеры
+        private DBUtils _dbUtils;
+        private DatabaseTrendManager _trendManager;
+        private ModbusManager _modbusManager;
+        private System.Timers.Timer _updateTimer;
+
+        // События
+        public event EventHandler<string> OnModbusStatusChanged;
+        public event EventHandler<bool> OnModbusConnectionChanged;
+        public event EventHandler<string> OnCommandExecuted;
+        public event EventHandler OnVariablesUpdated;
 
         // Конструктор
         public TGlobal()
         {
-            // Создаем DBUtils
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            // Создаем списки
+            Variables = new TVariableList();
+            Commands = new TCommandList();
+            Faults = new TFaultList();
+
+            // Инициализируем DBUtils
             _dbUtils = new DBUtils
             {
                 DB_HostName = DB_HostName,
@@ -55,23 +68,79 @@ namespace ProtolScadaRemake
                 DB_Password = DB_Password
             };
 
+            // Создаем Log с DBUtils
             Log = new TLogList(_dbUtils);
+
+            // Создаем тренды
             Trends = new TTrendList();
-            TrendManager = new DatabaseTrendManager(_dbUtils);
+            _trendManager = new DatabaseTrendManager(_dbUtils);
+
+            // Создаем ModbusManager
+            _modbusManager = new ModbusManager(this, Plc_IpAddress, Plc_PortNum);
+
+            // Подписываемся на события ModbusManager
+            SubscribeToModbusEvents();
+
+            // Инициализируем таймер обновления
+            InitializeUpdateTimer();
 
             // Инициализируем тренды из БД в фоне
             _ = InitializeTrendsFromDatabaseAsync();
+        }
+
+        private void SubscribeToModbusEvents()
+        {
+            _modbusManager.OnStatusChanged += (message) =>
+            {
+                OnModbusStatusChanged?.Invoke(this, message);
+                Log.Add("Modbus", message, 0);
+            };
+
+            _modbusManager.OnConnectionStateChanged += (isConnected) =>
+            {
+                OnModbusConnectionChanged?.Invoke(this, isConnected);
+                Log.Add("Modbus", isConnected ? "Соединение установлено" : "Соединение разорвано", isConnected ? (short)0 : (short)2);
+            };
+
+            _modbusManager.OnCommandExecuted += (sender, message) =>
+            {
+                OnCommandExecuted?.Invoke(sender, message);
+            };
+
+            _modbusManager.OnRegisterValueChanged += (address, value) =>
+            {
+                // Автоматическое обновление переменных при изменении регистров
+                UpdateVariablesFromModbus(address, value);
+            };
+        }
+
+        private void InitializeUpdateTimer()
+        {
+            _updateTimer = new System.Timers.Timer(100.0); // 100ms = 10Hz (используем double)
+            _updateTimer.Elapsed += async (sender, e) =>
+            {
+                try
+                {
+                    await UpdateAllAsync();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Ошибка в таймере обновления: {ex.Message}");
+                }
+            };
+            _updateTimer.AutoReset = true;
+            _updateTimer.Enabled = false;
         }
 
         private async Task InitializeTrendsFromDatabaseAsync()
         {
             try
             {
-                await TrendManager.InitializeAsync();
+                await _trendManager.InitializeAsync();
 
-                if (TrendManager.IsInitialized && TrendManager.TrendCount > 0)
+                if (_trendManager.IsInitialized && _trendManager.TrendCount > 0)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Загружено {TrendManager.TrendCount} трендов из БД");
+                    System.Diagnostics.Debug.WriteLine($"Загружено {_trendManager.TrendCount} трендов из БД");
                 }
             }
             catch (Exception ex)
@@ -80,12 +149,121 @@ namespace ProtolScadaRemake
             }
         }
 
-        // Метод для обновления трендов с сохранением в БД
+        // Методы управления Modbus
+        public async Task<bool> InitializeModbusAsync()
+        {
+            try
+            {
+                bool success = await _modbusManager.InitializeAsync();
+
+                if (success)
+                {
+                    // Настраиваем команды для работы с ModbusManager
+                    foreach (var command in Commands.Items)
+                    {
+                        command.SetModbusManager(_modbusManager);
+                    }
+
+                    // Запускаем таймер обновления
+                    StartUpdateTimer();
+                }
+
+                return success;
+            }
+            catch (Exception ex)
+            {
+                Log.Add("Ошибка", $"Ошибка инициализации Modbus: {ex.Message}", 2);
+                return false;
+            }
+        }
+
+        public void StartUpdateTimer()
+        {
+            if (_updateTimer != null && !_updateTimer.Enabled)
+            {
+                _updateTimer.Enabled = true;
+            }
+        }
+
+        public void StopUpdateTimer()
+        {
+            if (_updateTimer != null && _updateTimer.Enabled)
+            {
+                _updateTimer.Enabled = false;
+            }
+        }
+
+        public async Task UpdateAllAsync()
+        {
+            try
+            {
+                // Обновляем аварии
+                UpdateFaults();
+
+                // Обновляем тренды
+                await UpdateTrendsWithSaveAsync();
+
+                // Генерируем событие обновления переменных
+                OnVariablesUpdated?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка в UpdateAllAsync: {ex.Message}");
+            }
+        }
+
+        private void UpdateVariablesFromModbus(ushort address, ushort value)
+        {
+            // Находим переменную по адресу регистра
+            var variable = Variables.Items.FirstOrDefault(v => v.Address == address);
+
+            if (variable != null)
+            {
+                // Обновляем значение переменной
+                variable.ValueReal = value;
+                variable.LastRead = DateTime.Now;
+
+                // Преобразуем в строковое значение
+                switch (variable.Type)
+                {
+                    case "Bool":
+                        variable.ValueString = value > 0 ? "true" : "false";
+                        break;
+                    case "Int_16":
+                        variable.ValueString = (value * variable.Multiplier).ToString(variable.Format);
+                        break;
+                    case "Float_32":
+                        // Для Float нужно 2 регистра, обрабатывается отдельно
+                        break;
+                    default:
+                        variable.ValueString = value.ToString();
+                        break;
+                }
+            }
+        }
+
+        public void UpdateFaults()
+        {
+            if (Faults.GetCount() > 0 && Variables.GetCount() > 0)
+            {
+                for (int faultIndex = 0; faultIndex < Faults.GetCount(); faultIndex++)
+                {
+                    for (int variableIndex = 0; variableIndex < Variables.GetCount(); variableIndex++)
+                    {
+                        if (Faults.Items[faultIndex].Name == Variables.Items[variableIndex].Name)
+                        {
+                            Faults.Items[faultIndex].Update(Variables.Items[variableIndex], Log);
+                        }
+                    }
+                }
+            }
+        }
+
         public async Task UpdateTrendsWithSaveAsync()
         {
-            if (TrendManager.IsInitialized)
+            if (_trendManager.IsInitialized)
             {
-                await TrendManager.UpdateAllTrendsAsync(Variables);
+                await _trendManager.UpdateAllTrendsAsync(Variables);
             }
             else
             {
@@ -94,40 +272,42 @@ namespace ProtolScadaRemake
             }
         }
 
-        // Метод для получения DBUtils (для использования в FrameLog)
+        // Методы работы с Modbus
+        public bool WriteToModbus(string tagName, ushort value)
+        {
+            return _modbusManager?.WriteToModbus(tagName, value) ?? false;
+        }
+
+        public bool WriteToRegister(byte unitId, ushort address, ushort value, string description = "")
+        {
+            return _modbusManager?.WriteToRegister(unitId, address, value, description) ?? false;
+        }
+
+        public bool ProcessModeCommand(byte unitId, ushort registerAddress, ushort value, string description)
+        {
+            return _modbusManager?.ProcessModeCommand(unitId, registerAddress, value, description) ?? false;
+        }
+
+        // Утилитарные методы
         public DBUtils GetDbUtils()
         {
             return _dbUtils;
         }
 
-        public async Task UpdateTrendsAsync()
+        public ModbusManager GetModbusManager()
         {
-            foreach (var trend in Trends.Items)
-            {
-                var variable = Variables.GetByName(trend.Name);
-                if (variable != null)
-                {
-                    trend.Update(variable);
-                }
-            }
-            await Task.CompletedTask;
+            return _modbusManager;
         }
 
-        public void UpdateFaults()
+        public DatabaseTrendManager GetTrendManager()
         {
-            if (Faults.GetCount() > 0 && Variables.GetCount() > 0)
-            {
-                for (int FaultIndex = 0; FaultIndex < Faults.GetCount(); FaultIndex++)
-                {
-                    for (int VariableIndex = 0; VariableIndex < Variables.GetCount(); VariableIndex++)
-                    {
-                        if (Faults.Items[FaultIndex].Name == Variables.Items[VariableIndex].Name)
-                        {
-                            Faults.Items[FaultIndex].Update(Variables.Items[VariableIndex], Log);
-                        }
-                    }
-                }
-            }
+            return _trendManager;
+        }
+
+        public void DisconnectAll()
+        {
+            StopUpdateTimer();
+            _modbusManager?.Disconnect();
         }
 
         public void Clear()
@@ -137,15 +317,44 @@ namespace ProtolScadaRemake
             Log.Clear();
             Faults.Clear();
             Trends.Clear();
+
+            if (_trendManager != null)
+            {
+                try
+                {
+                    // Проверяем, есть ли метод Clear у DatabaseTrendManager
+                    var clearMethod = _trendManager.GetType().GetMethod("Clear");
+                    if (clearMethod != null)
+                    {
+                        clearMethod.Invoke(_trendManager, null);
+                    }
+                    else
+                    {
+                        // Если метода нет, создаем новый менеджер
+                        _trendManager = new DatabaseTrendManager(_dbUtils);
+                    }
+                }
+                catch
+                {
+                    // В случае ошибки создаем новый менеджер
+                    _trendManager = new DatabaseTrendManager(_dbUtils);
+                }
+            }
         }
 
-        public void UpdateTrends()
+        // Метод для отправки команды (как в старом проекте)
+        public void SendCommand(string commandName, string value)
         {
-            Trends.Update(Variables);
+            var command = Commands.GetByName(commandName);
+            if (command != null)
+            {
+                command.WriteValue = value;
+                command.NeedToWrite = true;
+                command.SendToController();
+            }
         }
 
-        // ============== ВСЕ СТАТИЧЕСКИЕ МЕТОДЫ ДЛЯ РАБОТЫ С ПОТОКАМИ ==============
-
+        // Статические методы для работы с потоками
         public static void SaveUInt32ToStream(FileStream Stream, UInt32 Variable)
         {
             UInt32 Ost = Variable;
@@ -173,7 +382,6 @@ namespace ProtolScadaRemake
         {
             if (string.IsNullOrEmpty(Value))
             {
-                // Сохраняем длину 0
                 Stream.WriteByte(0);
                 Stream.WriteByte(0);
                 return;

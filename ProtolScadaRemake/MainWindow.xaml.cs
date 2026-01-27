@@ -1,19 +1,12 @@
-﻿using MySql.Data.MySqlClient;
-using ProtolScada;
+﻿using ProtolScada;
+using ProtolScadaRemake.Controls;
 using ProtolScadaRemake.Views;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
-using NModbus;
-using NModbus.Device;
-using ProtolScadaRemake.Controls;
 
 namespace ProtolScadaRemake
 {
@@ -381,7 +374,7 @@ namespace ProtolScadaRemake
             GroPageButton.Click += (s, e) => ShowGroPage();
             TcPageButton.Click += (s, e) => ShowTcPage();
             EmPageButton.Click += (s, e) => ShowEmPage();
-            ReceptPageButton.Click += (s, e) => ShowReceptPage();    
+            ReceptPageButton.Click += (s, e) => ShowReceptPage();
             LogPageButton.Click += (s, e) => ShowLogPage();
             TrendsButton.Click += (s, e) => TrendsButton_Click(s, e);
         }

@@ -1,7 +1,4 @@
 ﻿// TTrendList.cs
-using System;
-using System.Linq;
-
 namespace ProtolScadaRemake
 {
     public class TTrendList

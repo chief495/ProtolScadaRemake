@@ -1,6 +1,4 @@
 ﻿// TTrendTagRecord.cs
-using System;
-
 namespace ProtolScadaRemake
 {
     public class TTrendTagRecord

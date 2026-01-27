@@ -1,10 +1,6 @@
 ﻿using ProtolScada;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Linq;
 
 namespace ProtolScadaRemake.Views
 {
@@ -50,11 +46,13 @@ namespace ProtolScadaRemake.Views
 
             // Подписка на события
             cmbPeriod.SelectionChanged += cmbPeriod_SelectionChanged;
-            dpFrom.SelectedDateChanged += (s, e) => {
+            dpFrom.SelectedDateChanged += (s, e) =>
+            {
                 if (dpFrom.SelectedDate.HasValue && cmbPeriod.SelectedIndex == 3)
                     RefreshLog();
             };
-            dpTo.SelectedDateChanged += (s, e) => {
+            dpTo.SelectedDateChanged += (s, e) =>
+            {
                 if (dpTo.SelectedDate.HasValue && cmbPeriod.SelectedIndex == 3)
                     RefreshLog();
             };
