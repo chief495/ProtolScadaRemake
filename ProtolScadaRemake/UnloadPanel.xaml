@@ -4,13 +4,14 @@
              Name="UnloadControl"
              Background="Transparent"
              Width="200" 
-             Height="320">
+             Height="376">
+    <!-- Увеличил высоту для новой кнопки -->
 
     <Border BorderBrush="#666666" 
             BorderThickness="1"
             Background="Transparent"
             CornerRadius="6"
-            Padding="10" Margin="0,0,0,-20">
+            Padding="10" Margin="0,0,0,0">
 
         <StackPanel>
             <!-- Заголовок панели -->
@@ -246,20 +247,56 @@
                 </Grid>
             </Border>
 
+            <!-- Кнопка Тарирование (как в старом проекте) -->
+            <Button x:Name="TorirovanieButton"
+                    Content="ТАРИРОВАНИЕ"
+                    Width="160"
+                    Height="28"
+                    Background="#FF8C00"
+                    BorderBrush="#FFA500"
+                    BorderThickness="1"
+                    Foreground="White"
+                    FontSize="11"
+                    FontWeight="Bold"
+                    Margin="0,0,0,8"
+                    HorizontalAlignment="Center"
+                    Click="TorirovanieButton_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="14">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
             <!-- Кнопки выбора режима -->
             <StackPanel>
                 <!-- Кнопка ПУЛЬТ -->
                 <Button x:Name="PultModeButton"
-            Content="ПУЛЬТ"
-            Background="#3F51B5"
-            BorderBrush="#2196F3"
-            BorderThickness="1"
-            Foreground="White"
-            FontSize="11"
-            FontWeight="Bold"
-            Height="28"
-            Margin="0,0,0,5"
-            Click="PultMode_Click">
+                        Content="ПУЛЬТ"
+                        Background="#3F51B5"
+                        BorderBrush="#2196F3"
+                        BorderThickness="1"
+                        Foreground="White"
+                        FontSize="11"
+                        FontWeight="Bold"
+                        Height="28"
+                        Margin="0,0,0,5"
+                        Click="PultMode_Click">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="border" 

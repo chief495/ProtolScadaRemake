@@ -35,22 +35,25 @@
         <local:UnloadPanel x:Name="UnloadPanelControl"
                           HorizontalAlignment="Right"
                           VerticalAlignment="Bottom"
-                          Margin="0,0,20,20"
+                          Visibility="Collapsed"
+                          Margin="0,0,125,32"
                           Width="200"
-                          Height="320"
+                          Height="387"
                           SetParamsButtonClick="UnloadPanel_SetParamsButtonClick"
                           ResetButtonClick="UnloadPanel_ResetButtonClick"
                           PultModeClick="UnloadPanel_PultModeClick"
                           TimeModeClick="UnloadPanel_TimeModeClick"
-                          MassModeClick="UnloadPanel_MassModeClick"/>
+                          MassModeClick="UnloadPanel_MassModeClick"
+                          TorirovanieButtonClick="UnloadPanel_TorirovanieButtonClick"/>
 
         <!-- Панель затравки (левый нижний угол) -->
         <local:StartupPanel x:Name="StartupPanelControl"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Bottom"
-                           Margin="20,0,0,20"
+                           Visibility="Collapsed"
+                           Margin="10,0,0,10"
                            Width="280"
-                           Height="240"
+                           Height="270"
                            StartStartupButtonClick="StartupPanel_StartStartupButtonClick"
                            StopStartupButtonClick="StartupPanel_StopStartupButtonClick"
                            AutoModeButtonClick="StartupPanel_AutoModeButtonClick"
@@ -60,17 +63,27 @@
         <local:PerformancePanel x:Name="PerformancePanelControl"
                                HorizontalAlignment="Right"
                                VerticalAlignment="Top"
-                               Margin="0,20,20,0"
-                               Width="280"
-                               Height="304"
+                               Visibility="Collapsed"
+                               Margin="0,357,1538,0"
+                               Width="242"
+                               Height="378"
                                SetMassFlowButtonClick="PerformancePanel_SetMassFlowButtonClick"
                                StartProcessButtonClick="PerformancePanel_StartProcessButtonClick"
                                StopProcessButtonClick="PerformancePanel_StopProcessButtonClick"
                                DojatProcessButtonClick="PerformancePanel_DojatProcessButtonClick"
                                EmergencyStopButtonClick="PerformancePanel_EmergencyStopButtonClick"/>
-
         <!-- Элементы управления -->
-        <local:Element_PumpH x:Name="P651" HorizontalAlignment="Left" Margin="747,166,0,0" VerticalAlignment="Top"/>
-        <local:Element_AI x:Name="LAHH151" HorizontalAlignment="Left" Margin="444,350,0,0" VerticalAlignment="Top"/>
+        <local:Element_PumpH x:Name="P651" 
+                            HorizontalAlignment="Left" 
+                            Margin="747,166,0,0" 
+                            VerticalAlignment="Top"/>
+        <local:Element_AI x:Name="LAHH151" 
+                         HorizontalAlignment="Left" 
+                         Margin="444,350,0,0" 
+                         VerticalAlignment="Top"/>
+
+        <!-- Добавьте остальные элементы по аналогии со старым проектом -->
+        <!-- T150, T250, T650, T700, LAHH251, LAHH653, LALL153, M150, M250 и т.д. -->
+
     </Grid>
 </UserControl>

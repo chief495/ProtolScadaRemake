@@ -42,7 +42,7 @@
                             <ColumnDefinition Width="30"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="ЗАДАНИЕ ПРОИЗВОДИТЕЛЬНОСТИ"
+                        <TextBlock Text="ПРОИЗВОДИТЕЛЬНОСТЬ"
                                    FontSize="11"
                                    Foreground="White"
                                    VerticalAlignment="Center"/>

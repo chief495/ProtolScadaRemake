@@ -517,7 +517,8 @@ namespace ProtolScadaRemake
 
                 if (_GgdPage == null)
                 {
-                    _GgdPage = new FrameGgdPage(_global);
+                    _GgdPage = new FrameGgdPage();
+                    _GgdPage.Initialize(_global);
                 }
 
                 ContentGrid.Children.Add(_GgdPage);

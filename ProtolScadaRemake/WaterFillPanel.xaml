@@ -1,0 +1,139 @@
+﻿<UserControl x:Class="ProtolScadaRemake.WaterFillPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Name="WaterTankControl"
+             Background="Transparent"
+             Width="200" 
+             Height="150">
+
+    <Border BorderBrush="#666666" 
+            BorderThickness="1"
+            Background="Transparent"
+            CornerRadius="8"
+            Padding="10">
+
+        <StackPanel>
+            <!-- Заголовок панели с названием емкости -->
+            <TextBlock x:Name="TankNameText"
+                       Text="T-400"
+                       FontWeight="Bold"
+                       FontSize="14"
+                       Foreground="White"
+                       Margin="0,0,0,10"
+                       HorizontalAlignment="Center"/>
+
+            <!-- Поле ввода объема -->
+            <Grid Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Объем:"
+                           FontSize="12"
+                           Foreground="White"
+                           VerticalAlignment="Center"
+                           Margin="0,0,5,0"/>
+
+                <TextBox x:Name="VolumeTextBox"
+                         Grid.Column="1"
+                         Height="24"
+                         FontSize="12"
+                         Foreground="White"
+                         Background="#444444"
+                         BorderBrush="#666666"
+                         Text="0"
+                         TextAlignment="Right"
+                         VerticalAlignment="Center"
+                         Margin="0,0,5,0"
+                         TextChanged="VolumeTextBox_TextChanged"/>
+
+                <TextBlock Grid.Column="2"
+                           Text="л"
+                           FontSize="12"
+                           Foreground="White"
+                           VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- Кнопки управления -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Кнопка ПУСК -->
+                <Button x:Name="StartButton"
+                        Grid.Column="0"
+                        Content="ПУСК"
+                        Height="28"
+                        Background="#FF1E5945"
+                        BorderBrush="#FF00FF00"
+                        BorderThickness="1"
+                        Foreground="White"
+                        FontSize="12"
+                        FontWeight="Bold"
+                        Margin="0,0,5,0"
+                        IsEnabled="False"
+                        Click="StartButton_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border" 
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="14">
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <!-- Кнопка СТОП -->
+                <Button x:Name="StopButton"
+                        Grid.Column="1"
+                        Content="СТОП"
+                        Height="28"
+                        Background="#7B001C"
+                        BorderBrush="#FF0033"
+                        BorderThickness="1"
+                        Foreground="White"
+                        FontSize="12"
+                        FontWeight="Bold"
+                        Margin="5,0,0,0"
+                        Click="StopButton_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border" 
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="14">
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+        </StackPanel>
+    </Border>
+</UserControl>

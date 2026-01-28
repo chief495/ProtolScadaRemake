@@ -1,0 +1,280 @@
+﻿<Window x:Class="ProtolScadaRemake.DialogTorirovanie"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Тарирование" 
+        Height="450" 
+        Width="400"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#FF1C1C1C"
+        Foreground="White"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#333333"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#666666"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0" 
+                   Text="ТАРИРОВАНИЕ СИСТЕМЫ ОТГРУЗКИ" 
+                   FontWeight="Bold" 
+                   FontSize="16"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,20"
+                   Foreground="#FF00FF00"/>
+
+        <!-- Текущее состояние -->
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Column="0" Content="Текущее состояние:"/>
+            <Border x:Name="StateBorder"
+                    Grid.Column="1" 
+                    Background="Silver" 
+                    CornerRadius="3" 
+                    Padding="8,4"
+                    Margin="10,0,0,0">
+                <TextBlock x:Name="CurrStateLabel" 
+                           Text="Остановлен" 
+                           HorizontalAlignment="Center"
+                           FontWeight="Bold"/>
+            </Border>
+        </Grid>
+
+        <!-- Измеренное время тарирования -->
+        <Grid Grid.Row="2" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Column="0" Content="Измеренное время:"/>
+            <TextBox x:Name="EM_UnloadTorirovanieTimeEdit" 
+                     Grid.Column="1" 
+                     Text="0"
+                     Margin="10,0,5,0"
+                     IsReadOnly="True"/>
+            <Label Grid.Column="2" Content="сек"/>
+        </Grid>
+
+        <!-- Установка массы -->
+        <Grid Grid.Row="3" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Column="0" Content="Установка массы:"/>
+            <TextBox x:Name="MassTextBox" 
+                     Grid.Column="1" 
+                     Text="10"
+                     Margin="10,0,5,0"/>
+            <Label Grid.Column="2" Content="кг"/>
+        </Grid>
+
+        <!-- Кнопки управления -->
+        <Grid Grid.Row="4" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Кнопка СТАРТ -->
+            <Button x:Name="StartButton" 
+                    Grid.Column="0"
+                    Content="СТАРТ"
+                    Background="#FF1E5945"
+                    BorderBrush="#FF00FF00"
+                    Click="StartButton_Click"/>
+
+            <!-- Кнопка ПАУЗА -->
+            <Button x:Name="PauseButton" 
+                    Grid.Column="1"
+                    Content="ПАУЗА"
+                    Background="#FFFFA500"
+                    BorderBrush="#FFFFA500"
+                    Click="PauseButton_Click"/>
+
+            <!-- Кнопка СТОП -->
+            <Button x:Name="StopButton" 
+                    Grid.Column="2"
+                    Content="СТОП"
+                    Background="#7B001C"
+                    BorderBrush="#FF0033"
+                    Click="StopButton_Click"/>
+        </Grid>
+
+        <!-- Результат тарирования -->
+        <Border Grid.Row="5" 
+                Background="#1E3A5F" 
+                CornerRadius="5" 
+                Padding="10"
+                Margin="0,0,0,20">
+            <StackPanel>
+                <TextBlock Text="РЕЗУЛЬТАТ ТАРИРОВАНИЯ" 
+                           FontWeight="Bold" 
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,10"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Content="Масса:"/>
+                    <TextBox x:Name="ResultMassTextBox" 
+                             Grid.Column="1" 
+                             Text="0"
+                             Margin="10,0,5,0"
+                             IsReadOnly="True"/>
+                    <Label Grid.Column="2" Content="кг"/>
+                </Grid>
+
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Content="Время:"/>
+                    <TextBox x:Name="ResultTimeTextBox" 
+                             Grid.Column="1" 
+                             Text="0"
+                             Margin="10,0,5,0"
+                             IsReadOnly="True"/>
+                    <Label Grid.Column="2" Content="сек"/>
+                </Grid>
+
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Content="Скорость:"/>
+                    <TextBox x:Name="ResultSpeedTextBox" 
+                             Grid.Column="1" 
+                             Text="0"
+                             Margin="10,0,5,0"
+                             IsReadOnly="True"/>
+                    <Label Grid.Column="2" Content="кг/сек"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Информация -->
+        <Border Grid.Row="6" 
+                Background="#333333" 
+                CornerRadius="5" 
+                Padding="10"
+                Margin="0,0,0,20">
+            <TextBlock TextWrapping="Wrap" 
+                       FontSize="11">
+                <Run Text="Процедура тарирования определяет скорость отгрузки продукта.&#x0a;"/>
+                <Run Text="1. Установите массу продукта для тарирования&#x0a;"/>
+                <Run Text="2. Нажмите кнопку СТАРТ&#x0a;"/>
+                <Run Text="3. Система отгрузит указанную массу и замерит время&#x0a;"/>
+                <Run Text="4. Результат используется для расчета скорости отгрузки"/>
+            </TextBlock>
+        </Border>
+
+        <!-- Кнопки ОК и Отмена -->
+        <Grid Grid.Row="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Кнопка ОК -->
+            <Button x:Name="OkButton" 
+                    Grid.Column="1"
+                    Content="ОК"
+                    Width="80"
+                    Background="#FF1E5945"
+                    BorderBrush="#FF00FF00"
+                    Click="OkButton_Click"
+                    Margin="0,0,10,0"/>
+
+            <!-- Кнопка Отмена -->
+            <Button x:Name="CancelButton" 
+                    Grid.Column="2"
+                    Content="ОТМЕНА"
+                    Width="80"
+                    Background="#7B001C"
+                    BorderBrush="#FF0033"
+                    Click="CancelButton_Click"/>
+        </Grid>
+    </Grid>
+</Window>
