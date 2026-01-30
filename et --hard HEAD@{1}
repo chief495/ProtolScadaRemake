@@ -1,0 +1,59 @@
+[33m6b8628e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{0}: reset: moving to origin/main
+[33mf841e34[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{1}: commit: Полностью реализован FrameGgdPage со всеми необходимыми панелями
+[33ma27b099[m HEAD@{2}: pull --progress --no-edit --no-stat --recurse-submodules=no origin: Fast-forward
+[33m85d2d49[m HEAD@{3}: commit: Добавил панель режима работы и создал usercontrol переключателя
+[33m9f58615[m HEAD@{4}: commit: Добавил окно рецептов
+[33m1812ffd[m HEAD@{5}: commit: Добавил панель статистики на соновной экран, исправил FrameLog, FrameTrends, добавил иконки на диалоговые окна
+[33m642ea95[m HEAD@{6}: commit: Исправил мнемосхемы
+[33m855d948[m HEAD@{7}: commit: Добавил отображение мнемосхем в формате xaml
+[33m1859945[m[33m ([m[1;31morigin/Larigin2025-12-26[m[33m, [m[1;32mLarigin2025-12-26[m[33m)[m HEAD@{8}: checkout: moving from Larigin2025-12-26 to master
+[33m1859945[m[33m ([m[1;31morigin/Larigin2025-12-26[m[33m, [m[1;32mLarigin2025-12-26[m[33m)[m HEAD@{9}: merge master: Fast-forward
+[33m4554d57[m HEAD@{10}: checkout: moving from master to Larigin2025-12-26
+[33m1859945[m[33m ([m[1;31morigin/Larigin2025-12-26[m[33m, [m[1;32mLarigin2025-12-26[m[33m)[m HEAD@{11}: commit (merge): Merge Larigin2025-12-26 into master with conflict resolution
+[33m9a2ba26[m HEAD@{12}: checkout: moving from master to master
+[33m9a2ba26[m HEAD@{13}: checkout: moving from main to master
+[33m6b8628e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{14}: commit (merge): Merge Larigin2025-12-26 into main
+[33m32f56b2[m HEAD@{15}: checkout: moving from main to main
+[33m32f56b2[m HEAD@{16}: checkout: moving from Larigin2025-12-26 to main
+[33m4554d57[m HEAD@{17}: pull: Fast-forward
+[33m04ee33a[m HEAD@{18}: checkout: moving from main to Larigin2025-12-26
+[33m32f56b2[m HEAD@{19}: commit: Resolve merge conflicts in App.xaml and FrameEmPage.xaml.cs
+[33m04ee33a[m HEAD@{20}: checkout: moving from Larigin2025-12-26 to main
+[33m04ee33a[m HEAD@{21}: checkout: moving from master to Larigin2025-12-26
+[33m9a2ba26[m HEAD@{22}: checkout: moving from Larigin2025-12-26 to master
+[33m04ee33a[m HEAD@{23}: checkout: moving from master to Larigin2025-12-26
+[33m9a2ba26[m HEAD@{24}: checkout: moving from Larigin2025-12-26 to master
+[33m04ee33a[m HEAD@{25}: checkout: moving from master to Larigin2025-12-26
+[33m9a2ba26[m HEAD@{26}: checkout: moving from Larigin2025-12-26 to master
+[33m04ee33a[m HEAD@{27}: reset: moving to HEAD
+[33m04ee33a[m HEAD@{28}: checkout: moving from master to Larigin2025-12-26
+[33m9a2ba26[m HEAD@{29}: commit: поправил README
+[33m39cc089[m HEAD@{30}: commit: Поменял дизайн боковой панели и кнопок
+[33mede8ed5[m HEAD@{31}: pull --progress --no-edit --no-stat --recurse-submodules=no origin: Fast-forward
+[33m9e767f5[m HEAD@{32}: checkout: moving from 9e767f5856f17c6363c2a87bf1133f97bc92e2fd to master
+[33m9e767f5[m HEAD@{33}: checkout: moving from fixerrors2 to 9e767f5856f17c6363c2a87bf1133f97bc92e2fd
+[33mcad29db[m[33m ([m[1;31morigin/fixerrors2[m[33m, [m[1;31morigin/fixerrors[m[33m)[m HEAD@{34}: checkout: moving from master to fixerrors2
+[33m9e767f5[m HEAD@{35}: checkout: moving from fixerrors to master
+[33mcad29db[m[33m ([m[1;31morigin/fixerrors2[m[33m, [m[1;31morigin/fixerrors[m[33m)[m HEAD@{36}: checkout: moving from prod to fixerrors
+[33m27708cd[m[33m ([m[1;31morigin/prod[m[33m)[m HEAD@{37}: pull --progress --no-edit --no-stat --recurse-submodules=no origin: Fast-forward
+[33mcad29db[m[33m ([m[1;31morigin/fixerrors2[m[33m, [m[1;31morigin/fixerrors[m[33m)[m HEAD@{38}: checkout: moving from 9e767f5856f17c6363c2a87bf1133f97bc92e2fd to prod
+[33m9e767f5[m HEAD@{39}: checkout: moving from cad29db7ae81bfbef436663c22ecafbf7a07acf1 to 9e767f5856f17c6363c2a87bf1133f97bc92e2fd
+[33mcad29db[m[33m ([m[1;31morigin/fixerrors2[m[33m, [m[1;31morigin/fixerrors[m[33m)[m HEAD@{40}: reset: moving to cad29db7ae81bfbef436663c22ecafbf7a07acf1
+[33m9e767f5[m HEAD@{41}: checkout: moving from master to 9e767f5856f17c6363c2a87bf1133f97bc92e2fd
+[33m9e767f5[m HEAD@{42}: reset: moving to 9e767f5856f17c6363c2a87bf1133f97bc92e2fd
+[33mcad29db[m[33m ([m[1;31morigin/fixerrors2[m[33m, [m[1;31morigin/fixerrors[m[33m)[m HEAD@{43}: reset: moving to cad29db7ae81bfbef436663c22ecafbf7a07acf1
+[33m57073ea[m HEAD@{44}: revert: Reapply "Добавил подключение по Modbus, убрал методы для теста"
+[33m9e767f5[m HEAD@{45}: revert: Revert "Добавил подключение по Modbus, убрал методы для теста"
+[33mcad29db[m[33m ([m[1;31morigin/fixerrors2[m[33m, [m[1;31morigin/fixerrors[m[33m)[m HEAD@{46}: commit: Добавил подключение по Modbus, убрал методы для теста
+[33m7b47085[m HEAD@{47}: commit: Изменил лого у приложения
+[33m572dcf6[m HEAD@{48}: commit: Настроил работу с БД на локальном сервере, добавил тестовые данные для проверки
+[33ma6e521a[m HEAD@{49}: pull --progress --no-edit --no-stat --recurse-submodules=no origin: Fast-forward
+[33m506068e[m HEAD@{50}: commit: Исправил тренды и журнал событий
+[33m6dd99b7[m HEAD@{51}: pull --progress --no-edit --no-stat --recurse-submodules=no origin: Fast-forward
+[33mf0fea74[m HEAD@{52}: reset: moving to f0fea74e19dc340f0a59cbec6c711bb795b055f9
+[33mf0fea74[m HEAD@{53}: pull --progress --no-edit --no-stat --recurse-submodules=no origin: Fast-forward
+[33m036f1cf[m HEAD@{54}: pull --progress --no-edit --no-stat --recurse-submodules=no origin: Fast-forward
+[33m72bb2f4[m HEAD@{55}: commit: Добавлен журнал событий
+[33mb92b9c0[m HEAD@{56}: pull --progress --no-edit --no-stat --recurse-submodules=no origin: Fast-forward
+[33me6d8f07[m HEAD@{57}: commit: Добавьте файлы проекта.
+[33m165d897[m HEAD@{58}: commit (initial): Добавить .gitattributes, .gitignore и README.md.

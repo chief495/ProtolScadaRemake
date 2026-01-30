@@ -18,6 +18,7 @@ namespace ProtolScadaRemake
         }
         public void UpdateElement()
         {
+            UpdateTextBlock();
             // Ручной режим
             TVariableTag Tag = Global.Variables.GetByName(VarName + "_Manual");
             if (Tag != null) if (Tag.ValueReal <= 0) HandImage.Visibility = Visibility.Hidden;
@@ -28,14 +29,40 @@ namespace ProtolScadaRemake
             if (Tag != null) if (Tag.ValueReal > 0) DIIcon.Source = FindResource("DIonIcon") as ImageSource;
         }
 
-        private void Picture_Click(object sender, EventArgs e)
+        private void UpdateTextBlock()
+        {
+            // Ищем TextBlock в визуальном дереве
+            var textBlock = FindTextBlock(this);
+            if (textBlock != null && !string.IsNullOrEmpty(VarName))
+            {
+                textBlock.Text = VarName;
+            }
+        }
+
+        private TextBlock FindTextBlock(DependencyObject parent)
+        {
+            // Рекурсивный поиск TextBlock в визуальном дереве
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is TextBlock textBlock)
+                    return textBlock;
+
+                var result = FindTextBlock(child);
+                if (result != null)
+                    return result;
+            }
+            return null;
+        }
+
+        private void ValueLabel_Click(object sender, EventArgs e)
         {
             DialogElementDI Dialog = new DialogElementDI();
             Dialog.Title = Description;
             Dialog.Global = Global;
             Dialog.VarName = VarName;
             Dialog.Initialize();
-            Dialog.Show();
+            Dialog.ShowDialog();
         }
     }
 }

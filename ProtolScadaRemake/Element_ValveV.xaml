@@ -5,10 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ProtolScadaRemake"
              mc:Ignorable="d" 
-             d:DesignHeight="80" d:DesignWidth="60">
+             d:DesignHeight="80" d:DesignWidth="60"
+             MouseDown="ValueLabel_Click">
     <Grid>
         <Grid Height="70" Margin="0,0,0,0.6">
-            <Image x:Name="ValveIcon"  Source="{StaticResource ValveVPassiveIcon}" Width="60" Height="60" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+            <Image x:Name="ValveIcon"  Source="{StaticResource ValveVCloseIcon}" Width="60" Height="60" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,10,0,0"/>
             <Image x:Name="HandImage" HorizontalAlignment="Left" Height="24" Margin="36,46,0,0" VerticalAlignment="Top" Width="20" Source="/Hand.png"/>
             <TextBlock x:Name="TAGNAME" HorizontalAlignment="Right" TextWrapping="Wrap" Text="TAG" VerticalAlignment="Top" Width="40" TextAlignment="Center" FontFamily="Arial" Foreground="White" Margin="0,-4,0,0"/>
         </Grid>

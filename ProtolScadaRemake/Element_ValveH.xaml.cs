@@ -20,6 +20,10 @@ namespace ProtolScadaRemake
         }
         public void UpdateElement()
         {
+            if (TAGNAME != null && !string.IsNullOrEmpty(VarName))
+            {
+                TAGNAME.Text = VarName;
+            }
             // Ручной режим
             TVariableTag Tag = Global.Variables.GetByName(VarName + "_Manual");
             if (Tag != null) if (Tag.ValueReal <= 0) HandImage.Visibility = Visibility.Hidden;

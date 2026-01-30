@@ -64,8 +64,8 @@ namespace ProtolScadaRemake
                 InitializeSensor(FM401, "FM401", "Массовый расходомер FM401", "кг/ч");
 
                 // Счетчики (как Element_AI)
-                InitializeSensor(QM400Counter, "QM400_Total", "Счетчик воды QM-400", "л");
-                InitializeSensor(QM500Counter, "QM500_Total", "Счетчик воды QM-500", "л");
+                InitializeSensor(QM400Counter, "QM400", "Счетчик воды QM-400", "л");
+                InitializeSensor(QM500Counter, "QM500", "Счетчик воды QM-500", "л");
 
                 // Дискретные датчики
                 InitializeDiscreteSensor(LAHH401, "LAHH401", "Датчик уровня LAHH401");
@@ -152,6 +152,7 @@ namespace ProtolScadaRemake
                 pump.Global = _global;
                 pump.VarName = varName;
                 pump.Description = description;
+                pump.UpdateElement(); // хз почему, иначе имя не тянулось
             }
         }
 
@@ -164,6 +165,18 @@ namespace ProtolScadaRemake
                 pump.Description = description;
             }
         }
+
+        // УДАЛИТЕ ВСЕ ЭТИ МЕТОДЫ - они не нужны
+        // private void Sensor_MouseDown(object sender, MouseButtonEventArgs e)
+        // private void DiscreteSensor_MouseDown(object sender, MouseButtonEventArgs e)
+        // private void Valve_MouseDown(object sender, MouseButtonEventArgs e)
+        // private void PumpUz_MouseDown(object sender, MouseButtonEventArgs e)
+        // private void PumpH_MouseDown(object sender, MouseButtonEventArgs e)
+        // private void OpenSensorDialog(string title, string varName)
+        // private void OpenDiscreteSensorDialog(string title, string varName)
+        // private void OpenValveDialog(string title, string varName)
+        // private void OpenPumpUzDialog(string title, string varName)
+        // private void OpenPumpHDialog(string title, string varName)
 
         private void SubscribeToEvents()
         {

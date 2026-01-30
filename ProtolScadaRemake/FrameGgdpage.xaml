@@ -24,7 +24,7 @@
                               VerticalAlignment="Bottom"
                               Margin="413,0,0,71"
                               Width="250"
-                              Height="200"
+                              Height="157"
                               TankName="T-500"
                               StartButtonClick="T500WaterPanel_StartButtonClick"
                               StopButtonClick="T500WaterPanel_StopButtonClick"/>
@@ -35,7 +35,7 @@
                               VerticalAlignment="Bottom"
                               Margin="0,0,594,71"
                               Width="250"
-                              Height="200"
+                              Height="157"
                               TankName="T-400"
                               StartButtonClick="T400WaterPanel_StartButtonClick"
                               StopButtonClick="T400WaterPanel_StopButtonClick"/>
@@ -44,73 +44,86 @@
         <!-- TT402 - Температура T400 -->
         <local:Element_AI x:Name="TT402"
                           HorizontalAlignment="Left"
-                          VerticalAlignment="Top" Margin="1071,472,0,0"/>
+                          VerticalAlignment="Top" 
+                          Margin="1071,472,0,0"/>
 
         <!-- LT403 - Уровень T400 -->
         <local:Element_AI x:Name="LT403"
                           HorizontalAlignment="Left"
-                          VerticalAlignment="Top" Margin="1071,542,0,0"/>
+                          VerticalAlignment="Top" 
+                          Margin="1071,542,0,0"/>
 
         <!-- PT404 - Давление T400 -->
         <local:Element_AI x:Name="PT404"
                           HorizontalAlignment="Left"
-                          VerticalAlignment="Top" Margin="1367,508,0,0"/>
+                          VerticalAlignment="Top" 
+                          Margin="1367,508,0,0"/>
 
         <!-- ========== АНАЛОГОВЫЕ ДАТЧИКИ T-500 ========== -->
         <!-- TT502 - Температура T500 -->
         <local:Element_AI x:Name="TT502"
                           HorizontalAlignment="Right"
-                          VerticalAlignment="Top" Margin="0,472,1069,0"/>
+                          VerticalAlignment="Top" 
+                          Margin="0,472,1069,0"/>
 
         <!-- LT503 - Уровень T500 -->
         <local:Element_AI x:Name="LT503"
                           HorizontalAlignment="Right"
-                          VerticalAlignment="Top" Margin="0,542,1069,0"/>
+                          VerticalAlignment="Top" 
+                          Margin="0,542,1069,0"/>
 
         <!-- PT504 - Давление T500 -->
         <local:Element_AI x:Name="PT504"
                           HorizontalAlignment="Right"
-                          VerticalAlignment="Top" Margin="0,514,1505,0"/>
+                          VerticalAlignment="Top" 
+                          Margin="0,514,1505,0"/>
 
         <!-- ========== ДИСКРЕТНЫЕ ДАТЧИКИ T-400 ========== -->
         <!-- LAHH401 - Аварийный уровень T400 -->
         <local:Element_DI x:Name="LAHH401"
                           HorizontalAlignment="Left"
-                          VerticalAlignment="Top" Margin="895,472,0,0"/>
+                          VerticalAlignment="Top" 
+                          Margin="895,472,0,0"/>
 
         <!-- ========== ДИСКРЕТНЫЕ ДАТЧИКИ T-500 ========== -->
         <!-- LAHH501 - Аварийный уровень T500 -->
         <local:Element_DI x:Name="LAHH501"
                           HorizontalAlignment="Right"
-                          VerticalAlignment="Top" Margin="0,472,1287,0"/>
+                          VerticalAlignment="Top" 
+                          Margin="0,472,1287,0"/>
 
         <!-- ========== КЛАПАНЫ ========== -->
         <!-- VT401 - Клапан V-401 -->
         <local:Element_ValveV x:Name="VT401"
                               HorizontalAlignment="Left"
-                              VerticalAlignment="Top" Margin="1091,319,0,0"/>
+                              VerticalAlignment="Top" 
+                              Margin="1091,319,0,0"/>
 
         <!-- VT501 - Клапан V-501 -->
         <local:Element_ValveV x:Name="VT501"
                               HorizontalAlignment="Right"
-                              VerticalAlignment="Top" Margin="0,319,1127,0"/>
+                              VerticalAlignment="Top" 
+                              Margin="0,319,1127,0"/>
 
         <!-- ========== НАСОСЫ ========== -->
         <!-- P400 - Насос P-400 (Element_PumpUz) -->
         <local:Element_PumpUz x:Name="P400"
                              HorizontalAlignment="Left"
-                             VerticalAlignment="Bottom" Margin="1243,0,0,411"/>
+                             VerticalAlignment="Bottom" 
+                             Margin="1243,0,0,411"/>
 
         <!-- P500 - Насос P-500 (Element_PumpH) -->
         <local:Element_PumpH x:Name="P500"
                              HorizontalAlignment="Right"
-                             VerticalAlignment="Bottom" Margin="0,0,1398,419"/>
+                             VerticalAlignment="Bottom" 
+                             Margin="0,0,1398,419"/>
 
         <!-- ========== ДРУГИЕ ЭЛЕМЕНТЫ ========== -->
         <!-- FM401 - Расходомер -->
         <local:Element_AI x:Name="FM401"
                           HorizontalAlignment="Left"
-                          VerticalAlignment="Top" Margin="1427,596,0,0"/>
+                          VerticalAlignment="Top" 
+                          Margin="1427,596,0,0"/>
 
         <!-- ========== ПЕРЕКЛЮЧАТЕЛИ МИКСЕРОВ ========== -->
         <!-- T400 Mixer Toggle -->
@@ -118,30 +131,29 @@
                             Width="60"
                             Height="30"
                             HorizontalAlignment="Left"
-                            VerticalAlignment="Top" Margin="1015,433,0,0"/>
+                            VerticalAlignment="Top" 
+                            Margin="1015,433,0,0"/>
 
         <!-- T500 Mixer Toggle -->
         <local:ToggleSwitch x:Name="T500MixerToggle"
                             Width="60"
                             Height="30"
                             HorizontalAlignment="Right"
-                            VerticalAlignment="Top" Margin="0,433,1204,0"/>
+                            VerticalAlignment="Top" 
+                            Margin="0,433,1204,0"/>
 
         <!-- ========== СЧЕТЧИКИ (как Element_AI) ========== -->
         <!-- QM-400 Счетчик -->
         <local:Element_AI x:Name="QM400Counter"
                           HorizontalAlignment="Left"
-                          VerticalAlignment="Top" Margin="1139,210,0,0"/>
+                          VerticalAlignment="Top" 
+                          Margin="1139,210,0,0"/>
 
         <!-- QM-500 Счетчик -->
         <local:Element_AI x:Name="QM500Counter"
                           HorizontalAlignment="Right"
-                          VerticalAlignment="Top" Margin="0,210,1001,0"/>
-
-        <!-- ========== ДИСКРЕТНЫЕ МИКСЕРЫ (если нужно) ========== -->
-        <!-- M400 - Миксер T400 (дискретный датчик) -->
-
-        <!-- M500 - Миксер T500 (дискретный датчик) -->
+                          VerticalAlignment="Top" 
+                          Margin="0,210,1001,0"/>
 
     </Grid>
 </UserControl>

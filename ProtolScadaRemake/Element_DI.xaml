@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:ProtolScadaRemake"
              mc:Ignorable="d" 
              Width="90" 
-             Height="30">
+             Height="30"
+             MouseDown="ValueLabel_Click">
     <Grid Width="90" Height="30" HorizontalAlignment="Left">
         <Image x:Name ="DIIcon"  Source="{StaticResource DIoffIcon}" Width="30" Height="30" Margin="0,0,20,0" HorizontalAlignment="Left"/>
         <Image x:Name="HandImage" HorizontalAlignment="Left" Height="14" Margin="25,16,0,0" VerticalAlignment="Top" Width="11" Source="/Hand.png" RenderTransformOrigin="0.5,0.5">

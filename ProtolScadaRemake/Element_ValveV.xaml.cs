@@ -20,12 +20,16 @@ namespace ProtolScadaRemake
         }
         public void UpdateElement()
         {
+            if (TAGNAME != null && !string.IsNullOrEmpty(VarName))
+            {
+                TAGNAME.Text = VarName;
+            }
             // Ручной режим
             TVariableTag Tag = Global.Variables.GetByName(VarName + "_Manual");
             if (Tag != null) if (Tag.ValueReal <= 0) HandImage.Visibility = Visibility.Hidden;
             if (Tag != null) if (Tag.ValueReal > 0) HandImage.Visibility = Visibility.Hidden;
             // Положение по умолчанию
-            ValveIcon.Source = FindResource("ValveHPassiveIcon") as ImageSource;
+            ValveIcon.Source = FindResource("ValveVCloseIcon") as ImageSource;
             // Клапан в закрытом положении
             Tag = Global.Variables.GetByName(VarName + "_IsClose");
             if (Tag != null) if (Tag.ValueReal > 0) ValveIcon.Source = FindResource("ValveHCloseIcon") as ImageSource;
@@ -42,7 +46,7 @@ namespace ProtolScadaRemake
         private void ValueLabel_Click(object sender, MouseButtonEventArgs e)
         {
             DialogElementValve Dialog = new DialogElementValve();
-            Dialog.Content = Description;
+            Dialog.Title = Description;
             Dialog.Global = Global;
             Dialog.VarName = VarName;
             Dialog.Initialize();

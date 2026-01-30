@@ -7,7 +7,7 @@
              Height="150">
 
     <Border BorderBrush="#666666" 
-            BorderThickness="1"
+            BorderThickness="2"
             Background="Transparent"
             CornerRadius="8"
             Padding="10">

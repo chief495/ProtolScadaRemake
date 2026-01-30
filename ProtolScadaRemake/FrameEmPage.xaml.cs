@@ -26,6 +26,9 @@ namespace ProtolScadaRemake
 
             try
             {
+                // Инициализация всех элементов
+                InitializeElements();
+
                 // Инициализация панелей управления
                 InitializePanels();
 
@@ -44,6 +47,184 @@ namespace ProtolScadaRemake
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка инициализации FrameEmPage: {ex.Message}");
+            }
+        }
+
+        private void InitializeElements()
+        {
+            try
+            {
+                // ========== АНАЛОГОВЫЕ ДАТЧИКИ ==========
+
+                // TT152
+                InitializeSensor(TT152, "TT152", "Датчик температуры TT-152", "TT-152", "°C");
+
+                // TT252
+                InitializeSensor(TT252, "TT252", "Датчик температуры TT-252", "TT-252", "°C");
+
+                // TT602
+                InitializeSensor(TT602, "TT602", "Датчик температуры TT-602", "TT-602", "°C");
+
+                // LT150
+                InitializeSensor(LT150, "LT150", "Датчик уровня LT150", "LT-150", "мм");
+
+                // FM601
+                InitializeSensor(FM601, "FM601", "Массовый расходомер FM601", "FM601", "кг/ч");
+
+                // PT601
+                InitializeSensor(PT601, "PT601", "Датчик давления PT601", "PT-601", "бар");
+
+                // PT606
+                InitializeSensor(PT606, "PT606", "Датчик давления PT606", "PT-606", "бар");
+
+                // LT253
+                InitializeSensor(LT253, "LT253", "Датчик уровня LT253", "LT-253", "мм");
+
+                // FM602
+                InitializeSensor(FM602, "FM602", "Массовый расходомер FM602", "FM602", "кг/ч");
+
+                // LT651
+                InitializeSensor(LT651, "LT651", "Датчик уровня LT651", "LT-651", "мм");
+
+                // PT652
+                InitializeSensor(PT652, "PT652", "Датчик давления PT652", "PT-652", "бар");
+
+                // PT604
+                InitializeSensor(PT604, "PT604", "Датчик давления PT604", "PT-604", "бар");
+
+                // ========== ДИСКРЕТНЫЕ ДАТЧИКИ ==========
+
+                // LAHH151
+                InitializeDiscreteSensor(LAHH151, "LAHH151", "Датчик уровня LAHH151");
+
+                // LALL153
+                InitializeDiscreteSensor(LALL153, "LALL153", "Датчик уровня LALL153");
+
+                // LAHH251
+                InitializeDiscreteSensor(LAHH251, "LAHH251", "Датчик уровня LAHH251");
+
+                // LAHH653
+                InitializeDiscreteSensor(LAHH653, "LAHH653", "Датчик уровня LAHH653");
+
+                // ========== МИКСЕРЫ ==========
+
+                // M150
+                InitializeToggleSwitch(M150, "M150", "Миксер M150");
+
+                // M250
+                InitializeToggleSwitch(M250, "M250", "Миксер M250");
+
+                // ========== НАСОСЫ ==========
+
+                // P601
+                InitializePumpUz(P601, "P601", "Насос P-601");
+
+                // P602
+                InitializePumpUz(P602, "P602", "Насос P-602");
+
+                // M600
+                InitializePumpUz(M600, "M600", "Миксер M-600");
+
+                // P651
+                InitializePumpUz(P651, "P651", "Насос P-651");
+
+                // P700
+                InitializePumpH(P700, "P700", "Насос P-700");
+
+                // ========== КЛАПАНЫ ==========
+
+                // VT601
+                Initialize3Valve(SV601, "V601", "Клапан SV-601");
+
+                // VT602
+                Initialize3Valve(SV602, "V602", "Клапан SV-602");
+
+                // VT505
+                InitializeValve(V505, "V505", "Клапан V-505");
+
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка инициализации элементов: {ex.Message}");
+            }
+        }
+
+        private void InitializeSensor(Element_AI sensor, string varName, string description, string name, string eu)
+        {
+            if (sensor != null && _global != null)
+            {
+                sensor.Global = _global;
+                sensor.VarName = varName;
+                sensor.Description = description;
+                sensor.Name = name;
+                sensor.EU = eu;
+            }
+        }
+
+        private void InitializeDiscreteSensor(Element_DI sensor, string varName, string description)
+        {
+            if (sensor != null && _global != null)
+            {
+                sensor.Global = _global;
+                sensor.VarName = varName;
+                sensor.Description = description;
+            }
+        }
+
+        private void InitializeToggleSwitch(ToggleSwitch toggle, string varName, string description)
+        {
+            if (toggle != null && _global != null)
+            {
+                toggle.Tag = varName; // Сохраняем имя переменной в Tag
+                toggle.StateChanged += MixerToggle_StateChanged;
+            }
+        }
+
+        private void InitializePumpUz(Element_PumpUz pump, string varName, string description)
+        {
+            if (pump != null && _global != null)
+            {
+                pump.Global = _global;
+                pump.VarName = varName;
+                pump.Description = description;
+                // Добавляем обработчик клика
+                pump.MouseDown += (s, e) => OpenPumpDialog(description, varName);
+            }
+        }
+
+        private void InitializePumpH(Element_PumpH pump, string varName, string description)
+        {
+            if (pump != null && _global != null)
+            {
+                pump.Global = _global;
+                pump.VarName = varName;
+                pump.Description = description;
+                // Добавляем обработчик клика
+                pump.MouseDown += (s, e) => OpenPumpDialog(description, varName);
+            }
+        }
+
+        private void Initialize3Valve(Element_3ValveH valve, string varName, string description)
+        {
+            if (valve != null && _global != null)
+            {
+                valve.Global = _global;
+                valve.VarName = varName;
+                valve.Description = description;
+                // Добавляем обработчик клика
+                valve.MouseDown += (s, e) => OpenValveDialog(description, varName);
+            }
+        }
+
+        private void InitializeValve(Element_ValveV valve, string varName, string description)
+        {
+            if (valve != null && _global != null)
+            {
+                valve.Global = _global;
+                valve.VarName = varName;
+                valve.Description = description;
+                // Добавляем обработчик клика
+                valve.MouseDown += (s, e) => OpenValveDialog(description, varName);
             }
         }
 
@@ -80,16 +261,10 @@ namespace ProtolScadaRemake
 
         private void SubscribeToEvents()
         {
-            // Подписка на события обновления глобальных переменных
-            _global.OnVariablesUpdated += OnGlobalVariablesUpdated;
-        }
-
-        private void StartUpdateTimer()
-        {
-            _updateTimer = new DispatcherTimer();
-            _updateTimer.Interval = TimeSpan.FromMilliseconds(100); // 10 Гц как в старом проекте
-            _updateTimer.Tick += (sender, e) => UpdateUIFromVariables();
-            _updateTimer.Start();
+            if (_global != null)
+            {
+                _global.OnVariablesUpdated += OnGlobalVariablesUpdated;
+            }
         }
 
         private void OnGlobalVariablesUpdated(object sender, EventArgs e)
@@ -100,23 +275,104 @@ namespace ProtolScadaRemake
             });
         }
 
+        private void StartUpdateTimer()
+        {
+            _updateTimer = new DispatcherTimer();
+            _updateTimer.Interval = TimeSpan.FromMilliseconds(100); // 10 Гц как в старом проекте
+            _updateTimer.Tick += (sender, e) => UpdateUIFromVariables();
+            _updateTimer.Start();
+        }
+
         private void UpdateUIFromVariables()
         {
             try
             {
-                // 1. Обновляем режим работы EM
+                // 1. Обновление всех элементов
+                UpdateAllElements();
+
+                // 2. Обновляем режим работы EM
                 UpdateRejimStatus();
 
-                // 2. Обновляем режим отгрузки и управление панелью отгрузки
+                // 3. Обновляем режим отгрузки и управление панелью отгрузки
                 UpdateUnloadStatus();
 
-                // 3. Обновляем данные в панелях управления
+                // 4. Обновляем данные в панелях управления
                 UpdateControlPanels();
+
+                // 5. Обновление состояния переключателей миксеров
+                UpdateMixerTogglesFromVariables();
 
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка обновления UI: {ex.Message}");
+            }
+        }
+
+        private void UpdateAllElements()
+        {
+            // Обновляем аналоговые датчики
+            TT152?.UpdateElement();
+            TT252?.UpdateElement();
+            TT602?.UpdateElement();
+            LT150?.UpdateElement();
+            FM601?.UpdateElement();
+            PT601?.UpdateElement();
+            PT606?.UpdateElement();
+            LT253?.UpdateElement();
+            FM602?.UpdateElement();
+            LT651?.UpdateElement();
+            PT652?.UpdateElement();
+            PT604?.UpdateElement();
+
+            // Обновляем дискретные датчики
+            LAHH151?.UpdateElement();
+            LALL153?.UpdateElement();
+            LAHH251?.UpdateElement();
+            LAHH653?.UpdateElement();
+
+            // Обновляем насосы
+            P601?.UpdateElement();
+            P602?.UpdateElement();
+            M600?.UpdateElement();
+            P651?.UpdateElement();
+            P700?.UpdateElement();
+
+            // Обновляем клапаны
+            SV601?.UpdateElement();
+            SV602?.UpdateElement();
+            V505?.UpdateElement();
+        }
+
+        private void UpdateMixerTogglesFromVariables()
+        {
+            try
+            {
+                // Миксер M150
+                var m150Tag = _global?.Variables?.GetByName("M150_IsWork");
+                if (m150Tag != null && M150 != null)
+                {
+                    bool isWorking = m150Tag.ValueReal > 0;
+                    if (M150.IsChecked != isWorking)
+                    {
+                        M150.IsChecked = isWorking;
+                    }
+                }
+
+                // Миксер M250
+                var m250Tag = _global?.Variables?.GetByName("M250_IsWork");
+                if (m250Tag != null && M250 != null)
+                {
+                    bool isWorking = m250Tag.ValueReal > 0;
+                    if (M250.IsChecked != isWorking)
+                    {
+                        M250.IsChecked = isWorking;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка обновления переключателей: {ex.Message}");
             }
         }
 
@@ -128,9 +384,6 @@ namespace ProtolScadaRemake
                 int rejimValue = (int)rejimTag.ValueReal;
 
                 // Управление видимостью панелей как в старом проекте
-                // В старом проекте: StartupPanel и PerformancePanel управляются через EM_Rejim
-
-                // Если режим не OFF (0), то показываем панели управления
                 bool showControlPanels = rejimValue != 0;
 
                 if (StartupPanelControl != null)
@@ -149,27 +402,18 @@ namespace ProtolScadaRemake
             if (unloadRejimTag != null && UnloadPanelControl != null)
             {
                 string rejimValue = unloadRejimTag.ValueString;
-
-                // Обновляем режим в панели отгрузки (у UnloadPanel есть метод UpdateMode)
                 UnloadPanelControl.UpdateMode(rejimValue);
-
-                // Управляем видимостью панели отгрузки
-                // В старом проекте: UnloadPanel видна всегда, но внутри нее меняются панели
-                // У вас одна панель, которая сама управляет своим контентом
                 UnloadPanelControl.Visibility = Visibility.Visible;
-
                 System.Diagnostics.Debug.WriteLine($"EM_Unloading_Rejim = {rejimValue}");
             }
             else if (UnloadPanelControl != null)
             {
-                // Если нет данных, скрываем панель
                 UnloadPanelControl.Visibility = Visibility.Collapsed;
             }
         }
 
         private void UpdateControlPanels()
         {
-            // Обновление данных в панелях управления
             StartupPanelControl?.UpdateFromGlobal();
             PerformancePanelControl?.UpdateFromGlobal();
             UnloadPanelControl?.UpdateFromGlobal();
@@ -221,7 +465,7 @@ namespace ProtolScadaRemake
             }
         }
 
-        // Обработчики событий панелей - передача команд как в старом проекте
+        // Обработчики событий панелей
 
         private void StartupPanel_StartStartupButtonClick(object sender, RoutedEventArgs e)
         {
@@ -328,6 +572,92 @@ namespace ProtolScadaRemake
                 : $"Ошибка отправки команды Modbus для EM: {e.Description}");
         }
 
+        // Обработчики для миксеров
+        private void MixerToggle_StateChanged(object sender, bool isChecked)
+        {
+            if (_global == null || sender == null) return;
+
+            var toggle = sender as ToggleSwitch;
+            if (toggle == null) return;
+
+            string varName = toggle.Tag as string;
+            if (string.IsNullOrEmpty(varName)) return;
+
+            if (varName == "M150")
+            {
+                if (isChecked)
+                {
+                    _global.Log.Add("Пользователь", "Включение миксера M150", 1);
+                    SendCommandToController("T150_StartMixer", "true");
+                }
+                else
+                {
+                    _global.Log.Add("Пользователь", "Отключение миксера M150", 1);
+                    SendCommandToController("T150_StartMixer", "false");
+                }
+            }
+            else if (varName == "M250")
+            {
+                if (isChecked)
+                {
+                    _global.Log.Add("Пользователь", "Включение миксера M250", 1);
+                    SendCommandToController("M250_StartMixer", "true");
+                }
+                else
+                {
+                    _global.Log.Add("Пользователь", "Отключение миксера M250", 1);
+                    SendCommandToController("M250_StartMixer", "false");
+                }
+            }
+        }
+
+        // Методы для открытия диалогов
+        private void OpenPumpDialog(string title, string varName)
+        {
+            try
+            {
+                var dialog = new DialogElementPumpUz();
+                dialog.Title = title;
+                dialog.Global = _global;
+                dialog.VarName = varName;
+                dialog.Initialize();
+
+                var parentWindow = Window.GetWindow(this);
+                if (parentWindow != null)
+                {
+                    dialog.Owner = parentWindow;
+                }
+                dialog.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка открытия диалога насоса: {ex.Message}");
+            }
+        }
+
+        private void OpenValveDialog(string title, string varName)
+        {
+            try
+            {
+                var dialog = new DialogElementValve();
+                dialog.Title = title;
+                dialog.Global = _global;
+                dialog.VarName = varName;
+                dialog.Initialize();
+
+                var parentWindow = Window.GetWindow(this);
+                if (parentWindow != null)
+                {
+                    dialog.Owner = parentWindow;
+                }
+                dialog.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка открытия диалога клапана: {ex.Message}");
+            }
+        }
+
         private void SendCommandToController(string commandName, string value)
         {
             TCommandTag command = _global.Commands.GetByName(commandName);
@@ -343,45 +673,9 @@ namespace ProtolScadaRemake
             }
         }
 
-        // Обработчики для кнопок на мнемосхеме (если они есть в XAML)
         public void UserControl_Initialized(object sender, EventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("FrameEmPage инициализирован (UserControl_Initialized)");
-        }
-
-        public void AutoStartProcessButton_Click(object sender, RoutedEventArgs e)
-        {
-            SendCommandToController("EM_AutoStart", "true");
-        }
-
-        public void AutoStopProcessButton_Click(object sender, RoutedEventArgs e)
-        {
-            SendCommandToController("EM_AutoStop", "true");
-        }
-
-        public void AutoDojatButton_Click(object sender, RoutedEventArgs e)
-        {
-            SendCommandToController("EM_AutoDojat", "true");
-        }
-
-        public void RejomOffButton_Click(object sender, RoutedEventArgs e)
-        {
-            SendCommandToController("EM_RejimToOff", "true");
-        }
-
-        public void RejimAutoButton_Click(object sender, RoutedEventArgs e)
-        {
-            SendCommandToController("EM_RejimToAuto", "true");
-        }
-
-        public void AutoStartButton_Click(object sender, RoutedEventArgs e)
-        {
-            SendCommandToController("EM_ZatravkaStart", "true");
-        }
-
-        public void AutoStopButton_Click(object sender, RoutedEventArgs e)
-        {
-            SendCommandToController("EM_ZatravkaStop", "true");
         }
 
         public void Cleanup()

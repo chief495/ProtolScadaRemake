@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace ProtolScadaRemake
 {
@@ -43,7 +44,10 @@ namespace ProtolScadaRemake
         }
         public void UpdateElement()
         {
-
+            if (TagName != null && !string.IsNullOrEmpty(VarName))
+            {
+                TagName.Text = VarName;
+            }
             // Ручной режим
             TVariableTag Tag = Global.Variables.GetByName(VarName + "_Manual");
             if (Tag != null) if (Tag.ValueReal <= 0) HandImage.Visibility = Visibility.Hidden;
