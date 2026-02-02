@@ -37,12 +37,12 @@ namespace ProtolScadaRemake
         }
         private void ValueLabel_Click(object sender, MouseButtonEventArgs e)
         {
-            DialogElementPump Dialog = new DialogElementPump();
-            Dialog.Title = Description;
-            Dialog.Global = Global;
-            Dialog.VarName = VarName;
-            Dialog.Initialize();
-            Dialog.ShowDialog();
+            //DialogElementPump Dialog = new DialogElementPump();
+            //Dialog.Title = Description;
+            //Dialog.Global = Global;
+            //Dialog.VarName = VarName;
+            //Dialog.Initialize();
+            //Dialog.ShowDialog();
         }
 
     }

@@ -4,31 +4,543 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ProtolScadaRemake"
-             xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"            
              xmlns:ImageXaml="clr-namespace:ProtolScadaRemake.ImageXaml" 
-             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              x:Class="ProtolScadaRemake.FrameTcPage"            
              mc:Ignorable="d" 
-             Initialized="Window_Loaded" 
              Width="1790" 
-             Height="1010" 
-             Margin="0,0,0,0">
+             Height="1010">
 
-    <Grid Width="1790" Height="1020" VerticalAlignment="Bottom" HorizontalAlignment="Left">
+    <Grid Width="1790" Height="1010">
         <!-- Фоновая картинка -->
-        <ImageXaml:ImageTcPage HorizontalAlignment="Center" VerticalAlignment="Top" Width="1790" Height="1020" Margin="0,0,0,0"/>
+        <ImageXaml:ImageTcPage HorizontalAlignment="Center" VerticalAlignment="Top" Width="1790" Height="1010"/>
 
-        <!-- Панель выбора режима (верхний левый угол) -->
+        <!-- ========== АНАЛОГОВЫЕ ДАТЧИКИ ========== -->
+        <local:Element_AI x:Name="PT205" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="449,193,0,0"/>
+        <local:Element_AI x:Name="PT206" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="439,317,0,0"/>
+        <local:Element_AI x:Name="PT201" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="852,0,0,0"/>
+        <local:Element_AI x:Name="LT253" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1187,625,0,0"/>
+        <local:Element_AI x:Name="TT202" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="517,536,0,0"/>
+        <local:Element_AI x:Name="TT252" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1187,548,0,0"/>
+        <local:Element_AI x:Name="FM602" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1350,531,0,0"/>
+
+        <!-- Датчик веса WIT200 -->
+        <local:Element_AI x:Name="WIT200" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="425,673,0,0"/>
+
+        <!-- ========== ДИСКРЕТНЫЕ ДАТЧИКИ ========== -->
+        <local:Element_DI x:Name="LAHH201" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="340,536,0,0"/>
+        <local:Element_DI x:Name="LAHH251" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1010,548,0,0"/>
+
+        <!-- ========== НАСОСЫ ========== -->
+        <!-- P200, P201, P202 заменены на Element_PumpH -->
+        <local:Element_PumpH x:Name="P200" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="687,576,0,0"/>
+        <local:Element_PumpH x:Name="P201" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="369,197,0,0"/>
+        <local:Element_PumpH x:Name="P202" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="368,317,0,0"/>
+
+        <!-- P602 заменен на Element_PumpUzUnderPanel -->
+        <local:Element_PumpUzUnderPanel x:Name="P602" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1320,592,0,0"/>
+
+        <!-- ========== КЛАПАНЫ ========== -->
+        <!-- SV-602 заменен на Element_3ValveH -->
+        <local:Element_3ValveH x:Name="VT602" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1481,396,0,0"/>
+
+        <!-- V-801 и V-803 заменены на Element_ValveH -->
+        <local:Element_ValveH x:Name="VT801" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="913,548,0,0"/>
+        <local:Element_ValveH x:Name="VT803" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="253,548,0,0"/>
+
+        <!-- ========== НАГРЕВАТЕЛЬ ========== -->
+        <local:Element_Heater x:Name="HE800" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="144,754,0,0"/>
+
+        <!-- ========== ПЕРЕКЛЮЧАТЕЛИ МИКСЕРОВ ========== -->
+        <local:ToggleSwitch x:Name="M200MixerToggle" Width="60" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="463,494,0,0"/>
+        <local:ToggleSwitch x:Name="M250MixerToggle" Width="60" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1133,507,0,0"/>
+
+        <!-- ========== ПЕРЕКЛЮЧАТЕЛЬ НАГРЕВАТЕЛЯ ========== -->
+        <local:ToggleSwitch x:Name="HE800Toggle" Width="60" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="144,719,0,0"/>
+
+        <!-- ========== ПАНЕЛИ УПРАВЛЕНИЯ ========== -->
+        <!-- Панель выбора режима -->
         <local:ModePanel x:Name="TcModePanel"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Top"
                         Margin="20,20,0,0"
                         Width="204"
-                        Height="207"
-                        ModbusRegisterAddress="101"
-                        UnitId="1"
-                        ModeChanged="TcModePanel_ModeChanged"
-                        ModbusCommandRequested="TcModePanel_ModbusCommandRequested"/>
+                        Height="207"/>
+
+        <!-- Панель набора топлива (дизель/эмульгатор) -->
+        <Border x:Name="FuelPanel"
+                BorderBrush="#666666" 
+                BorderThickness="1"
+                Background="Transparent"
+                CornerRadius="8"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="10,234,0,0"
+                Width="250" 
+                Height="268">
+
+            <StackPanel Margin="8">
+                <TextBlock Text="НАБОР ТОПЛИВА"
+                           FontWeight="Bold"
+                           FontSize="13"
+                           Foreground="White"
+                           Margin="0,0,0,8"
+                           HorizontalAlignment="Center"/>
+
+                <Border Background="Transparent"
+                        CornerRadius="5"
+                        Padding="6"
+                        Margin="0,0,0,8">
+
+                    <StackPanel>
+                        <TextBlock Text="ТИП ТОПЛИВА"
+                                   FontSize="10"
+                                   Foreground="White"
+                                   Margin="0,0,0,4"/>
+
+                        <StackPanel Orientation="Horizontal" 
+                                    HorizontalAlignment="Center"
+                                    Margin="0,0,0,6">
+                            <RadioButton x:Name="DiselRadio" 
+                                         Content="ДИЗЕЛЬ"
+                                         GroupName="FuelType" 
+                                         IsChecked="True"
+                                         FontSize="10"
+                                         Foreground="White"
+                                         Margin="0,0,6,0"/>
+
+                            <RadioButton x:Name="EmulgatorRadio" 
+                                         Content="ЭМУЛЬГАТОР"
+                                         GroupName="FuelType"
+                                         FontSize="10"
+                                         Foreground="White"/>
+                        </StackPanel>
+
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="25"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="УСТАВКА МАССЫ"
+                                       FontSize="10"
+                                       Foreground="White"
+                                       VerticalAlignment="Center"/>
+
+                            <Border Grid.Column="1"
+                                    CornerRadius="5"
+                                    Background="#444444"
+                                    BorderBrush="#666666"
+                                    BorderThickness="1"
+                                    Margin="4,0,4,0">
+                                <TextBox x:Name="FuelMassEdit"
+                                         Height="20"
+                                         FontSize="10"
+                                         Foreground="White"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Text="0"
+                                         TextAlignment="Right"
+                                         VerticalAlignment="Center"
+                                         Padding="4,0"/>
+                            </Border>
+
+                            <TextBlock Grid.Column="2"
+                                       Text="кг"
+                                       FontSize="10"
+                                       Foreground="White"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Orientation="Horizontal" 
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,8">
+                    <Button x:Name="FuelStartButton"
+                            Content="ПУСК"
+                            Width="70" 
+                            Height="22"
+                            Background="#FF1E5945"
+                            BorderBrush="#FF00FF00"
+                            BorderThickness="1"
+                            Foreground="White"
+                            FontSize="10"
+                            FontWeight="Bold"
+                            Margin="0,0,4,0"
+                            Click="FuelStartButton_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" 
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="11">
+                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button x:Name="FuelStopButton"
+                            Content="СТОП"
+                            Width="70"
+                            Height="22"
+                            Background="#7B001C"
+                            BorderBrush="#FF0033"
+                            BorderThickness="1"
+                            Foreground="White"
+                            FontSize="10"
+                            FontWeight="Bold"
+                            Margin="4,0,4,0"
+                            Click="FuelStopButton_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" 
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="11">
+                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button x:Name="FuelPauseButton"
+                            Content="ПАУЗА"
+                            Width="70"
+                            Height="22"
+                            Background="#FF8C00"
+                            BorderBrush="#FFA500"
+                            BorderThickness="1"
+                            Foreground="White"
+                            FontSize="10"
+                            FontWeight="Bold"
+                            Margin="4,0,0,0"
+                            Click="FuelPauseButton_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" 
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="11">
+                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+
+                <Border Background="Transparent"
+                        CornerRadius="5"
+                        Padding="4">
+
+                    <StackPanel>
+                        <TextBlock Text="СТАТУС НАБОРА"
+                                   FontSize="10"
+                                   Foreground="White"
+                                   Margin="0,0,0,2"/>
+
+                        <Border x:Name="FuelStatusBorder"
+                                CornerRadius="3"
+                                Padding="3,1"
+                                Background="#808080">
+                            <TextBlock x:Name="FuelStatusLabel"
+                                       Text="ОЖИДАНИЕ"
+                                       FontSize="10"
+                                       FontWeight="Bold"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- Панель задания массы в Т-200 -->
+        <Border x:Name="T200MassPanel"
+                BorderBrush="#666666" 
+                BorderThickness="1"
+                Background="Transparent"
+                CornerRadius="8"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="10,507,0,0"
+                Width="198"
+                Height="165">
+
+            <StackPanel Margin="8">
+                <TextBlock Text="МАССА В Т-200"
+                           FontWeight="Bold"
+                           FontSize="13"
+                           Foreground="White"
+                           Margin="0,0,0,8"
+                           HorizontalAlignment="Center"/>
+
+                <Border Background="Transparent"
+                        CornerRadius="5"
+                        Padding="6"
+                        Margin="0,0,0,8">
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="0,0,0,6">
+                            <TextBlock Text="ТЕКУЩАЯ МАССА"
+                                       FontSize="10"
+                                       Foreground="White"
+                                       Margin="0,0,0,2"/>
+
+                            <Border CornerRadius="5"
+                                    Padding="4,2"
+                                    Background="#444444"
+                                    BorderBrush="#666666"
+                                    BorderThickness="1">
+                                <TextBlock x:Name="T200CurrentMassLabel"
+                                           Text="0 кг"
+                                           FontSize="11"
+                                           FontWeight="Bold"
+                                           Foreground="White"
+                                           HorizontalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="25"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="ЗАДАТЬ МАССУ"
+                                       FontSize="10"
+                                       Foreground="White"
+                                       VerticalAlignment="Center"/>
+
+                            <Border Grid.Column="1"
+                                    CornerRadius="5"
+                                    Background="#444444"
+                                    BorderBrush="#666666"
+                                    BorderThickness="1"
+                                    Margin="4,0,4,0">
+                                <TextBox x:Name="T200MassSetEdit"
+                                         Height="20"
+                                         FontSize="10"
+                                         Foreground="White"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Text="0"
+                                         TextAlignment="Right"
+                                         VerticalAlignment="Center"
+                                         Padding="4,0"/>
+                            </Border>
+
+                            <TextBlock Grid.Column="2"
+                                       Text="кг"
+                                       FontSize="10"
+                                       Foreground="White"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <StackPanel Orientation="Horizontal" 
+                            HorizontalAlignment="Center"
+                            Margin="0,8,0,0">
+                    <Button x:Name="T200SetButton"
+                            Content="ЗАДАТЬ"
+                            Width="90"
+                            Height="26"
+                            Background="#2196F3"
+                            BorderBrush="#4FC3F7"
+                            BorderThickness="1"
+                            Foreground="White"
+                            FontSize="10"
+                            FontWeight="Bold"
+                            Margin="0,0,4,0"
+                            Click="T200SetButton_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" 
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="13">
+                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button x:Name="T200ResetButton"
+                            Content="СБРОС"
+                            Width="90"
+                            Height="26"
+                            Background="#3F51B5"
+                            BorderBrush="#2196F3"
+                            BorderThickness="1"
+                            Foreground="White"
+                            FontSize="10"
+                            FontWeight="Bold"
+                            Click="T200ResetButton_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" 
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="13">
+                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Панель перекачки из Т100 в Т150 -->
+        <Border x:Name="T100toT150Panel"
+                BorderBrush="#666666" 
+                BorderThickness="1"
+                Background="Transparent"
+                CornerRadius="8"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="820,325,0,0"
+                Width="200" 
+                Height="120">
+
+            <StackPanel Margin="8">
+                <TextBlock Text="ПЕРЕКАЧКА Т100 → Т150"
+                           FontWeight="Bold"
+                           FontSize="11"
+                           Foreground="White"
+                           Margin="0,0,0,8"
+                           HorizontalAlignment="Center"/>
+
+                <StackPanel Orientation="Horizontal" 
+                            HorizontalAlignment="Center"
+                            Margin="0,8,0,0">
+                    <Button x:Name="TransferStartButton"
+                            Content="ПУСК"
+                            Width="70" 
+                            Height="22"
+                            Background="#FF1E5945"
+                            BorderBrush="#FF00FF00"
+                            BorderThickness="1"
+                            Foreground="White"
+                            FontSize="10"
+                            FontWeight="Bold"
+                            Margin="0,0,8,0"
+                            Click="TransferStartButton_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" 
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="11">
+                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button x:Name="TransferStopButton"
+                            Content="СТОП"
+                            Width="70" 
+                            Height="22"
+                            Background="#7B001C"
+                            BorderBrush="#FF0033"
+                            BorderThickness="1"
+                            Foreground="White"
+                            FontSize="10"
+                            FontWeight="Bold"
+                            Click="TransferStopButton_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" 
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="11">
+                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
     </Grid>
 </UserControl>

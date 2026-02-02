@@ -454,7 +454,8 @@ namespace ProtolScadaRemake
 
                 if (_emPage == null)
                 {
-                    _emPage = new FrameEmPage(_global);
+                    _emPage = new FrameEmPage(); // Убрать параметр
+                    _emPage.Initialize(_global); // Использовать метод Initialize
                 }
 
                 ContentGrid.Children.Add(_emPage);
@@ -475,7 +476,8 @@ namespace ProtolScadaRemake
 
                 if (_TcPage == null)
                 {
-                    _TcPage = new FrameTcPage(_global);
+                    _TcPage = new FrameTcPage();
+                    _TcPage.Initialize(_global);
                 }
 
                 ContentGrid.Children.Add(_TcPage);
