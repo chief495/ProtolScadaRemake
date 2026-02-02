@@ -17,7 +17,7 @@
 
     <Grid Width="1790" Height="1020" VerticalAlignment="Bottom" HorizontalAlignment="Left">
         <!-- Фоновая картинка -->
-        <ImageXaml:ImageEmPage HorizontalAlignment="Center" VerticalAlignment="Top" Width="1790" Height="1020" Margin="0,0,0,0"/>
+        <ImageXaml:ImageEmPage HorizontalAlignment="Left" VerticalAlignment="Top" Width="1790" Height="1020" Margin="-10,-10,0,0" Loaded="ImageEmPage_Loaded_1"/>
 
         <!-- Панель выбора режима (верхний левый угол) -->
         <local:ModePanel x:Name="EmModePanel"
@@ -78,73 +78,73 @@
         <!-- TT152 - Температура T150 -->
         <local:Element_AI x:Name="TT152" 
                          HorizontalAlignment="Left" 
-                         Margin="459,354,0,0" 
+                         Margin="441,355,0,0" 
                          VerticalAlignment="Top"/>
 
         <!-- TT252 - Температура T250 -->
         <local:Element_AI x:Name="TT252" 
                          HorizontalAlignment="Left" 
-                         Margin="499,662,0,0" 
+                         Margin="484,666,0,0" 
                          VerticalAlignment="Top"/>
 
         <!-- TT602 - Температура T650 -->
         <local:Element_AI x:Name="TT602" 
                          HorizontalAlignment="Left" 
-                         Margin="778,280,0,0" 
+                         Margin="749,258,0,0" 
                          VerticalAlignment="Top"/>
 
         <!-- LT150 - Уровень T150 -->
         <local:Element_AI x:Name="LT150" 
                          HorizontalAlignment="Left" 
-                         Margin="459,433,0,0" 
+                         Margin="441,434,0,0" 
                          VerticalAlignment="Top"/>
 
         <!-- FM601 - Расходомер -->
         <local:Element_AI x:Name="FM601" 
                          HorizontalAlignment="Left" 
-                         Margin="778,410,0,0" 
-                         VerticalAlignment="Top"/>
+                         Margin="747,378,0,0" 
+                         VerticalAlignment="Top" Loaded="FM601_Loaded"/>
 
         <!-- PT601 - Давление -->
         <local:Element_AI x:Name="PT601" 
                          HorizontalAlignment="Left" 
-                         Margin="778,348,0,0" 
+                         Margin="749,319,0,0" 
                          VerticalAlignment="Top"/>
 
         <!-- PT606 - Давление -->
         <local:Element_AI x:Name="PT606" 
                          HorizontalAlignment="Left" 
-                         Margin="958,603,0,0" 
+                         Margin="934,631,0,0" 
                          VerticalAlignment="Top"/>
 
         <!-- LT253 - Уровень T250 -->
         <local:Element_AI x:Name="LT253" 
                          HorizontalAlignment="Left" 
-                         Margin="499,742,0,0" 
+                         Margin="484,741,0,0" 
                          VerticalAlignment="Top"/>
 
         <!-- FM602 - Расходомер -->
         <local:Element_AI x:Name="FM602" 
                          HorizontalAlignment="Left" 
-                         Margin="789,686,0,0" 
+                         Margin="766,675,0,0" 
                          VerticalAlignment="Top"/>
 
         <!-- LT651 - Уровень T650 -->
         <local:Element_AI x:Name="LT651" 
                          HorizontalAlignment="Left" 
-                         Margin="1208,336,0,0" 
+                         Margin="1184,337,0,0" 
                          VerticalAlignment="Top"/>
 
         <!-- PT652 - Давление -->
         <local:Element_AI x:Name="PT652" 
                          HorizontalAlignment="Left" 
-                         Margin="1241,603,0,0" 
-                         VerticalAlignment="Top"/>
+                         Margin="1222,0,0,0" 
+                         VerticalAlignment="Center" Loaded="PT652_Loaded"/>
 
         <!-- PT604 - Давление -->
         <local:Element_AI x:Name="PT604" 
                          HorizontalAlignment="Left" 
-                         Margin="1281,279,0,0" 
+                         Margin="1276,269,0,0" 
                          VerticalAlignment="Top"/>
 
         <!-- ========== ДИСКРЕТНЫЕ ДАТЧИКИ ========== -->
@@ -152,26 +152,26 @@
         <!-- LAHH151 - Аварийный верхний уровень T150 -->
         <local:Element_DI x:Name="LAHH151" 
                          HorizontalAlignment="Left" 
-                         Margin="279,359,0,0" 
+                         Margin="263,354,0,0" 
                          VerticalAlignment="Top"/>
 
         <!-- LALL153 - Аварийный нижний уровень T150 -->
         <local:Element_DI x:Name="LALL153" 
                          HorizontalAlignment="Left" 
-                         Margin="279,450,0,0" 
+                         Margin="263,450,0,0" 
                          VerticalAlignment="Top"/>
 
         <!-- LAHH251 - Аварийный верхний уровень T250 -->
         <local:Element_DI x:Name="LAHH251" 
                          HorizontalAlignment="Left" 
-                         Margin="315,667,0,0" 
+                         Margin="302,662,0,0" 
                          VerticalAlignment="Top"/>
 
         <!-- LAHH653 - Аварийный верхний уровень T650 -->
         <local:Element_DI x:Name="LAHH653" 
                          HorizontalAlignment="Left" 
-                         Margin="1078,347,0,0" 
-                         VerticalAlignment="Top"/>
+                         Margin="1058,336,0,0" 
+                         VerticalAlignment="Top" Loaded="LAHH653_Loaded"/>
 
         <!-- ========== МИКСЕРЫ (TOGGLE SWITCH) ========== -->
 
@@ -179,7 +179,7 @@
         <local:ToggleSwitch x:Name="M150"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
-                           Margin="406,324,0,0"
+                           Margin="389,318,0,0"
                            Width="50"
                            Height="24"/>
 
@@ -187,41 +187,37 @@
         <local:ToggleSwitch x:Name="M250"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
-                           Margin="446,631,0,0"
+                           Margin="431,626,0,0"
                            Width="50"
                            Height="26"/>
 
         <!-- ========== НАСОСЫ ========== -->
 
         <!-- P601 -->
-        <local:Element_PumpUz x:Name="P601"
+        <local:Element_PumpUzUnderPanel x:Name="P601"
                              HorizontalAlignment="Left"
                              VerticalAlignment="Top"
-                             Margin="693,433,0,0"/>
+                             Margin="629,411,0,0"/>
 
         <!-- P602 -->
-        <local:Element_PumpUz x:Name="P602"
+        <local:Element_PumpUzUnderPanel x:Name="P602"
                              HorizontalAlignment="Left"
                              VerticalAlignment="Top"
-                             Margin="950,150,0,0"/>
+                             Margin="655,697,0,0"/>
 
         <!-- M600 -->
         <local:Element_PumpUz x:Name="M600"
                              HorizontalAlignment="Left"
                              VerticalAlignment="Top"
-                             Margin="1184,150,0,0"/>
+                             Margin="1103,147,0,0"/>
 
         <!-- P651 -->
-        <local:Element_PumpUz x:Name="P651" 
+        <local:Element_PumpUzUnderPanel x:Name="P651" 
                             HorizontalAlignment="Left" 
-                            Margin="1140,494,0,0" 
-                            VerticalAlignment="Top"/>
+                            Margin="1068,0,0,0" 
+                            VerticalAlignment="Center" Loaded="P651_Loaded"/>
 
         <!-- P700 -->
-        <local:Element_PumpH x:Name="P700"
-                             HorizontalAlignment="Left"
-                             VerticalAlignment="Top"
-                             Margin="1337,702,0,0"/>
 
         <!-- ========== КЛАПАНЫ ========== -->
 
@@ -229,19 +225,19 @@
         <local:Element_3ValveH x:Name="SV601"
                               HorizontalAlignment="Left"
                               VerticalAlignment="Top"
-                              Margin="887,174,0,0"/>
+                              Margin="874,169,0,0"/>
 
         <!-- VT602 -->
         <local:Element_3ValveH x:Name="SV602"
                               HorizontalAlignment="Left"
                               VerticalAlignment="Top"
-                              Margin="895,552,0,0"/>
+                              Margin="885,547,0,0"/>
 
         <!-- VT505 -->
         <local:Element_ValveV x:Name="V505"
                              HorizontalAlignment="Left"
                              VerticalAlignment="Top"
-                             Margin="1500,255,0,0"/>
+                             Margin="1459,342,0,0"/>
 
     </Grid>
 </UserControl>

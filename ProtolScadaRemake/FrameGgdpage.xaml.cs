@@ -51,33 +51,33 @@ namespace ProtolScadaRemake
             try
             {
                 // Аналоговые датчики T-400
-                InitializeSensor(TT402, "TT402", "Датчик температуры TT402", "°C");
-                InitializeSensor(LT403, "LT403", "Датчик уровня LT403", "%");
-                InitializeSensor(PT404, "PT404", "Датчик давления PT404", "бар");
+                InitializeSensor(TT402, "TT402", "Датчик температуры TT402", "TT-402", "°C");
+                InitializeSensor(LT403, "LT403", "Датчик уровня LT403", "LT-403", "%");
+                InitializeSensor(PT404, "PT404", "Датчик давления PT404", "PT-404", "бар");
 
                 // Аналоговые датчики T-500
-                InitializeSensor(TT502, "TT502", "Датчик температуры TT502", "°C");
-                InitializeSensor(LT503, "LT503", "Датчик уровня LT503", "%");
-                InitializeSensor(PT504, "PT504", "Датчик давления PT504", "бар");
+                InitializeSensor(TT502, "TT502", "Датчик температуры TT502", "TT-502", "°C");
+                InitializeSensor(LT503, "LT503", "Датчик уровня LT503", "LT-503", "%");
+                InitializeSensor(PT504, "PT504", "Датчик давления PT504", "PT-504", "бар");
 
                 // Расходомер
-                InitializeSensor(FM401, "FM401", "Массовый расходомер FM401", "кг/ч");
+                InitializeSensor(FM401, "FM401", "Массовый расходомер FM401", "FM401", "кг/ч");
 
                 // Счетчики (как Element_AI)
-                InitializeSensor(QM400Counter, "QM400", "Счетчик воды QM-400", "л");
-                InitializeSensor(QM500Counter, "QM500", "Счетчик воды QM-500", "л");
+                InitializeSensor(QM400Counter, "QM400", "Счетчик воды QM-400", "QM-400", "л");
+                InitializeSensor(QM500Counter, "QM500", "Счетчик воды QM-500", "QM-500", "л");
 
                 // Дискретные датчики
-                InitializeDiscreteSensor(LAHH401, "LAHH401", "Датчик уровня LAHH401");
-                InitializeDiscreteSensor(LAHH501, "LAHH501", "Датчик уровня LAHH501");
+                InitializeDiscreteSensor(LAHH401, "LAHH401", "Датчик уровня LAHH401", "LAHH-401");
+                InitializeDiscreteSensor(LAHH501, "LAHH501", "Датчик уровня LAHH501", "LAHH-501");
 
                 // Клапаны
-                InitializeValve(VT401, "V401", "Клапан V-401");
-                InitializeValve(VT501, "V501", "Клапан V-501");
+                InitializeValve(VT401, "V401", "Клапан V-401", "V-401");
+                InitializeValve(VT501, "V501", "Клапан V-501", "V-501");
 
                 // Насосы
-                InitializePumpUz(P400, "P400", "Насос P-400");
-                InitializePump(P500, "P500", "Насос P-500");
+                InitializePumpUz(P400, "P400", "Насос P-400", "P-400");
+                InitializePumpReverse(P500, "P500", "Насос P-500", "P-500");
 
                 // Панели набора воды
                 if (T400WaterPanel != null)
@@ -99,11 +99,13 @@ namespace ProtolScadaRemake
                 // Переключатели миксеров
                 if (T400MixerToggle != null)
                 {
+                    T400MixerToggle.Tag = "M400";
                     T400MixerToggle.StateChanged += T400MixerToggle_StateChanged;
                 }
 
                 if (T500MixerToggle != null)
                 {
+                    T500MixerToggle.Tag = "M500";
                     T500MixerToggle.StateChanged += T500MixerToggle_StateChanged;
                 }
 
@@ -114,69 +116,67 @@ namespace ProtolScadaRemake
             }
         }
 
-        private void InitializeSensor(Element_AI sensor, string varName, string description, string eu)
+        private void InitializeSensor(Element_AI sensor, string varName, string description, string name, string eu)
         {
             if (sensor != null && _global != null)
             {
                 sensor.Global = _global;
                 sensor.VarName = varName;
                 sensor.Description = description;
+                sensor.Name = name;  // Добавлено: имя для отображения на мнемосхеме
                 sensor.EU = eu;
+                System.Diagnostics.Debug.WriteLine($"Инициализирован датчик: {name} ({varName})");
             }
         }
 
-        private void InitializeDiscreteSensor(Element_DI sensor, string varName, string description)
+        private void InitializeDiscreteSensor(Element_DI sensor, string varName, string description, string name)
         {
             if (sensor != null && _global != null)
             {
                 sensor.Global = _global;
                 sensor.VarName = varName;
                 sensor.Description = description;
+                sensor.Name = name;  // Добавлено: имя для отображения на мнемосхеме
+                System.Diagnostics.Debug.WriteLine($"Инициализирован дискретный датчик: {name} ({varName})");
             }
         }
 
-        private void InitializeValve(Element_ValveV valve, string varName, string description)
+        private void InitializeValve(Element_ValveV valve, string varName, string description, string name)
         {
             if (valve != null && _global != null)
             {
                 valve.Global = _global;
                 valve.VarName = varName;
                 valve.Description = description;
+                valve.Name = name;  // Добавлено: имя для отображения на мнемосхеме
+                System.Diagnostics.Debug.WriteLine($"Инициализирован клапан: {name} ({varName})");
             }
         }
 
-        private void InitializePump(Element_PumpH pump, string varName, string description)
+        private void InitializePumpReverse(Element_PumpHReverse pump, string varName, string description, string name)
         {
             if (pump != null && _global != null)
             {
                 pump.Global = _global;
                 pump.VarName = varName;
                 pump.Description = description;
-                pump.UpdateElement(); // хз почему, иначе имя не тянулось
+                pump.Name = name;  // Добавлено: имя для отображения на мнемосхеме
+                pump.UpdateElement(); // для отображения имени тега
+                System.Diagnostics.Debug.WriteLine($"Инициализирован насос: {name} ({varName})");
             }
         }
 
-        private void InitializePumpUz(Element_PumpUz pump, string varName, string description)
+        private void InitializePumpUz(Element_PumpUz pump, string varName, string description, string name)
         {
             if (pump != null && _global != null)
             {
                 pump.Global = _global;
                 pump.VarName = varName;
                 pump.Description = description;
+                pump.Name = name;  // Добавлено: имя для отображения на мнемосхеме
+                System.Diagnostics.Debug.WriteLine($"Инициализирован насос P-400: {name} ({varName})");
             }
         }
-
-        // УДАЛИТЕ ВСЕ ЭТИ МЕТОДЫ - они не нужны
-        // private void Sensor_MouseDown(object sender, MouseButtonEventArgs e)
-        // private void DiscreteSensor_MouseDown(object sender, MouseButtonEventArgs e)
-        // private void Valve_MouseDown(object sender, MouseButtonEventArgs e)
-        // private void PumpUz_MouseDown(object sender, MouseButtonEventArgs e)
-        // private void PumpH_MouseDown(object sender, MouseButtonEventArgs e)
-        // private void OpenSensorDialog(string title, string varName)
-        // private void OpenDiscreteSensorDialog(string title, string varName)
-        // private void OpenValveDialog(string title, string varName)
-        // private void OpenPumpUzDialog(string title, string varName)
-        // private void OpenPumpHDialog(string title, string varName)
 
         private void SubscribeToEvents()
         {

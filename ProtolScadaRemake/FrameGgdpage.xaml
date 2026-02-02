@@ -113,7 +113,7 @@
                              Margin="1243,0,0,411"/>
 
         <!-- P500 - Насос P-500 (Element_PumpH) -->
-        <local:Element_PumpH x:Name="P500"
+        <local:Element_PumpHReverse x:Name="P500"
                              HorizontalAlignment="Right"
                              VerticalAlignment="Bottom" 
                              Margin="0,0,1398,419"/>

@@ -1,0 +1,95 @@
+﻿<UserControl x:Class="ProtolScadaRemake.Element_PumpUzUnderPanel"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:ProtolScadaRemake"
+      mc:Ignorable="d" MouseDown="ValueLabel_Click" Height="80">
+
+    <Grid Width="184" Height="80" VerticalAlignment="Center" HorizontalAlignment="Left">
+        <!-- Основной Grid с тремя строками -->
+        <Grid Margin="0,0,0,-29">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="24"/>
+                <!-- Для тэга и руки (высота руки) -->
+                <RowDefinition Height="60"/>
+                <!-- Для насоса (высота иконки насоса) -->
+                <RowDefinition Height="30"/>
+                <!-- Для панели скорости (высота прогресс-бара) -->
+            </Grid.RowDefinitions>
+
+            <!-- Строка 1: Тэг и рука -->
+            <Grid Grid.Row="0">
+                <!-- Левый отступ для иконки руки и тэга (62px как в оригинале) -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="62"/>
+                    <!-- Отступ слева -->
+                    <ColumnDefinition Width="*"/>
+                    <!-- Область для элементов -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Иконка руки -->
+
+                <!-- Имя тега -->
+                <TextBlock x:Name="TAGNAME" 
+                           Grid.Column="1"
+                           TextWrapping="Wrap" 
+                           Text="TAG" 
+                           FontFamily="Arial" 
+                           Foreground="White" 
+                           TextAlignment="Left"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Left"
+                           Margin="18,0,0,0"/>
+            </Grid>
+
+            <!-- Строка 2: Насос по центру -->
+            <Grid Grid.Row="1">
+                <Image x:Name="PumpIcon" 
+                       Source="{StaticResource PumpHStopIcon}" 
+                       Width="60" 
+                       Height="60" 
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+                <Image x:Name="HandImage" 
+                       Grid.Column="0"
+                       Height="24" 
+                       Width="20" 
+                       Source="/Hand.png"
+                       VerticalAlignment="Top"
+                       HorizontalAlignment="Left"
+                       Margin="122,0,0,0"/>
+            </Grid>
+
+            <!-- Строка 3: Панель скорости -->
+            <Grid Grid.Row="2">
+                <!-- Левый отступ для панели скорости (62px как в оригинале) -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="62"/>
+                    <!-- Отступ слева -->
+                    <ColumnDefinition Width="120"/>
+                    <!-- Ширина прогресс-бара -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Прогресс-бар скорости -->
+                <ProgressBar x:Name="SpeedBar"
+                             HorizontalAlignment="Left" 
+                             Height="20" 
+                             VerticalAlignment="Center"
+                             Width="120" 
+                             BorderBrush="#FF5D5D5D" 
+                             Background="#FFB4B4B4" Grid.ColumnSpan="2" Margin="32,0,0,0"/>
+
+                <!-- Текст скорости -->
+                <TextBlock x:Name="SpeedText" 
+                           Grid.Column="1"
+                           HorizontalAlignment="Left" 
+                           VerticalAlignment="Center" 
+                           TextWrapping="Wrap" 
+                           Text="Speed %"
+                           FontFamily="Arial"
+                           Foreground="Black" RenderTransformOrigin="0.055,0.524" Margin="11,0,0,0"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>
