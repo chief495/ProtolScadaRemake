@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace ProtolScadaRemake
@@ -47,7 +46,6 @@ namespace ProtolScadaRemake
             try
             {
                 // ========== АНАЛОГОВЫЕ ДАТЧИКИ ==========
-
                 InitializeSensor(TT152, "TT152", "Датчик температуры TT-152", "TT-152", "°C");
                 InitializeSensor(TT252, "TT252", "Датчик температуры TT-252", "TT-252", "°C");
                 InitializeSensor(TT602, "TT602", "Датчик температуры TT-602", "TT-602", "°C");
@@ -62,26 +60,25 @@ namespace ProtolScadaRemake
                 InitializeSensor(PT604, "PT604", "Датчик давления PT604", "PT-604", "бар");
 
                 // ========== ДИСКРЕТНЫЕ ДАТЧИКИ ==========
-
                 InitializeDiscreteSensor(LAHH151, "LAHH151", "Датчик уровня LAHH151", "LAHH-151");
                 InitializeDiscreteSensor(LALL153, "LALL153", "Датчик уровня LALL153", "LALL-153");
                 InitializeDiscreteSensor(LAHH251, "LAHH251", "Датчик уровня LAHH251", "LAHH-251");
                 InitializeDiscreteSensor(LAHH653, "LAHH653", "Датчик уровня LAHH653", "LAHH-653");
 
                 // ========== МИКСЕРЫ ==========
+                if (M150 != null)
+                    M150.StateChanged += M150Mixer_StateChanged;
 
-                M150.StateChanged += M150Mixer_StateChanged;
-                M250.StateChanged += M250Mixer_StateChanged;
+                if (M250 != null)
+                    M250.StateChanged += M250Mixer_StateChanged;
 
                 // ========== НАСОСЫ ==========
-
                 InitializePumpUzUnderPanel(P601, "P601", "Насос P-601");
                 InitializePumpUzUnderPanel(P602, "P602", "Насос P-602");
                 InitializePumpUz(M600, "M600", "Миксер M-600");
                 InitializePumpUzUnderPanel(P651, "P651", "Насос P-651");
 
                 // ========== КЛАПАНЫ ==========
-
                 Initialize3Valve(SV601, "V601", "Клапан SV-601");
                 Initialize3Valve(SV602, "V602", "Клапан SV-602");
                 InitializeValve(V505, "V505", "Клапан V-505");
@@ -141,12 +138,12 @@ namespace ProtolScadaRemake
             {
                 if (_global?.Commands == null) return;
 
-                // Сброс команды включения миксера Т-150 как в старом проекте
+                // Сброс команды включения миксера Т-150
                 var command = _global.Commands.GetByName("T150_StartMixer");
                 if (command != null && !command.NeedToWrite)
                     command.WriteValue = "false";
 
-                // Сброс команды включения миксера Т-250
+                // Сброс команды включения миксера M250
                 command = _global.Commands.GetByName("M250_StartMixer");
                 if (command != null && !command.NeedToWrite)
                     command.WriteValue = "false";
@@ -188,6 +185,9 @@ namespace ProtolScadaRemake
                 SV601?.UpdateElement();
                 SV602?.UpdateElement();
                 V505?.UpdateElement();
+
+                // Обновляем состояние переключателей миксеров из переменных
+                UpdateMixerTogglesFromVariables();
             }
             catch (Exception ex)
             {
@@ -195,12 +195,57 @@ namespace ProtolScadaRemake
             }
         }
 
+        private void UpdateMixerTogglesFromVariables()
+        {
+            try
+            {
+                // Миксер M150
+                var m150Tag = _global?.Variables?.GetByName("M150_IsWork");
+                if (m150Tag != null && M150 != null)
+                {
+                    bool isWorking = m150Tag.ValueReal > 0;
+                    if (M150.IsChecked != isWorking)
+                    {
+                        M150.IsChecked = isWorking;
+                    }
+                }
+
+                // Миксер M250
+                var m250Tag = _global?.Variables?.GetByName("M250_IsWork");
+                if (m250Tag != null && M250 != null)
+                {
+                    bool isWorking = m250Tag.ValueReal > 0;
+                    if (M250.IsChecked != isWorking)
+                    {
+                        M250.IsChecked = isWorking;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка обновления переключателей: {ex.Message}");
+            }
+        }
+
         private void UpdatePanelInfo()
         {
             try
             {
-                // Простая реализация - обновление через публичные свойства
-                // Проверьте, какие свойства есть у ваших панелей
+                // Обновляем панели управления из глобальных переменных
+                StartupPanelControl?.UpdateFromGlobal();
+                PerformancePanelControl?.UpdateFromGlobal();
+                UnloadPanelControl?.UpdateFromGlobal();
+
+                // Обновляем режим работы EM
+                var rejimTag = _global?.Variables?.GetByName("EM_Rejim");
+                if (rejimTag != null)
+                {
+                    // Можно добавить логику для обновления ModePanel если нужно
+                    double rejimValue = rejimTag.ValueReal;
+                    // Логирование для отладки
+                    System.Diagnostics.Debug.WriteLine($"EM_Rejim: {rejimValue}");
+                }
+
             }
             catch (Exception ex)
             {
@@ -217,23 +262,17 @@ namespace ProtolScadaRemake
                 {
                     double rejimValue = rejimTag.ValueReal;
 
-                    // Управление видимостью панелей как в старом проекте
-                    if (rejimValue == 0) // OFF
-                    {
-                        // Скрыть панели управления
-                        if (StartupPanelControl != null)
-                            StartupPanelControl.Visibility = Visibility.Collapsed;
-                        if (PerformancePanelControl != null)
-                            PerformancePanelControl.Visibility = Visibility.Collapsed;
-                    }
-                    else // Любой другой режим
-                    {
-                        // Показать панели управления
-                        if (StartupPanelControl != null)
-                            StartupPanelControl.Visibility = Visibility.Visible;
-                        if (PerformancePanelControl != null)
-                            PerformancePanelControl.Visibility = Visibility.Visible;
-                    }
+                    // Управление видимостью панелей
+                    bool isOff = rejimValue == 0;
+
+                    if (StartupPanelControl != null)
+                        StartupPanelControl.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
+
+                    if (PerformancePanelControl != null)
+                        PerformancePanelControl.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
+
+                    if (UnloadPanelControl != null)
+                        UnloadPanelControl.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
                 }
             }
             catch (Exception ex)
@@ -248,13 +287,38 @@ namespace ProtolScadaRemake
             {
                 // Установка глобального объекта для панелей
                 if (StartupPanelControl != null)
+                {
                     StartupPanelControl.Global = _global;
+                    // ПОДКЛЮЧАЕМ ОБРАБОТЧИКИ СОБЫТИЙ!
+                    StartupPanelControl.StartStartupButtonClick += StartupPanel_StartStartupButtonClick;
+                    StartupPanelControl.StopStartupButtonClick += StartupPanel_StopStartupButtonClick;
+                    StartupPanelControl.AutoModeButtonClick += StartupPanel_AutoModeButtonClick;
+                    StartupPanelControl.OffModeButtonClick += StartupPanel_OffModeButtonClick;
+                }
 
                 if (PerformancePanelControl != null)
+                {
                     PerformancePanelControl.Global = _global;
+                    // ПОДКЛЮЧАЕМ ОБРАБОТЧИКИ СОБЫТИЙ!
+                    PerformancePanelControl.SetMassFlowButtonClick += PerformancePanel_SetMassFlowButtonClick;
+                    PerformancePanelControl.StartProcessButtonClick += PerformancePanel_StartProcessButtonClick;
+                    PerformancePanelControl.StopProcessButtonClick += PerformancePanel_StopProcessButtonClick;
+                    PerformancePanelControl.DojatProcessButtonClick += PerformancePanel_DojatProcessButtonClick;
+                    PerformancePanelControl.EmergencyStopButtonClick += PerformancePanel_EmergencyStopButtonClick;
+                }
 
                 if (UnloadPanelControl != null)
+                {
                     UnloadPanelControl.Global = _global;
+                    // ПОДКЛЮЧАЕМ ОБРАБОТЧИКИ СОБЫТИЙ!
+                    UnloadPanelControl.SetParamsButtonClick += UnloadPanel_SetParamsButtonClick;
+                    UnloadPanelControl.ResetButtonClick += UnloadPanel_ResetButtonClick;
+                    UnloadPanelControl.PultModeClick += UnloadPanel_PultModeClick;
+                    UnloadPanelControl.TimeModeClick += UnloadPanel_TimeModeClick;
+                    UnloadPanelControl.MassModeClick += UnloadPanel_MassModeClick;
+                    UnloadPanelControl.TorirovanieButtonClick += UnloadPanel_TorirovanieButtonClick;
+                }
+
             }
             catch (Exception ex)
             {

@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Xml.Linq;
 
 namespace ProtolScadaRemake
 {
@@ -23,6 +24,10 @@ namespace ProtolScadaRemake
             _global = global;
             InitializeElements();
             InitializeTimer();
+            // Настройка таймера обновления (10 Гц как в старом проекте)
+            _repaintTimer = new DispatcherTimer();
+            _repaintTimer.Interval = TimeSpan.FromMilliseconds(100);
+            _repaintTimer.Tick += RepaintTimer_Tick;
         }
 
         private void FrameTcPage_Loaded(object sender, RoutedEventArgs e)
@@ -37,45 +42,52 @@ namespace ProtolScadaRemake
 
         private void InitializeElements()
         {
-            // Инициализация датчиков
-            InitializeSensor(PT205, "PT205", "Датчик протока PT205", "PT-205", "л/ч");
-            InitializeSensor(PT206, "PT206", "Датчик протока PT206", "PT-206", "л/ч");
-            InitializeSensor(PT201, "PT201", "Датчик давления PT201", "PT-201", "бар");
-            InitializeSensor(LT253, "LT253", "Датчик уровня LT253", "LT-253", "%");
-            InitializeSensor(TT202, "TT202", "Датчик температуры TT202", "TT-202", "°C");
-            InitializeSensor(TT252, "TT252", "Датчик температуры TT252", "TT-252", "°C");
-            InitializeSensor(FM602, "FM602", "Массовый расходомер FM602", "FM602", "кг/ч");
+            try
+            {
+                // Инициализация датчиков
+                InitializeSensor(PT205, "PT205", "Датчик протока PT205", "PT205", "л/ч");
+                InitializeSensor(PT206, "PT206", "Датчик протока PT206", "PT206", "л/ч");
+                InitializeSensor(PT201, "PT201", "Датчик давления PT201", "PT201", "бар");
+                InitializeSensor(LT253, "LT253", "Датчик уровня LT253", "LT253", "%");
+                InitializeSensor(TT202, "TT202", "Датчик температуры TT202", "TT202", "°C");
+                InitializeSensor(TT252, "TT252", "Датчик температуры TT252", "TT252", "°C");
+                InitializeSensor(FM602, "FM602", "Массовый расходомер FM602", "FM602", "кг/ч");
 
-            // Датчик веса WIT200
-            InitializeSensor(WIT200, "WIT200_Volume", "Датчик веса WIT200", "WIT-200", "кг");
+                // Датчик веса WIT200
+                InitializeSensor(WIT200, "WIT200_Volume", "Датчик веса WIT200", "WIT200", "кг");
 
-            // Инициализация дискретных датчиков
-            InitializeDiscreteSensor(LAHH201, "LAHH201", "Датчик уровня LAHH201", "LAHH-201");
-            InitializeDiscreteSensor(LAHH251, "LAHH251", "Датчик уровня LAHH251", "LAHH-251");
+                // Инициализация дискретных датчиков
+                InitializeDiscreteSensor(LAHH201, "LAHH201", "Датчик уровня LAHH201", "LAHH-201");
+                InitializeDiscreteSensor(LAHH251, "LAHH251", "Датчик уровня LAHH251", "LAHH-251");
 
-            // Инициализация насосов
-            InitializePumpH(P200, "P200", "Насос P-200");
-            InitializePumpH(P201, "P201", "Насос P-201");
-            InitializePumpH(P202, "P202", "Насос P-202");
-            InitializePumpUzUnderPanel(P602, "P602", "Насос P-602");
+                // Инициализация насосов
+                InitializePumpH(P200, "P200", "Насос P-200", "P-200");
+                InitializePumpH(P201, "P201", "Насос P-201", "P-201");
+                InitializePumpH(P202, "P202", "Насос P-202", "P-202");
+                InitializePumpUzUnderPanel(P602, "P602", "Насос P-602", "P-602");
 
-            // Инициализация клапанов
-            Initialize3Valve(VT602, "V602", "Клапан SV-602");
-            InitializeValveH(VT801, "V801", "Клапан V-801");
-            InitializeValveH(VT803, "V803", "Клапан V-803");
+                // Инициализация клапанов
+                Initialize3Valve(VT602, "V602", "Клапан SV-602", "SV-602");
+                InitializeValveH(VT801, "V801", "Клапан V-801", "V-801");
+                InitializeValveH(VT803, "V803", "Клапан V-803", "V-803");
 
-            // Инициализация нагревателя
-            InitializeHeater(HE800, "HE800", "Нагреватель HE-800");
+                // Инициализация нагревателя
+                InitializeHeater(HE800, "HE800", "Нагреватель HE-800");
 
-            // Инициализация миксеров
-            M200MixerToggle.StateChanged += M200MixerToggle_StateChanged;
-            M250MixerToggle.StateChanged += M250MixerToggle_StateChanged;
+                // Инициализация миксеров
+                M200MixerToggle.StateChanged += M200MixerToggle_StateChanged;
+                M250MixerToggle.StateChanged += M250MixerToggle_StateChanged;
 
-            // Инициализация переключателя нагревателя
-            HE800Toggle.StateChanged += HE800Toggle_StateChanged;
+                // Инициализация переключателя нагревателя
+                HE800Toggle.StateChanged += HE800Toggle_StateChanged;
 
-            // Инициализация обработчиков для панели режимов
-            InitializeModePanelHandlers();
+                // Инициализация обработчиков для панели режимов
+                InitializeModePanelHandlers();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка инициализации элементов: {ex.Message}");
+            }
         }
 
         private void InitializeTimer()
@@ -87,17 +99,15 @@ namespace ProtolScadaRemake
 
         private void RepaintTimer_Tick(object sender, EventArgs e)
         {
-            if (_global == null) return;
-
             _repaintTimer.Stop();
 
             try
             {
-                // 1. Сброс команд как в старом проекте
-                ResetCommands();
-
-                // 2. Обновление всех элементов
+                // 1. Обновление всех элементов
                 UpdateAllElements();
+
+                // 2. Сброс команд как в старом проекте
+                ResetCommands();
 
                 // 3. Обновление информации на панелях
                 UpdatePanelInfo();
@@ -408,43 +418,47 @@ namespace ProtolScadaRemake
         }
 
         // ========== ИНИЦИАЛИЗАЦИЯ ЭЛЕМЕНТОВ ==========
-        private void InitializePumpH(Element_PumpH pump, string varName, string description)
+        private void InitializePumpH(Element_PumpH pump, string varName, string description, string name)
         {
             if (pump != null && _global != null)
             {
                 pump.Global = _global;
                 pump.VarName = varName;
                 pump.Description = description;
+                pump.Name = name;
             }
         }
 
-        private void InitializePumpUzUnderPanel(Element_PumpUzUnderPanel pump, string varName, string description)
+        private void InitializePumpUzUnderPanel(Element_PumpUzUnderPanel pump, string varName, string description, string name)
         {
             if (pump != null && _global != null)
             {
                 pump.Global = _global;
                 pump.VarName = varName;
                 pump.Description = description;
+                pump.Name = name;
             }
         }
 
-        private void Initialize3Valve(Element_3ValveH valve, string varName, string description)
+        private void Initialize3Valve(Element_3ValveH valve, string varName, string description,string name)
         {
             if (valve != null && _global != null)
             {
                 valve.Global = _global;
                 valve.VarName = varName;
                 valve.Description = description;
+                valve.Name = name;
             }
         }
 
-        private void InitializeValveH(Element_ValveH valve, string varName, string description)
+        private void InitializeValveH(Element_ValveH valve, string varName, string description, string name)
         {
             if (valve != null && _global != null)
             {
                 valve.Global = _global;
                 valve.VarName = varName;
                 valve.Description = description;
+                valve.Name = name;
             }
         }
 
@@ -485,7 +499,7 @@ namespace ProtolScadaRemake
         {
             if (TcModePanel != null)
             {
-                var rejimOffButton = TcModePanel.FindName("RejomOffButton") as Button;
+                var rejimOffButton = TcModePanel.FindName("RejimOffButton") as Button;
                 if (rejimOffButton != null)
                     rejimOffButton.Click += RejimOffButton_Click;
 

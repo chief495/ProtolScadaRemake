@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ProtolScadaRemake"
-             mc:Ignorable="d">
+             mc:Ignorable="d"
+             MouseDown="ValueLabel_Click">
 
     <Grid Width="70" Height="74">
         <Image x:Name ="ValveIcon"  Source="{StaticResource 3xValveIcon}" Width="60" Height="60" Margin="0,0,10,0" VerticalAlignment="Bottom"/>

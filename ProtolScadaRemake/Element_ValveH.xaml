@@ -4,10 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ProtolScadaRemake"
-             mc:Ignorable="d" Height="80">
+             mc:Ignorable="d" Height="80"
+             MouseDown="ValueLabel_Click">
 
     <Grid Width="63" Height="80" VerticalAlignment="Bottom">
-        <Image x:Name ="ValveIcon"  Source="{StaticResource ValveHPassiveIcon}" Width="60" Height="60" Margin="0,0,10,0"/>
+        <Image x:Name ="ValveIcon"  Source="{StaticResource ValveHCloseIcon}" Width="60" Height="60" Margin="0,0,10,0"/>
         <Image x:Name="HandImage" HorizontalAlignment="Left" Height="24" Margin="43,19,0,0" VerticalAlignment="Top" Width="20" Source="/Hand.png"/>
         <TextBlock x:Name="TAGNAME" HorizontalAlignment="Left" TextWrapping="Wrap" Text="TAG" VerticalAlignment="Top" Width="51" TextAlignment="Center" FontFamily="Arial" Foreground="White"/>
     </Grid>

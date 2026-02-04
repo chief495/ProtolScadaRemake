@@ -46,7 +46,7 @@ namespace ProtolScadaRemake
         private void ValueLabel_Click(object sender, MouseButtonEventArgs e)
         {
             DialogElementValve Dialog = new DialogElementValve();
-            Dialog.Content = Description;
+            Dialog.Title = Description;
             Dialog.Global = Global;
             Dialog.VarName = VarName;
             Dialog.Initialize();
