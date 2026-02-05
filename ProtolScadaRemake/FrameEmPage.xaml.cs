@@ -533,17 +533,6 @@ namespace ProtolScadaRemake
             }
         }
 
-        // Обработчики панели режимов
-        private void EmModePanel_ModeChanged(object sender, OperationMode mode)
-        {
-            System.Diagnostics.Debug.WriteLine($"Режим EM изменен на: {mode}");
-        }
-
-        private void EmModePanel_ModbusCommandRequested(object sender, ModbusCommandEventArgs e)
-        {
-            // Логика Modbus команд
-        }
-
         // ========== СЛУЖЕБНЫЕ МЕТОДЫ ==========
         private void P651_Loaded(object sender, RoutedEventArgs e) { }
         private void PT652_Loaded(object sender, RoutedEventArgs e) { }
