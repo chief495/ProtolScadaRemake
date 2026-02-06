@@ -498,7 +498,7 @@ namespace ProtolScadaRemake
 
                 if (_GroPage == null)
                 {
-                    _GroPage = new FrameGroPage(_global);
+                    _GroPage = new FrameGroPage();
                 }
 
                 ContentGrid.Children.Add(_GroPage);

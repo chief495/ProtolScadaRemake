@@ -6,8 +6,7 @@
              xmlns:local="clr-namespace:ProtolScadaRemake"
              xmlns:ImageXaml="clr-namespace:ProtolScadaRemake.ImageXaml"
              mc:Ignorable="d" 
-             d:DesignHeight="1010" d:DesignWidth="1790"
-             Loaded="UserControl_Loaded">
+             d:DesignHeight="1010" d:DesignWidth="1790">
 
     <Grid Width="1790" Height="1010">
         <!-- Фоновая картинка -->
@@ -17,126 +16,115 @@
         <Canvas x:Name="MainCanvas" Width="1790" Height="1010">
 
             <!-- Датчики уровня (AI) -->
-            <local:Element_AI x:Name="LT150" Canvas.Left="1135" Canvas.Top="869"/>
-            <local:Element_AI x:Name="LT301" Canvas.Left="970" Canvas.Top="306"/>
-            <local:Element_AI x:Name="LT303" Canvas.Left="1225" Canvas.Top="300"/>
-            <local:Element_AI x:Name="LT403" Canvas.Left="399" Canvas.Top="340"/>
+            <local:Element_AI x:Name="LT150" Canvas.Left="1242" Canvas.Top="870"/>
+            <local:Element_AI x:Name="LT301" Canvas.Left="1069" Canvas.Top="306"/>
+            <local:Element_AI x:Name="LT303" Canvas.Left="1328" Canvas.Top="306"/>
+            <local:Element_AI x:Name="LT403" Canvas.Left="500" Canvas.Top="342"/>
 
             <!-- Сигнализаторы уровня (DI) -->
-            <local:Element_DI x:Name="LAHH101" Canvas.Left="127" Canvas.Top="773" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <local:Element_DI x:Name="LALL103" Canvas.Left="127" Canvas.Top="813" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <local:Element_DI x:Name="LAHH151" Canvas.Left="955" Canvas.Top="788"/>
-            <local:Element_DI x:Name="LALL153" Canvas.Left="955" Canvas.Top="886" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <local:Element_DI x:Name="LAHH301" Canvas.Left="881" Canvas.Top="231"/>
-            <local:Element_DI x:Name="LAHH302" Canvas.Left="1135" Canvas.Top="231" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <local:Element_DI x:Name="LAHH401" Canvas.Left="216" Canvas.Top="261"/>
+            <local:Element_DI x:Name="LAHH101" Canvas.Left="229" Canvas.Top="773" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <local:Element_DI x:Name="LALL103" Canvas.Left="460" Canvas.Top="878" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <local:Element_DI x:Name="LAHH151" Canvas.Left="1060" Canvas.Top="791"/>
+            <local:Element_DI x:Name="LALL153" Canvas.Left="1060" Canvas.Top="887" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <local:Element_DI x:Name="LAHH301" Canvas.Left="982" Canvas.Top="235"/>
+            <local:Element_DI x:Name="LAHH302" Canvas.Left="1238" Canvas.Top="231" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <local:Element_DI x:Name="LAHH401" Canvas.Left="323" Canvas.Top="266"/>
 
             <!-- Датчики температуры (AI) -->
-            <local:Element_AI x:Name="TT102" Canvas.Left="309" Canvas.Top="777"/>
-            <local:Element_AI x:Name="TT106" Canvas.Left="806" Canvas.Top="829"/>
-            <local:Element_AI x:Name="TT152" Canvas.Left="1135" Canvas.Top="795" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <local:Element_AI x:Name="TT302" Canvas.Left="1225" Canvas.Top="234"/>
-            <local:Element_AI x:Name="TT402" Canvas.Left="399" Canvas.Top="264"/>
-            <local:Element_AI x:Name="TT602" Canvas.Left="1399" Canvas.Top="620"/>
+            <local:Element_AI x:Name="TT102" Canvas.Left="411" Canvas.Top="776" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <!-- TT106 УДАЛЕН -->
+            <local:Element_AI x:Name="TT152" Canvas.Left="1242" Canvas.Top="791" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <local:Element_AI x:Name="TT302" Canvas.Left="1328" Canvas.Top="235"/>
+            <local:Element_AI x:Name="TT402" Canvas.Left="500" Canvas.Top="266" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <local:Element_AI x:Name="TT602" Canvas.Left="1491" Canvas.Top="625"/>
 
             <!-- Датчики давления (AI) -->
-            <local:Element_AI x:Name="PT104" Canvas.Left="463" Canvas.Top="813" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <local:Element_AI x:Name="PT105" Canvas.Left="806" Canvas.Top="854" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <local:Element_AI x:Name="PT304" Canvas.Left="620" Canvas.Top="368" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <local:Element_AI x:Name="PT404" Canvas.Left="127" Canvas.Top="444" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <local:Element_AI x:Name="PT601" Canvas.Left="1399" Canvas.Top="672"/>
+            <local:Element_AI x:Name="PT104" Canvas.Left="572" Canvas.Top="818" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <local:Element_AI x:Name="PT105" Canvas.Left="911" Canvas.Top="887" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <local:Element_AI x:Name="PT304" Canvas.Left="728" Canvas.Top="377" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <local:Element_AI x:Name="PT404" Canvas.Left="232" Canvas.Top="443" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <local:Element_AI x:Name="PT601" Canvas.Left="1491" Canvas.Top="686"/>
 
             <!-- Расходомеры (AI) -->
-            <local:Element_AI x:Name="FM401" Canvas.Left="127" Canvas.Top="505"/>
-            <local:Element_AI x:Name="FM601" Canvas.Left="1399" Canvas.Top="794"/>
+            <local:Element_AI x:Name="FM401" Canvas.Left="232" Canvas.Top="505" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <local:Element_AI x:Name="FM601" Canvas.Left="1502" Canvas.Top="800" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
             <!-- Счетчик QM400 (AI) -->
-            <local:Element_AI x:Name="QM400" Canvas.Left="636" Canvas.Top="166" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <local:Element_AI x:Name="QM400" Canvas.Left="748" Canvas.Top="169" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
             <!-- Весовой датчик WIT100 (AI) -->
-            <local:Element_AI x:Name="WIT100" Canvas.Left="200" Canvas.Top="924" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <local:Element_AI x:Name="WIT100" Canvas.Left="331" Canvas.Top="922" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
             <!-- Миксеры (переключатели) -->
-            <StackPanel Canvas.Left="306" Canvas.Top="647" Width="70" Height="80">
-                <TextBlock Text="M100" 
-                          Foreground="White" 
-                          FontSize="12" 
-                          HorizontalAlignment="Center"
-                          Margin="0,0,0,5"/>
-                <local:ToggleSwitch x:Name="M100Switch" 
-                                   Width="50" 
-                                   Height="25"
-                                   StateChanged="M100Switch_StateChanged"/>
-            </StackPanel>
+            <StackPanel Canvas.Left="306" Canvas.Top="647" Width="50" Height="25"/>
 
-            <StackPanel Canvas.Left="886" Canvas.Top="692" Width="70" Height="80">
-                <TextBlock Text="M150" 
-                          Foreground="White" 
-                          FontSize="12" 
-                          HorizontalAlignment="Center"
-                          Margin="0,0,0,5"/>
-                <local:ToggleSwitch x:Name="M150Switch" 
-                                   Width="50" 
-                                   Height="25"
-                                   StateChanged="M150Switch_StateChanged"/>
-            </StackPanel>
+            <StackPanel Canvas.Left="886" Canvas.Top="692" Width="50" Height="25"/>
 
-            <StackPanel Canvas.Left="399" Canvas.Top="420" Width="70" Height="80">
-                <TextBlock Text="M400" 
-                          Foreground="White" 
-                          FontSize="12" 
-                          HorizontalAlignment="Center"
-                          Margin="0,0,0,5"/>
-                <local:ToggleSwitch x:Name="M400Switch" 
-                                   Width="50" 
-                                   Height="25"
-                                   StateChanged="M400Switch_StateChanged"/>
-            </StackPanel>
+            <StackPanel Canvas.Left="336" Canvas.Top="203" Width="70" Height="25" HorizontalAlignment="Center" VerticalAlignment="Top"/>
 
             <!-- Насосы обратные (P300, P400) -->
-            <local:Element_PumpHReverse x:Name="P300" Canvas.Left="1527" Canvas.Top="208"/>
-            <local:Element_PumpHReverse x:Name="P400" Canvas.Left="126" Canvas.Top="340"/>
+            <local:Element_PumpHReverse x:Name="P300" Canvas.Left="430" Canvas.Top="392"/>
+            <local:Element_PumpHReverse x:Name="P400" Canvas.Left="886" Canvas.Top="392"/>
 
             <!-- Насосы обычные -->
-            <local:Element_PumpUzUnderPanel x:Name="P100" Canvas.Left="550" Canvas.Top="844"/>
-            <local:Element_PumpUzUnderPanel x:Name="A100" Canvas.Left="35" Canvas.Top="566"/>
-            <local:Element_PumpUzUnderPanel x:Name="P601" Canvas.Left="1298" Canvas.Top="837"/>
+            <local:Element_PumpUzUnderPanel x:Name="P100" Canvas.Left="636" Canvas.Top="854"/>
+            <local:Element_PumpUzUnderPanel x:Name="A100" Canvas.Left="172" Canvas.Top="557"/>
+            <local:Element_PumpUzUnderPanel x:Name="P601" Canvas.Left="1399" Canvas.Top="844"/>
 
             <!-- Задвижки горизонтальные -->
-            <local:Element_ValveV x:Name="VT101" Canvas.Left="208" Canvas.Top="646"/>
-            <local:Element_ValveH x:Name="VT151" Canvas.Left="886" Canvas.Top="625"/>
-            <local:Element_ValveH x:Name="VT152" Canvas.Left="645" Canvas.Top="420"/>
-            <local:Element_ValveV x:Name="VT302" Canvas.Left="1206" Canvas.Top="132" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <local:Element_ValveV x:Name="VT305" Canvas.Left="375" Canvas.Top="545"/>
-            <local:Element_ValveV x:Name="VT401" Canvas.Left="460" Canvas.Top="134"/>
+            <local:Element_ValveV x:Name="VT101" Canvas.Left="311" Canvas.Top="662" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <local:Element_ValveH x:Name="VT151" Canvas.Left="982" Canvas.Top="626"/>
+            <local:Element_ValveH x:Name="VT152" Canvas.Left="595" Canvas.Top="630"/>
+            <local:Element_ValveV x:Name="VT302" Canvas.Left="1310" Canvas.Top="134" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <local:Element_ValveV x:Name="VT305" Canvas.Left="475" Canvas.Top="597" RenderTransformOrigin="3.592,1.027"/>
+            <local:Element_ValveV x:Name="VT401" Canvas.Left="565" Canvas.Top="134" HorizontalAlignment="Left" VerticalAlignment="Center"/>
 
             <!-- 3-ходовой клапан -->
-            <local:Element_3ValveH x:Name="VT601" Canvas.Left="1513" Canvas.Top="542"/>
+            <local:Element_3ValveH x:Name="VT601" Canvas.Left="1612" Canvas.Top="543"/>
 
             <!-- Нагреватели -->
-            <local:Element_Heater x:Name="HE300" Canvas.Left="1390" Canvas.Top="258"/>
-            <local:Element_Heater x:Name="HE750" Canvas.Left="1292" Canvas.Top="773"/>
-            <local:Element_Heater x:Name="HE700_1" Canvas.Left="676" Canvas.Top="725"/>
-            <local:Element_Heater x:Name="HE700_2" Canvas.Left="766" Canvas.Top="725"/>
+            <!-- HE-300 с переключателем -->
+            <local:Element_Heater x:Name="HE300" Canvas.Left="1490" Canvas.Top="250"/>
+            <local:ToggleSwitch x:Name="HE300Switch" 
+                                Width="50" 
+                                Height="26"
+                                Canvas.Left="1497" 
+                                Canvas.Top="221"
+                                StateChanged="HE300Switch_StateChanged"/>
+
+            <!-- HE-750 с переключателем -->
+            <local:Element_Heater x:Name="HE750" Canvas.Left="1399" Canvas.Top="772"/>
+            <local:ToggleSwitch x:Name="HE750Switch" 
+                                Width="50" 
+                                Height="26"
+                                Canvas.Left="1406" 
+                                Canvas.Top="744"
+                                StateChanged="HE750Switch_StateChanged" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+            <!-- HE-700.1 (без переключателя) -->
+            <local:Element_Heater x:Name="HE700_1" Canvas.Left="776" Canvas.Top="720"/>
+
+            <!-- HE-700.2 (без переключателя) -->
+            <local:Element_Heater x:Name="HE700_2" Canvas.Left="869" Canvas.Top="722"/>
 
             <!-- Панель выбора режима (левый верхний угол) -->
             <local:ModePanel x:Name="GroModePanel"
-                            Canvas.Left="20"
-                            Canvas.Top="20"
+                            Canvas.Left="10"
+                            Canvas.Top="10"
                             Width="180"
                             Height="200"
-                            ModeChanged="GroModePanel_ModeChanged"/>
+                            ModeChanged="GroModePanel_ModeChanged" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
             <!-- Панель задания массы в Т-100 -->
-            <Border Canvas.Left="676" 
-                   Canvas.Top="218" 
+            <Border Canvas.Left="10" 
+                   Canvas.Top="767" 
                    Width="180" 
                    Height="140"
                    BorderBrush="#666666" 
                    BorderThickness="1"
                    Background="Transparent"
                    CornerRadius="8"
-                   Padding="15" HorizontalAlignment="Center" VerticalAlignment="Top">
+                   Padding="15" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <StackPanel>
                     <TextBlock Text="МАССА Т-100"
                                FontWeight="Heavy"
@@ -162,29 +150,35 @@
                                 Padding="5,0"/>
                     </Border>
 
-                    <Button x:Name="SetT100MassButton" 
-                            Content="ЗАДАТЬ"
-                            Height="28"
-                            FontWeight="Bold"
-                            FontSize="14"
-                            Foreground="White"
-                            Background="#267ABB"
-                            BorderThickness="0"
-                            Click="SetT100MassButton_Click"/>
+                    <!-- Кнопка с скругленными углами -->
+                    <Border Background="#FF1E5945"
+                            BorderBrush="#FF00FF00"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Height="28">
+                        <Button x:Name="SetT100MassButton" 
+                                Content="ЗАДАТЬ"
+                                FontWeight="Bold"
+                                FontSize="14"
+                                Foreground="White"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Click="SetT100MassButton_Click"/>
+                    </Border>
                 </StackPanel>
             </Border>
 
             <!-- Панель выбора вещества с уставками и счетчиками -->
             <Border x:Name="SubstancePanel" 
                    Canvas.Left="10" 
-                   Canvas.Top="240" 
+                   Canvas.Top="216" 
                    Width="200" 
                    Height="400"
                    BorderBrush="#666666" 
                    BorderThickness="1"
                    Background="Transparent"
                    CornerRadius="8"
-                   Padding="15">
+                   Padding="15" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <StackPanel>
                     <TextBlock Text="ВЕЩЕСТВО"
                                FontWeight="Heavy"
@@ -379,56 +373,70 @@
                     <StackPanel Orientation="Horizontal" 
                                 HorizontalAlignment="Center" 
                                 Margin="0,10,0,0">
-                        <Button x:Name="SubstanceStartButton" 
-                                Content="ПУСК"
+                        <!-- Кнопка ПУСК -->
+                        <Border Background="#267ABB"
                                 Width="70"
                                 Height="28"
-                                FontWeight="Bold"
-                                FontSize="12"
-                                Foreground="White"
-                                Background="#267ABB"
-                                BorderThickness="0"
-                                Click="SubstanceStartButton_Click"/>
-                        <Button x:Name="SubstanceStopButton" 
-                                Content="СТОП"
+                                CornerRadius="8">
+                            <Button x:Name="SubstanceStartButton" 
+                                    Content="ПУСК"
+                                    FontWeight="Bold"
+                                    FontSize="12"
+                                    Foreground="White"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Click="SubstanceStartButton_Click"/>
+                        </Border>
+
+                        <!-- Кнопка СТОП -->
+                        <Border Background="#267ABB"
                                 Width="70"
                                 Height="28"
-                                FontWeight="Bold"
-                                FontSize="12"
-                                Foreground="White"
-                                Background="#267ABB"
-                                BorderThickness="0"
-                                Margin="5,0"
-                                Click="SubstanceStopButton_Click"/>
-                        <Button x:Name="SubstancePauseButton" 
-                                Content="ПАУЗА"
+                                CornerRadius="8"
+                                Margin="5,0">
+                            <Button x:Name="SubstanceStopButton" 
+                                    Content="СТОП"
+                                    FontWeight="Bold"
+                                    FontSize="12"
+                                    Foreground="White"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Click="SubstanceStopButton_Click"/>
+                        </Border>
+
+                        <!-- Кнопка ПАУЗА -->
+                        <Border Background="#FF9900"
                                 Width="70"
                                 Height="28"
-                                FontWeight="Bold"
-                                FontSize="12"
-                                Foreground="White"
-                                Background="#FF9900"
-                                BorderThickness="0"
-                                Margin="5,0"
-                                Click="SubstancePauseButton_Click"/>
+                                CornerRadius="8"
+                                Margin="5,0">
+                            <Button x:Name="SubstancePauseButton" 
+                                    Content="ПАУЗА"
+                                    FontWeight="Bold"
+                                    FontSize="12"
+                                    Foreground="White"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Click="SubstancePauseButton_Click"/>
+                        </Border>
                     </StackPanel>
                 </StackPanel>
             </Border>
 
             <!-- Панель перекачки -->
             <Border x:Name="TransportPanel" 
-                   Canvas.Left="445" 
-                   Canvas.Top="681" 
-                   Width="180" 
-                   Height="120"
+                   Canvas.Left="982" 
+                   Canvas.Top="528" 
+                   Width="242" 
+                   Height="94"
                    BorderBrush="#666666" 
                    BorderThickness="1"
                    Background="Transparent"
                    CornerRadius="8"
                    Padding="15"
-                   Visibility="Visible">
+                   Visibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <StackPanel>
-                    <TextBlock Text="ПЕРЕКАЧКА"
+                    <TextBlock Text="ПЕРЕКАЧКА Т200 → Т250"
                                FontWeight="Heavy"
                                FontSize="16"
                                Foreground="White"
@@ -438,41 +446,54 @@
 
                     <StackPanel Orientation="Horizontal" 
                                 HorizontalAlignment="Center">
-                        <Button x:Name="TransportStartButton" 
-                                Content="ПУСК"
-                                Width="70"
-                                Height="28"
-                                FontWeight="Bold"
-                                FontSize="12"
-                                Foreground="White"
-                                Background="#267ABB"
-                                BorderThickness="0"
-                                Click="TransportStartButton_Click"/>
-                        <Button x:Name="TransportStopButton" 
-                                Content="СТОП"
-                                Width="70"
-                                Height="28"
-                                FontWeight="Bold"
-                                FontSize="12"
-                                Foreground="White"
-                                Background="#267ABB"
-                                BorderThickness="0"
-                                Margin="10,0,0,0"
-                                Click="TransportStopButton_Click"/>
+                        <!-- Кнопка ПУСК перекачки -->
+                        <Border Background="#FF1E5945"
+                                BorderBrush="#FF00FF00"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Width="70" 
+                                Height="22"
+                                Margin="0,0,8,0">
+                            <Button x:Name="TransportStartButton" 
+                                    Content="ПУСК"
+                                    Foreground="White"
+                                    FontSize="10"
+                                    FontWeight="Bold"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Click="TransportStartButton_Click"/>
+                        </Border>
+
+                        <!-- Кнопка СТОП перекачки -->
+                        <Border Background="#7B001C"
+                                BorderBrush="#FF0033"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Width="70" 
+                                Height="22">
+                            <Button x:Name="TransportStopButton" 
+                                    Content="СТОП"
+                                    Foreground="White"
+                                    FontSize="10"
+                                    FontWeight="Bold"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Click="TransportStopButton_Click"/>
+                        </Border>
                     </StackPanel>
                 </StackPanel>
             </Border>
 
             <!-- Панель скорости A100 (уменьшенная) -->
             <Border Canvas.Left="10" 
-                   Canvas.Top="660" 
+                   Canvas.Top="645" 
                    Width="180" 
                    Height="100"
                    BorderBrush="#666666" 
                    BorderThickness="1"
                    Background="Transparent"
                    CornerRadius="8"
-                   Padding="15">
+                   Padding="15" HorizontalAlignment="Center" VerticalAlignment="Top">
                 <StackPanel>
                     <TextBlock Text="СКОРОСТЬ A100"
                                FontWeight="Heavy"
@@ -510,8 +531,8 @@
             </Border>
 
             <!-- Панель режима HE-700 -->
-            <Border Canvas.Left="646" 
-                   Canvas.Top="525" 
+            <Border Canvas.Left="762" 
+                   Canvas.Top="527" 
                    Width="180" 
                    Height="140"
                    BorderBrush="#666666" 
@@ -538,56 +559,37 @@
                         <ComboBoxItem Content="HE-700.2 => HE700.1"/>
                     </ComboBox>
 
-                    <Button x:Name="SaveHE700RejimButton" 
-                            Content="СОХРАНИТЬ"
-                            Height="28"
-                            FontWeight="Bold"
-                            FontSize="14"
-                            Foreground="White"
-                            Background="#267ABB"
-                            BorderThickness="0"
-                            Click="SaveHE700RejimButton_Click"/>
+                    <!-- Кнопка СОХРАНИТЬ -->
+                    <Border Background="#FF1E5945"
+                            BorderBrush="#FF00FF00"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Height="28">
+                        <Button x:Name="SaveHE700RejimButton" 
+                                Content="СОХРАНИТЬ"
+                                FontWeight="Bold"
+                                FontSize="14"
+                                Foreground="White"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Click="SaveHE700RejimButton_Click"/>
+                    </Border>
                 </StackPanel>
             </Border>
 
             <!-- Индикаторы счетчиков -->
-            <Border Canvas.Left="900" 
-                   Canvas.Top="50" 
-                   Width="200" 
-                   Height="140"
-                   BorderBrush="#666666" 
-                   BorderThickness="1"
-                   Background="Transparent"
-                   CornerRadius="8"
-                   Padding="15">
-                <StackPanel>
-                    <TextBlock Text="СЧЕТЧИКИ"
-                               FontWeight="Heavy"
-                               FontSize="16"
-                               Foreground="White"
-                               Margin="0,0,0,10"
-                               HorizontalAlignment="Center"
-                               TextAlignment="Center"/>
-
-                    <TextBlock x:Name="SelitraCounterText" 
-                              Text="Селитра: 0 кг" 
-                              Foreground="White" 
-                              FontSize="12" 
-                              Margin="0,2"/>
-
-                    <TextBlock x:Name="WaterCounterText" 
-                              Text="Вода: 0 кг" 
-                              Foreground="White" 
-                              FontSize="12" 
-                              Margin="0,2"/>
-
-                    <TextBlock x:Name="KislotaCounterText" 
-                              Text="Кислота: 0 кг" 
-                              Foreground="White" 
-                              FontSize="12" 
-                              Margin="0,2"/>
-                </StackPanel>
-            </Border>
+            <local:ToggleSwitch x:Name="M100Switch" 
+                                   Width="50" 
+                                   Height="26"
+                                   StateChanged="M100Switch_StateChanged" HorizontalAlignment="Center" Canvas.Left="363" Canvas.Top="741" VerticalAlignment="Center"/>
+            <local:ToggleSwitch x:Name="M150Switch" 
+                                   Width="50" 
+                                   Height="26"
+                                   StateChanged="M150Switch_StateChanged" HorizontalAlignment="Center" Canvas.Left="1190" Canvas.Top="754" VerticalAlignment="Center"/>
+            <local:ToggleSwitch x:Name="M400Switch" 
+                                   Width="50" 
+                                   Height="25"
+                                   StateChanged="M400Switch_StateChanged" HorizontalAlignment="Left" Canvas.Left="450" Canvas.Top="225" VerticalAlignment="Top"/>
 
         </Canvas>
     </Grid>
