@@ -86,7 +86,7 @@ namespace ProtolScadaRemake
                 InitializeSensor(FM601, "FM601", "Массовый расходомер FM601", "FM601", "кг/ч");
 
                 // Счетчик QM400
-                InitializeSensor(QM400, "QM400", "Счетчик QM-400", "QM-400", "");
+                InitializeSensor(QM400, "QM400", "Счетчик QM-400", "QM-400", "л");
 
                 // Весовой датчик WIT100
                 InitializeSensor(WIT100, "WIT100", "Вес Т-100", "WIT-100", "кг");

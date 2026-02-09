@@ -53,6 +53,7 @@ namespace ProtolScadaRemake
             _dbUtils = _global.GetDbUtils();
             Debug.WriteLine("DBUtils получен");
 
+            ModbusInitializer.InitializeAllVariables(_global);
             // Инициализация Modbus (без блокировки UI)
             //InitializeModbusAsync();
 
