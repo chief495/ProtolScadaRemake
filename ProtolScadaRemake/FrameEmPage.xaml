@@ -10,14 +10,13 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              x:Class="ProtolScadaRemake.FrameEmPage"            
              mc:Ignorable="d" 
-             Initialized="UserControl_Initialized" 
              Width="1790" 
              Height="1010" 
              Margin="0,0,0,0">
 
     <Grid Width="1790" Height="1020" VerticalAlignment="Bottom" HorizontalAlignment="Left">
         <!-- Фоновая картинка -->
-        <ImageXaml:ImageEmPage HorizontalAlignment="Left" VerticalAlignment="Top" Width="1790" Height="1020" Margin="-10,-10,0,0" Loaded="ImageEmPage_Loaded_1"/>
+        <ImageXaml:ImageEmPage HorizontalAlignment="Left" VerticalAlignment="Top" Width="1790" Height="1020" Margin="-10,-10,0,0"/>
 
         <!-- Панель выбора режима (верхний левый угол) -->
         <local:ModePanel x:Name="EmModePanel"
@@ -29,7 +28,7 @@
                         ModbusRegisterAddress="102"
                         UnitId="1"
                         ModeChanged="EmModePanel_ModeChanged"
-                        ModbusCommandRequested="EmModePanel_ModbusCommandRequested"/>
+                        ModbusCommandRequested="EmModePanel_ModbusCommandRequested" Loaded="EmModePanel_Loaded"/>
 
         <!-- Панель отгрузки (правый нижний угол) -->
         <local:UnloadPanel x:Name="UnloadPanelControl"
@@ -100,7 +99,7 @@
         <local:Element_AI x:Name="FM601" 
                          HorizontalAlignment="Left" 
                          Margin="747,378,0,0" 
-                         VerticalAlignment="Top" Loaded="FM601_Loaded"/>
+                         VerticalAlignment="Top"/>
 
         <!-- PT601 - Давление -->
         <local:Element_AI x:Name="PT601" 
@@ -136,7 +135,7 @@
         <local:Element_AI x:Name="PT652" 
                          HorizontalAlignment="Left" 
                          Margin="1222,0,0,0" 
-                         VerticalAlignment="Center" Loaded="PT652_Loaded"/>
+                         VerticalAlignment="Center"/>
 
         <!-- PT604 - Давление -->
         <local:Element_AI x:Name="PT604" 
@@ -168,7 +167,7 @@
         <local:Element_DI x:Name="LAHH653" 
                          HorizontalAlignment="Left" 
                          Margin="1058,336,0,0" 
-                         VerticalAlignment="Top" Loaded="LAHH653_Loaded"/>
+                         VerticalAlignment="Top"/>
 
         <!-- ========== МИКСЕРЫ (TOGGLE SWITCH) ========== -->
 
@@ -212,7 +211,7 @@
         <local:Element_PumpUzUnderPanel x:Name="P651" 
                             HorizontalAlignment="Left" 
                             Margin="1068,0,0,0" 
-                            VerticalAlignment="Center" Loaded="P651_Loaded"/>
+                            VerticalAlignment="Center"/>
 
         <!-- P700 -->
 

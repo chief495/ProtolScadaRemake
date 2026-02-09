@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace ProtolScadaRemake
@@ -23,6 +24,9 @@ namespace ProtolScadaRemake
             _global = global;
             InitializeElements();
             InitializeTimer();
+
+            // ModePanel инициализируется через событие Loaded или через XAML
+            // У ModePanel может не быть свойства Global
         }
 
         private void FrameEmPage_Loaded(object sender, RoutedEventArgs e)
@@ -56,8 +60,8 @@ namespace ProtolScadaRemake
                 InitializeSensor(LT253, "LT253", "Датчик уровня LT253", "LT-253", "мм");
                 InitializeSensor(FM602, "FM602", "Массовый расходомер FM602", "FM602", "кг/ч");
                 InitializeSensor(LT651, "LT651", "Датчик уровня LT651", "LT-651", "мм");
-                InitializeSensor(PT652, "PT652", "Датчик давления PT652", "PT-652", "бар");
-                InitializeSensor(PT604, "PT604", "Датчик давления PT604", "PT-604", "бар");
+                InitializeSensor(PT652, "PT652", "Давление PT652", "PT-652", "бар");
+                InitializeSensor(PT604, "PT604", "Давление PT604", "PT-604", "бар");
 
                 // ========== ДИСКРЕТНЫЕ ДАТЧИКИ ==========
                 InitializeDiscreteSensor(LAHH151, "LAHH151", "Датчик уровня LAHH151", "LAHH-151");
@@ -118,7 +122,10 @@ namespace ProtolScadaRemake
                 // 3. Обновление информации на панелях
                 UpdatePanelInfo();
 
-                // 4. Обновление видимости панелей по режиму
+                // 4. Обновление ModePanel (если нужно)
+                UpdateModePanelIfNeeded();
+
+                // 5. Обновление видимости панелей по режиму
                 UpdatePanelsVisibility();
 
             }
@@ -236,20 +243,164 @@ namespace ProtolScadaRemake
                 PerformancePanelControl?.UpdateFromGlobal();
                 UnloadPanelControl?.UpdateFromGlobal();
 
-                // Обновляем режим работы EM
-                var rejimTag = _global?.Variables?.GetByName("EM_Rejim");
-                if (rejimTag != null)
-                {
-                    // Можно добавить логику для обновления ModePanel если нужно
-                    double rejimValue = rejimTag.ValueReal;
-                    // Логирование для отладки
-                    System.Diagnostics.Debug.WriteLine($"EM_Rejim: {rejimValue}");
-                }
-
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка обновления панелей EM: {ex.Message}");
+            }
+        }
+
+        private void UpdateModePanelIfNeeded()
+        {
+            try
+            {
+                // Обновляем режим работы EM
+                var rejimTag = _global?.Variables?.GetByName("EM_Rejim");
+                if (rejimTag != null)
+                {
+                    double rejimValue = rejimTag.ValueReal;
+
+                    // Для отладки
+                    System.Diagnostics.Debug.WriteLine($"EM_Rejim: {rejimValue}");
+
+                    // Обновляем статусы в ModePanel (если там есть элементы для отображения)
+                    UpdateModePanelStatus(rejimValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка обновления ModePanel: {ex.Message}");
+            }
+        }
+
+        private void UpdateModePanelStatus(double rejimValue)
+        {
+            // Обновляем текстовые метки в ModePanel
+            try
+            {
+                // Ищем элементы в ModePanel
+                var currRejimLabel = EmModePanel?.FindName("CurrRejimLabel") as TextBlock;
+                var currStageLabel = EmModePanel?.FindName("CurrStageLabel") as TextBlock;
+
+                if (currRejimLabel != null && currStageLabel != null)
+                {
+                    // Обновляем в зависимости от режима (аналогично старому коду)
+                    switch (rejimValue)
+                    {
+                        case 0: // OFF
+                            currRejimLabel.Text = "OFF";
+                            currRejimLabel.Foreground = Brushes.White;
+                            currStageLabel.Text = "OFF";
+                            currStageLabel.Foreground = Brushes.White;
+                            break;
+                        case 1: // Автомат - OFF
+                            currRejimLabel.Text = "Автомат";
+                            currRejimLabel.Foreground = Brushes.LimeGreen;
+                            currStageLabel.Text = "OFF";
+                            currStageLabel.Foreground = Brushes.White;
+                            break;
+                        case 2: // Автомат - Затравка. Выход на режим.
+                            currRejimLabel.Text = "Автомат";
+                            currRejimLabel.Foreground = Brushes.LimeGreen;
+                            currStageLabel.Text = "Затравка. Выход на режим.";
+                            currStageLabel.Foreground = Brushes.YellowGreen;
+                            break;
+                        case 3: // Автомат - Затравка. Наполнение топливной смесью.
+                            currRejimLabel.Text = "Автомат";
+                            currRejimLabel.Foreground = Brushes.LimeGreen;
+                            currStageLabel.Text = "Затравка. Наполнение топливной смесью.";
+                            currStageLabel.Foreground = Brushes.Green;
+                            break;
+                        case 4: // Автомат - Затравка. Наполнение ГРО.
+                            currRejimLabel.Text = "Автомат";
+                            currRejimLabel.Foreground = Brushes.LimeGreen;
+                            currStageLabel.Text = "Затравка. Наполнение ГРО.";
+                            currStageLabel.Foreground = Brushes.Green;
+                            break;
+                        case 5: // Автомат - Затравка. Смешивание.
+                            currRejimLabel.Text = "Автомат";
+                            currRejimLabel.Foreground = Brushes.LimeGreen;
+                            currStageLabel.Text = "Затравка. Смешивание.";
+                            currStageLabel.Foreground = Brushes.Green;
+                            break;
+                        case 6: // Автомат - Производство. Выход на режим.
+                            currRejimLabel.Text = "Автомат";
+                            currRejimLabel.Foreground = Brushes.LimeGreen;
+                            currStageLabel.Text = "Производство. Выход на режим.";
+                            currStageLabel.Foreground = Brushes.YellowGreen;
+                            break;
+                        case 7: // Автомат - Производство.
+                            currRejimLabel.Text = "Автомат";
+                            currRejimLabel.Foreground = Brushes.LimeGreen;
+                            currStageLabel.Text = "Производство.";
+                            currStageLabel.Foreground = Brushes.Green;
+                            break;
+                        case 8: // Автомат - Промывка.
+                            currRejimLabel.Text = "Автомат";
+                            currRejimLabel.Foreground = Brushes.LimeGreen;
+                            currStageLabel.Text = "Промывка.";
+                            currStageLabel.Foreground = Brushes.LightBlue;
+                            break;
+                        case 9: // Автомат - Дожим. Выход на режим.
+                            currRejimLabel.Text = "Автомат";
+                            currRejimLabel.Foreground = Brushes.LimeGreen;
+                            currStageLabel.Text = "Дожим. Выход на режим.";
+                            currStageLabel.Foreground = Brushes.YellowGreen;
+                            break;
+                        case 10: // Автомат - Дожим.
+                            currRejimLabel.Text = "Автомат";
+                            currRejimLabel.Foreground = Brushes.LimeGreen;
+                            currStageLabel.Text = "Дожим.";
+                            currStageLabel.Foreground = Brushes.Green;
+                            break;
+                        default:
+                            currRejimLabel.Text = $"Неизвестно ({rejimValue})";
+                            currStageLabel.Text = "";
+                            break;
+                    }
+                }
+
+                // Также можно обновить кнопки в ModePanel
+                UpdateModePanelButtons(rejimValue);
+
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка UpdateModePanelStatus: {ex.Message}");
+            }
+        }
+
+        private void UpdateModePanelButtons(double rejimValue)
+        {
+            // Обновляем состояние кнопок в ModePanel
+            try
+            {
+                var rejimOffButton = EmModePanel?.FindName("RejimOffButton") as Button;
+                var rejimAutoButton = EmModePanel?.FindName("RejimAutoButton") as Button;
+
+                if (rejimOffButton != null && rejimAutoButton != null)
+                {
+                    // Если режим OFF (0) - подсвечиваем кнопку OFF
+                    if (rejimValue == 0)
+                    {
+                        rejimOffButton.Background = Brushes.Green;
+                        rejimOffButton.Foreground = Brushes.White;
+                        rejimAutoButton.Background = Brushes.Gray;
+                        rejimAutoButton.Foreground = Brushes.White;
+                    }
+                    // Если режим Автомат (1-10) - подсвечиваем кнопку Авто
+                    else if (rejimValue >= 1 && rejimValue <= 10)
+                    {
+                        rejimOffButton.Background = Brushes.Gray;
+                        rejimOffButton.Foreground = Brushes.White;
+                        rejimAutoButton.Background = Brushes.Green;
+                        rejimAutoButton.Foreground = Brushes.White;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка UpdateModePanelButtons: {ex.Message}");
             }
         }
 
@@ -263,8 +414,14 @@ namespace ProtolScadaRemake
                     double rejimValue = rejimTag.ValueReal;
 
                     // Управление видимостью панелей
+                    // В старой версии: RejimAutoPanel.Visible = (rejimValue != 0)
                     bool isOff = rejimValue == 0;
 
+                    // ModePanel всегда виден
+                    if (EmModePanel != null)
+                        EmModePanel.Visibility = Visibility.Visible;
+
+                    // Остальные панели скрываем в режиме OFF
                     if (StartupPanelControl != null)
                         StartupPanelControl.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
 
@@ -273,6 +430,9 @@ namespace ProtolScadaRemake
 
                     if (UnloadPanelControl != null)
                         UnloadPanelControl.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
+
+                    // Для отладки
+                    System.Diagnostics.Debug.WriteLine($"EM режим: {rejimValue}, панели видимы: {!isOff}");
                 }
             }
             catch (Exception ex)
@@ -285,11 +445,16 @@ namespace ProtolScadaRemake
         {
             try
             {
-                // Установка глобального объекта для панелей
+                // Установка глобального объекта для панелей (если у них есть свойство Global)
                 if (StartupPanelControl != null)
                 {
-                    StartupPanelControl.Global = _global;
-                    // ПОДКЛЮЧАЕМ ОБРАБОТЧИКИ СОБЫТИЙ!
+                    // Проверяем, есть ли свойство Global у StartupPanel
+                    var globalProperty = StartupPanelControl.GetType().GetProperty("Global");
+                    if (globalProperty != null && _global != null)
+                    {
+                        globalProperty.SetValue(StartupPanelControl, _global);
+                    }
+
                     StartupPanelControl.StartStartupButtonClick += StartupPanel_StartStartupButtonClick;
                     StartupPanelControl.StopStartupButtonClick += StartupPanel_StopStartupButtonClick;
                     StartupPanelControl.AutoModeButtonClick += StartupPanel_AutoModeButtonClick;
@@ -298,8 +463,12 @@ namespace ProtolScadaRemake
 
                 if (PerformancePanelControl != null)
                 {
-                    PerformancePanelControl.Global = _global;
-                    // ПОДКЛЮЧАЕМ ОБРАБОТЧИКИ СОБЫТИЙ!
+                    var globalProperty = PerformancePanelControl.GetType().GetProperty("Global");
+                    if (globalProperty != null && _global != null)
+                    {
+                        globalProperty.SetValue(PerformancePanelControl, _global);
+                    }
+
                     PerformancePanelControl.SetMassFlowButtonClick += PerformancePanel_SetMassFlowButtonClick;
                     PerformancePanelControl.StartProcessButtonClick += PerformancePanel_StartProcessButtonClick;
                     PerformancePanelControl.StopProcessButtonClick += PerformancePanel_StopProcessButtonClick;
@@ -309,8 +478,12 @@ namespace ProtolScadaRemake
 
                 if (UnloadPanelControl != null)
                 {
-                    UnloadPanelControl.Global = _global;
-                    // ПОДКЛЮЧАЕМ ОБРАБОТЧИКИ СОБЫТИЙ!
+                    var globalProperty = UnloadPanelControl.GetType().GetProperty("Global");
+                    if (globalProperty != null && _global != null)
+                    {
+                        globalProperty.SetValue(UnloadPanelControl, _global);
+                    }
+
                     UnloadPanelControl.SetParamsButtonClick += UnloadPanel_SetParamsButtonClick;
                     UnloadPanelControl.ResetButtonClick += UnloadPanel_ResetButtonClick;
                     UnloadPanelControl.PultModeClick += UnloadPanel_PultModeClick;
@@ -424,24 +597,51 @@ namespace ProtolScadaRemake
             }
         }
 
-        private void SendCommand(string commandName, string value)
+        // ========== ОБРАБОТЧИКИ СОБЫТИЙ MODEPANEL ==========
+        private void EmModePanel_ModeChanged(object sender, OperationMode mode)
         {
+            // Этот метод вызывается, когда пользователь меняет режим в ModePanel
+            if (_global == null) return;
+
             try
             {
-                var command = _global?.Commands?.GetByName(commandName);
-                if (command != null)
+                string commandName = mode switch
                 {
-                    command.WriteValue = value;
-                    command.NeedToWrite = true;
-                    command.SendToController();
-                }
+                    OperationMode.Off => "EM_RejimToOff",
+                    OperationMode.SemiAuto => "EM_RejimToManual",
+                    OperationMode.Auto => "EM_RejimToAuto",
+                    _ => "EM_RejimToOff"
+                };
+
+                SendCommand(commandName, "true");
+                _global.Log.Add("Пользователь", $"EM: Переход в режим {mode}", 1);
+
+                System.Diagnostics.Debug.WriteLine($"EM ModePanel: изменен режим на {mode}, команда {commandName}");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка изменения режима EM: {ex.Message}");
+            }
+        }
+
+        private void EmModePanel_ModbusCommandRequested(object sender, ModbusCommandEventArgs e)
+        {
+            // Обработка Modbus команд от ModePanel
+            try
+            {
+                // Просто логируем событие, если нет свойства Handled
+                System.Diagnostics.Debug.WriteLine($"Modbus команда запрошена: {e}");
+
+                // Если нужно обработать команду, можно сделать так:
+                // SendModbusCommand(e.Command);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка обработки Modbus команды: {ex.Message}");
+            }
         }
 
         // ========== ОБРАБОТЧИКИ СОБЫТИЙ ПАНЕЛЕЙ ==========
-
-        // Обработчики для StartupPanel
         private void StartupPanel_StartStartupButtonClick(object sender, RoutedEventArgs e)
         {
             SendCommand("EM_ZatravkaStart", "true");
@@ -462,10 +662,8 @@ namespace ProtolScadaRemake
             SendCommand("EM_RejimToOff", "true");
         }
 
-        // Обработчики для PerformancePanel
         private void PerformancePanel_SetMassFlowButtonClick(object sender, RoutedEventArgs e)
         {
-            // Логика установки производительности
             SendCommand("EM_AutoMassFlowSp_Write", "true");
         }
 
@@ -489,7 +687,6 @@ namespace ProtolScadaRemake
             SendCommand("EM_AutoFastStop", "true");
         }
 
-        // Обработчики для UnloadPanel
         private void UnloadPanel_SetParamsButtonClick(object sender, RoutedEventArgs e)
         {
             SendCommand("EM_Unload_SetParams", "true");
@@ -533,13 +730,33 @@ namespace ProtolScadaRemake
             }
         }
 
-        // ========== СЛУЖЕБНЫЕ МЕТОДЫ ==========
-        private void P651_Loaded(object sender, RoutedEventArgs e) { }
-        private void PT652_Loaded(object sender, RoutedEventArgs e) { }
-        private void ImageEmPage_Loaded(object sender, RoutedEventArgs e) { }
-        private void LAHH653_Loaded(object sender, RoutedEventArgs e) { }
-        private void ImageEmPage_Loaded_1(object sender, RoutedEventArgs e) { }
-        private void FM601_Loaded(object sender, RoutedEventArgs e) { }
-        private void UserControl_Initialized(object sender, EventArgs e) { }
+        private void SendCommand(string commandName, string value)
+        {
+            try
+            {
+                var command = _global?.Commands?.GetByName(commandName);
+                if (command != null)
+                {
+                    command.WriteValue = value;
+                    command.NeedToWrite = true;
+                    command.SendToController();
+                }
+            }
+            catch { }
+        }
+
+        private void EmModePanel_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Инициализация ModePanel после загрузки
+            // Если у ModePanel есть свойство Global, устанавливаем его
+            if (EmModePanel != null && _global != null)
+            {
+                var globalProperty = EmModePanel.GetType().GetProperty("Global");
+                if (globalProperty != null)
+                {
+                    globalProperty.SetValue(EmModePanel, _global);
+                }
+            }
+        }
     }
 }
