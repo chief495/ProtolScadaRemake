@@ -9,6 +9,7 @@ namespace ProtolScadaRemake
     {
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
+        private bool _isInitialized = false;
 
         public FrameGroPage()
         {
@@ -25,22 +26,25 @@ namespace ProtolScadaRemake
             InitializeElements();
 
             // Настройка таймера обновления
-            _repaintTimer = new DispatcherTimer();
-            _repaintTimer.Interval = TimeSpan.FromMilliseconds(100);
-            _repaintTimer.Tick += RepaintTimer_Tick;
+            InitializeTimer();
 
             System.Diagnostics.Debug.WriteLine("FrameGroPage инициализирован");
         }
 
         private void FrameGroPage_Loaded(object sender, RoutedEventArgs e)
         {
-            // Запуск таймера после загрузки
+            if (!_isInitialized && _global != null)
+            {
+                InitializeElements();
+                InitializeTimer();
+                _isInitialized = true;
+            }
             _repaintTimer?.Start();
         }
 
         private void FrameGroPage_Unloaded(object sender, RoutedEventArgs e)
         {
-            Cleanup();
+            _repaintTimer?.Stop();
         }
 
         private void InitializeElements()
@@ -194,6 +198,13 @@ namespace ProtolScadaRemake
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка инициализации элементов FrameGroPage: {ex.Message}");
             }
+        }
+
+        private void InitializeTimer()
+        {
+            _repaintTimer = new DispatcherTimer();
+            _repaintTimer.Interval = TimeSpan.FromMilliseconds(100);
+            _repaintTimer.Tick += RepaintTimer_Tick;
         }
 
         private void InitializeSensor(Element_AI sensor, string varName, string description, string name, string eu)
@@ -832,11 +843,6 @@ namespace ProtolScadaRemake
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка отправки команды {commandName}: {ex.Message}");
             }
-        }
-
-        public void Cleanup()
-        {
-            _repaintTimer?.Stop();
         }
     }
 }

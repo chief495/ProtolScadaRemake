@@ -54,7 +54,7 @@ namespace ProtolScadaRemake
             Debug.WriteLine("DBUtils получен");
 
             // Инициализация Modbus (без блокировки UI)
-            InitializeModbusAsync();
+            //InitializeModbusAsync();
 
             StartUpdateTimer();
 
@@ -88,118 +88,118 @@ namespace ProtolScadaRemake
             ShowMainPage();
         }
 
-        private async void InitializeModbusAsync()
-        {
-            try
-            {
-                Debug.WriteLine("Инициализация Modbus...");
+        //private async void InitializeModbusAsync()
+        //{
+        //    try
+        //    {
+        //        Debug.WriteLine("Инициализация Modbus...");
 
-                // Создаем ModbusController для прямого доступа
-                _modbusController = new ModbusController("127.0.0.1", 502, 1);
-                Debug.WriteLine("ModbusController создан");
+        //        // Создаем ModbusController для прямого доступа
+        //        _modbusController = new ModbusController("127.0.0.1", 502, 1);
+        //        Debug.WriteLine("ModbusController создан");
 
-                // Настройка обработчиков событий
-                _modbusController.OnStatusChanged += (message) =>
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        Debug.WriteLine($"Modbus статус: {message}");
-                    });
-                };
+        //        // Настройка обработчиков событий
+        //        _modbusController.OnStatusChanged += (message) =>
+        //        {
+        //            Dispatcher.Invoke(() =>
+        //            {
+        //                Debug.WriteLine($"Modbus статус: {message}");
+        //            });
+        //        };
 
-                _modbusController.OnConnectionStateChanged += (isConnected) =>
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        Debug.WriteLine($"Modbus соединение: {(isConnected ? "Установлено" : "Разорвано")}");
-                        UpdateConnectionStatus(isConnected);
-                    });
-                };
+        //        _modbusController.OnConnectionStateChanged += (isConnected) =>
+        //        {
+        //            Dispatcher.Invoke(() =>
+        //            {
+        //                Debug.WriteLine($"Modbus соединение: {(isConnected ? "Установлено" : "Разорвано")}");
+        //                UpdateConnectionStatus(isConnected);
+        //            });
+        //        };
 
-                _modbusController.OnRegisterValueChanged += (address, value) =>
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        Debug.WriteLine($"Регистр {address} = {value}");
-                        UpdateVariableFromRegister(address, value);
-                    });
-                };
+        //        _modbusController.OnRegisterValueChanged += (address, value) =>
+        //        {
+        //            Dispatcher.Invoke(() =>
+        //            {
+        //                Debug.WriteLine($"Регистр {address} = {value}");
+        //                UpdateVariableFromRegister(address, value);
+        //            });
+        //        };
 
-                // Пробуем подключиться в фоне с задержкой
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(3000);
-                    try
-                    {
-                        bool connected = await _modbusController.ConnectAsync();
-                        if (connected)
-                        {
-                            Debug.WriteLine("Modbus подключен успешно");
+        //        // Пробуем подключиться в фоне с задержкой
+        //        _ = Task.Run(async () =>
+        //        {
+        //            await Task.Delay(3000);
+        //            try
+        //            {
+        //                bool connected = await _modbusController.ConnectAsync();
+        //                if (connected)
+        //                {
+        //                    Debug.WriteLine("Modbus подключен успешно");
 
-                            // Запускаем опрос регистров конвейера (0-3)
-                            ushort[] registersToPoll = { 0, 1, 2, 3 };
-                            _modbusController.StartPolling(registersToPoll);
-                            Debug.WriteLine("Опрос регистров запущен");
-                        }
-                        else
-                        {
-                            Debug.WriteLine("Не удалось подключиться к Modbus серверу");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Ошибка подключения Modbus: {ex.Message}");
-                    }
-                });
+        //                    // Запускаем опрос регистров конвейера (0-3)
+        //                    ushort[] registersToPoll = { 0, 1, 2, 3 };
+        //                    _modbusController.StartPolling(registersToPoll);
+        //                    Debug.WriteLine("Опрос регистров запущен");
+        //                }
+        //                else
+        //                {
+        //                    Debug.WriteLine("Не удалось подключиться к Modbus серверу");
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Debug.WriteLine($"Ошибка подключения Modbus: {ex.Message}");
+        //            }
+        //        });
 
-                // Также создаем ModbusManager для расширенной функциональности
-                _modbusManager = new ModbusManager(_global);
-                Debug.WriteLine("ModbusManager создан");
+        //        // Также создаем ModbusManager для расширенной функциональности
+        //        _modbusManager = new ModbusManager(_global);
+        //        Debug.WriteLine("ModbusManager создан");
 
-                _modbusInitialized = true;
-                Debug.WriteLine("Modbus инициализация завершена");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Ошибка инициализации Modbus: {ex.Message}");
-                _modbusInitialized = false;
-            }
-        }
+        //        _modbusInitialized = true;
+        //        Debug.WriteLine("Modbus инициализация завершена");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine($"Ошибка инициализации Modbus: {ex.Message}");
+        //        _modbusInitialized = false;
+        //    }
+        //}
 
-        private void UpdateVariableFromRegister(ushort address, ushort value)
-        {
-            switch (address)
-            {
-                case 0:
-                    UpdateVariable("CONVEYOR_STATUS", value);
-                    break;
-                case 1:
-                    UpdateVariable("CONVEYOR_SPEED", value);
-                    break;
-                case 2:
-                    UpdateVariable("ITEM_COUNT", value);
-                    break;
-                case 3:
-                    UpdateVariable("EMERGENCY_STOP", value);
-                    break;
-            }
-        }
+        //private void UpdateVariableFromRegister(ushort address, ushort value)
+        //{
+        //    switch (address)
+        //    {
+        //        case 0:
+        //            UpdateVariable("CONVEYOR_STATUS", value);
+        //            break;
+        //        case 1:
+        //            UpdateVariable("CONVEYOR_SPEED", value);
+        //            break;
+        //        case 2:
+        //            UpdateVariable("ITEM_COUNT", value);
+        //            break;
+        //        case 3:
+        //            UpdateVariable("EMERGENCY_STOP", value);
+        //            break;
+        //    }
+        //}
 
-        private void UpdateVariable(string tagName, ushort value)
-        {
-            try
-            {
-                var variable = _global.Variables.GetByName(tagName);
-                if (variable != null)
-                {
-                    variable.ValueReal = value;
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Ошибка обновления переменной {tagName}: {ex.Message}");
-            }
-        }
+        //private void UpdateVariable(string tagName, ushort value)
+        //{
+        //    try
+        //    {
+        //        var variable = _global.Variables.GetByName(tagName);
+        //        if (variable != null)
+        //        {
+        //            variable.ValueReal = value;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine($"Ошибка обновления переменной {tagName}: {ex.Message}");
+        //    }
+        //}
 
         private void StartUpdateTimer()
         {
@@ -499,6 +499,7 @@ namespace ProtolScadaRemake
                 if (_GroPage == null)
                 {
                     _GroPage = new FrameGroPage();
+                    _GroPage.Initialize(_global);
                 }
 
                 ContentGrid.Children.Add(_GroPage);
