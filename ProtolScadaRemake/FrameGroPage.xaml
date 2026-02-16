@@ -32,7 +32,6 @@
 
             <!-- Датчики температуры (AI) -->
             <local:Element_AI x:Name="TT102" Canvas.Left="411" Canvas.Top="776" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <!-- TT106 УДАЛЕН -->
             <local:Element_AI x:Name="TT152" Canvas.Left="1242" Canvas.Top="791" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <local:Element_AI x:Name="TT302" Canvas.Left="1328" Canvas.Top="235"/>
             <local:Element_AI x:Name="TT402" Canvas.Left="500" Canvas.Top="266" HorizontalAlignment="Left" VerticalAlignment="Center"/>
@@ -54,13 +53,6 @@
 
             <!-- Весовой датчик WIT100 (AI) -->
             <local:Element_AI x:Name="WIT100" Canvas.Left="331" Canvas.Top="922" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-
-            <!-- Миксеры (переключатели) -->
-            <StackPanel Canvas.Left="306" Canvas.Top="647" Width="50" Height="25"/>
-
-            <StackPanel Canvas.Left="886" Canvas.Top="692" Width="50" Height="25"/>
-
-            <StackPanel Canvas.Left="336" Canvas.Top="203" Width="70" Height="25" HorizontalAlignment="Center" VerticalAlignment="Top"/>
 
             <!-- Насосы обратные (P300, P400) -->
             <local:Element_PumpHReverse x:Name="P300" Canvas.Left="430" Canvas.Top="392"/>
@@ -116,7 +108,8 @@
                             ModeChanged="GroModePanel_ModeChanged" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
             <!-- Панель задания массы в Т-100 -->
-            <Border Canvas.Left="10" 
+            <Border x:Name="T100MassPanel"
+                   Canvas.Left="10" 
                    Canvas.Top="767" 
                    Width="180" 
                    Height="140"
@@ -423,7 +416,7 @@
                 </StackPanel>
             </Border>
 
-            <!-- Панель перекачки -->
+            <!-- Панель перекачки Т100-Т150 -->
             <Border x:Name="TransportPanel" 
                    Canvas.Left="982" 
                    Canvas.Top="528" 
@@ -484,8 +477,9 @@
                 </StackPanel>
             </Border>
 
-            <!-- Панель скорости A100 (уменьшенная) -->
-            <Border Canvas.Left="10" 
+            <!-- Панель скорости A100 -->
+            <Border x:Name="A100SpeedPanel" 
+                   Canvas.Left="10" 
                    Canvas.Top="645" 
                    Width="180" 
                    Height="100"
@@ -531,7 +525,8 @@
             </Border>
 
             <!-- Панель режима HE-700 -->
-            <Border Canvas.Left="762" 
+            <Border x:Name="HE700Panel" 
+                   Canvas.Left="762" 
                    Canvas.Top="527" 
                    Width="180" 
                    Height="140"
@@ -590,7 +585,6 @@
                                    Width="50" 
                                    Height="25"
                                    StateChanged="M400Switch_StateChanged" HorizontalAlignment="Left" Canvas.Left="450" Canvas.Top="225" VerticalAlignment="Top"/>
-
         </Canvas>
     </Grid>
 </UserControl>

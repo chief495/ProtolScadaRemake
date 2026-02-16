@@ -28,6 +28,8 @@ namespace ProtolScadaRemake
             // Настройка таймера обновления
             InitializeTimer();
 
+            UpdatePanelsVisibility();
+
             System.Diagnostics.Debug.WriteLine("FrameGroPage инициализирован");
         }
 
@@ -37,6 +39,7 @@ namespace ProtolScadaRemake
             {
                 InitializeElements();
                 InitializeTimer();
+                UpdatePanelsVisibility();   
                 _isInitialized = true;
             }
             _repaintTimer?.Start();
@@ -320,6 +323,8 @@ namespace ProtolScadaRemake
                 // 3. Обновление режимов работы
                 UpdateOperationMode();
 
+                UpdatePanelsVisibility();
+
                 // 4. Обновление счетчиков
                 UpdateCounters();
 
@@ -515,81 +520,13 @@ namespace ProtolScadaRemake
             }
         }
 
+
         private void UpdateOperationMode()
         {
             var tag = _global.Variables.GetByName("GRO_Rejim");
             if (tag == null) return;
 
             int mode = (int)tag.ValueReal;
-
-            // Обновляем состояние элементов управления
-            switch (mode)
-            {
-                case 0: // OFF
-                    UpdateUIState(true, true, true, true, true);
-                    break;
-
-                case 1: // Полуавтомат
-                    UpdateUIState(true, false, false, true, true);
-                    break;
-
-                case 2: // Автомат
-                    UpdateUIState(false, false, false, true, true);
-                    break;
-
-                case 3: // Полуавтомат - Наполнение селитры
-                    UpdateUIState(false, true, true, false, false);
-                    break;
-
-                case 4: // Полуавтомат - Наполнение селитры.Пауза
-                    UpdateUIState(true, true, false, false, false);
-                    break;
-
-                case 5: // Полуавтомат - Наполнение воды
-                    UpdateUIState(false, true, true, false, false);
-                    break;
-
-                case 6: // Полуавтомат - Наполнение воды.Пауза
-                    UpdateUIState(true, true, false, false, false);
-                    break;
-
-                case 7: // Полуавтомат - Наполнение кислоты
-                    UpdateUIState(false, true, true, false, false);
-                    break;
-
-                case 8: // Полуавтомат - Наполнение кислоты.Пауза
-                    UpdateUIState(true, true, false, false, false);
-                    break;
-
-                case 9: // Автомат - Наполнение воды и кислоты
-                    UpdateUIState(false, true, true, false, false);
-                    break;
-
-                case 10: // Автомат - Наполнение воды и кислоты.Пауза
-                    UpdateUIState(true, true, false, false, false);
-                    break;
-
-                case 11: // Автомат - Наполнение селитры
-                    UpdateUIState(false, true, true, false, false);
-                    break;
-
-                case 12: // Автомат - Наполнение селитры.Пауза
-                    UpdateUIState(true, true, false, false, false);
-                    break;
-
-                case 13: // Автомат - Наполнение воды
-                    UpdateUIState(false, true, true, false, false);
-                    break;
-
-                case 14: // Автомат - Наполнение воды.Пауза
-                    UpdateUIState(true, true, false, false, false);
-                    break;
-
-                case 15: // Транспортировка
-                case 16: // Транспортировка
-                    UpdateUIState(false, false, false, false, false);
-                    break;
-            }
 
             // Синхронизируем панель режимов с текущим режимом
             if (GroModePanel != null)
@@ -607,28 +544,49 @@ namespace ProtolScadaRemake
             }
         }
 
-        private void UpdateUIState(bool substanceStartEnabled, bool substanceStopEnabled, bool transportEnabled,
-                                  bool substanceRadioEnabled, bool substancePanelVisible)
+        private void UpdatePanelsVisibility()
         {
-            // Обновление кнопок выбора вещества
-            SubstanceStartButton.IsEnabled = substanceStartEnabled;
-            SubstanceStopButton.IsEnabled = substanceStopEnabled;
-            SubstancePauseButton.IsEnabled = substanceStopEnabled;
+            try
+            {
+                var rejimTag = _global?.Variables?.GetByName("GRO_Rejim");
+                if (rejimTag != null)
+                {
+                    int mode = (int)rejimTag.ValueReal;
 
-            SelitraRadio.IsEnabled = substanceRadioEnabled;
-            WaterRadio.IsEnabled = substanceRadioEnabled;
-            KislotaRadio.IsEnabled = substanceRadioEnabled;
+                    // Управление видимостью панелей
+                    bool isOff = mode == 0;
 
-            SelitraSpEdit.IsEnabled = substanceRadioEnabled;
-            WaterSpEdit.IsEnabled = substanceRadioEnabled;
-            KislotaSpEdit.IsEnabled = substanceRadioEnabled;
+                    // ModePanel всегда виден
+                    if (GroModePanel != null)
+                        GroModePanel.Visibility = Visibility.Visible;
 
-            // Обновление панели транспортировки
-            TransportStartButton.IsEnabled = transportEnabled;
-            TransportStopButton.IsEnabled = transportEnabled;
+                    // Панель вещества - скрываем в режиме OFF
+                    if (SubstancePanel != null)
+                        SubstancePanel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
 
-            // Видимость панели выбора вещества
-            SubstancePanel.Visibility = substancePanelVisible ? Visibility.Visible : Visibility.Collapsed;
+                    // Панель транспортировки - скрываем в режиме OFF
+                    if (TransportPanel != null)
+                        TransportPanel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
+
+                    // Панель скорости A100 - всегда видна
+                    if (A100SpeedPanel != null)
+                        A100SpeedPanel.Visibility = Visibility.Visible;
+
+                    // Панель HE-700 - всегда видна
+                    if (HE700Panel != null)
+                        HE700Panel.Visibility = Visibility.Visible;
+
+                    // Панель массы Т-100 - всегда видна
+                    if (T100MassPanel != null)
+                        T100MassPanel.Visibility = Visibility.Visible;
+
+                    System.Diagnostics.Debug.WriteLine($"GRO режим: {mode}, панели видимы: {!isOff}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка обновления видимости панелей GRO: {ex.Message}");
+            }
         }
 
         private void UpdateCounters()

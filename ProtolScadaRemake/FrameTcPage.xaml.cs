@@ -24,6 +24,8 @@ namespace ProtolScadaRemake
             _global = global;
             InitializeElements();
             InitializeTimer();
+
+            UpdatePanelsVisibility();
             // Настройка таймера обновления (10 Гц как в старом проекте)
             _repaintTimer = new DispatcherTimer();
             _repaintTimer.Interval = TimeSpan.FromMilliseconds(100);
