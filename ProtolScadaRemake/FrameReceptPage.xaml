@@ -153,14 +153,14 @@
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Селитра" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="GroRecept_Selitra" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="GRO_Recept_Selitra"/>
+                                             Tag="GRO_Recept_Selitra" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Вода -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Вода" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="GroRecept_Water" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="GRO_Recept_Water"/>
+                                             Tag="GRO_Recept_Water" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Использовать кислоту ГГД -->
@@ -169,63 +169,63 @@
                                     <CheckBox x:Name="GroRecept_UseAcidCheck" Style="{StaticResource CheckBoxStyle}" Tag="GRO_Recept_KislotaEnable"
                                               Margin="5,5,10,0"/>
                                     <TextBox x:Name="GroRecept_Acid" Style="{StaticResource ParameterValueStyle}" Width="120"
-                                             Tag="GRO_Recept_Kislota"/>
+                                             Tag="GRO_Recept_Kislota" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Максимальная температура -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Задание максимальной температуры" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="GroRecept_TempMax" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="GRO_Recept_Tmax"/>
+                                             Tag="GRO_Recept_Tmax" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Дельта максимальной температуры -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Дельта максимальной температуры" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="GroRecept_TempMaxDelta" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="GRO_Recept_TmaxDelta"/>
+                                             Tag="GRO_Recept_TmaxDelta" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Минимальная температура -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Задание минимальной температуры" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="GroRecept_TempMin" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="GRO_Recept_Tmin"/>
+                                             Tag="GRO_Recept_Tmin" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Температура блокировки шнека -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Температура блокировки шнека" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="GroRecept_ScrewBlockTemp" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="GRO_Recept_A100BlockTemp"/>
+                                             Tag="GRO_Recept_A100BlockTemp" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Минимальная масса блокировки шнека -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Минимальная масса блокировки шнека" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="GroRecept_ScrewBlockMass" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="GRO_Recept_A100BlockWeith"/>
+                                             Tag="GRO_Recept_A100BlockWeith" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Номинальная скорость P-100 -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Номинальная скорость P-100" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P100_NominalSpeed" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P100_SpeedHi"/>
+                                             Tag="P100_SpeedHi" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Минимальная скорость P-100 -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Минимальная скорость P-100" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P100_MinSpeed" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P100_SpeedLow"/>
+                                             Tag="P100_SpeedLow" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Минимальная масса для P-100 -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Минимальная масса для P-100" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P100_MinMass" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P100_MinMass"/>
+                                             Tag="P100_MinMass" Height="30"/>
                                 </StackPanel>
                             </StackPanel>
 
@@ -249,7 +249,7 @@
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Время реверса P-700" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="Unload_ReverseTime" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="EM_Recept_ReverseTime"/>
+                                             Tag="EM_Recept_ReverseTime" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Кнопка редактирования -->
@@ -305,28 +305,28 @@
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Дизельное топливо" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="TcRecept_Diesel" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="TC_Recept_Disel"/>
+                                             Tag="TC_Recept_Disel" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Эмульгатор -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Эмульгатор" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="TcRecept_Emulsifier" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="TC_Recept_Emulgator"/>
+                                             Tag="TC_Recept_Emulgator" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Температура в T-200 -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Задание температуры в T-200" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="TcRecept_TempT200" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="TC_Recept_Temperature_T200"/>
+                                             Tag="TC_Recept_Temperature_T200" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Температура в T-250 -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Задание температуры в T-250" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="TcRecept_TempT250" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="TC_Recept_Temperature_T250"/>
+                                             Tag="TC_Recept_Temperature_T250" Height="30"/>
                                 </StackPanel>
                             </StackPanel>
 
@@ -349,42 +349,42 @@
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Подача раствора ГРО" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="EmRecept_Gro" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="EM_Recept_GRO"/>
+                                             Tag="EM_Recept_GRO" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Подача топливной смеси -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Подача топливной смеси" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="EmRecept_FuelMix" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="EM_Recept_Disel"/>
+                                             Tag="EM_Recept_Disel" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Масса топлива промывки -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Масса топлива промывки" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="EmRecept_WashFuelMass" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="EM_ReceptDiaeslLast"/>
+                                             Tag="EM_ReceptDiaeslLast" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Масса затравки -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Масса затравки" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="EmRecept_PrimerMass" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="EM_ReceptZatravkaMass"/>
+                                             Tag="EM_ReceptZatravkaMass" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Время затравки -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Время затравки" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="EmRecept_PrimerTime" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="EM_ReceptZatravkaTime"/>
+                                             Tag="EM_ReceptZatravkaTime" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Рабочий уровень в T-650 -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Рабочий уровень в T-650" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="EmRecept_T650Level" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="EM_ReceptWorkLevel"/>
+                                             Tag="EM_ReceptWorkLevel" Height="30"/>
                                 </StackPanel>
                             </StackPanel>
 
@@ -411,28 +411,28 @@
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Коэффициент P" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P601_PID_P" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P601_PID_P"/>
+                                             Tag="P601_PID_P" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Коэффициент I -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Коэффициент I" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P601_PID_I" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P601_PID_I"/>
+                                             Tag="P601_PID_I" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Коэффициент D -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Коэффициент D" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P601_PID_D" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P601_PID_D"/>
+                                             Tag="P601_PID_D" Height="30" />
                                 </StackPanel>
 
                                 <!-- Коэффициент T -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Коэффициент T" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P601_PID_T" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P601_PID_T"/>
+                                             Tag="P601_PID_T" Height="30"/>
                                 </StackPanel>
                             </StackPanel>
 
@@ -462,28 +462,28 @@
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Коэффициент P" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P602_PID_P" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P602_PID_P"/>
+                                             Tag="P602_PID_P" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Коэффициент I -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Коэффициент I" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P602_PID_I" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P602_PID_I"/>
+                                             Tag="P602_PID_I" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Коэффициент D -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Коэффициент D" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P602_PID_D" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P602_PID_D"/>
+                                             Tag="P602_PID_D" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Коэффициент T -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Коэффициент T" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P602_PID_T" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P602_PID_T"/>
+                                             Tag="P602_PID_T" Height="30"/>
                                 </StackPanel>
                             </StackPanel>
 
@@ -512,28 +512,28 @@
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Коэффициент P" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P651_PID_P" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P651_PID_P"/>
+                                             Tag="P651_PID_P" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Коэффициент I -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Коэффициент I" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P651_PID_I" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P651_PID_I"/>
+                                             Tag="P651_PID_I" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Коэффициент D -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Коэффициент D" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P651_PID_D" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P651_PID_D"/>
+                                             Tag="P651_PID_D" Height="30"/>
                                 </StackPanel>
 
                                 <!-- Коэффициент T -->
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="Коэффициент T" Style="{StaticResource ParameterLabelStyle}" Width="200"/>
                                     <TextBox x:Name="P651_PID_T" Style="{StaticResource ParameterValueStyle}"
-                                             Tag="P651_PID_T"/>
+                                             Tag="P651_PID_T" Height="30"/>
                                 </StackPanel>
                             </StackPanel>
 
