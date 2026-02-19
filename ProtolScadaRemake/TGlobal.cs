@@ -22,7 +22,7 @@ namespace ProtolScadaRemake
         public DateTime PassTime;
 
         // Настройки Modbus
-        public string Plc_IpAddress = "127.0.0.1";
+        public string Plc_IpAddress = "192.168.88.64";
         public int Plc_PortNum = 502;
         public int Plc_DeviceAddress = 1;
 
@@ -36,7 +36,6 @@ namespace ProtolScadaRemake
         // Менеджеры
         private DBUtils _dbUtils;
         private DatabaseTrendManager _trendManager;
-        private ModbusManager _modbusManager;
         private System.Timers.Timer _updateTimer;
 
         // События
@@ -75,43 +74,11 @@ namespace ProtolScadaRemake
             Trends = new TTrendList();
             _trendManager = new DatabaseTrendManager(_dbUtils);
 
-            // Создаем ModbusManager
-            _modbusManager = new ModbusManager(this, Plc_IpAddress, Plc_PortNum);
-
-            // Подписываемся на события ModbusManager
-            SubscribeToModbusEvents();
-
             // Инициализируем таймер обновления
             InitializeUpdateTimer();
 
             // Инициализируем тренды из БД в фоне
             _ = InitializeTrendsFromDatabaseAsync();
-        }
-
-        private void SubscribeToModbusEvents()
-        {
-            _modbusManager.OnStatusChanged += (message) =>
-            {
-                OnModbusStatusChanged?.Invoke(this, message);
-                Log.Add("Modbus", message, 0);
-            };
-
-            _modbusManager.OnConnectionStateChanged += (isConnected) =>
-            {
-                OnModbusConnectionChanged?.Invoke(this, isConnected);
-                Log.Add("Modbus", isConnected ? "Соединение установлено" : "Соединение разорвано", isConnected ? (short)0 : (short)2);
-            };
-
-            _modbusManager.OnCommandExecuted += (sender, message) =>
-            {
-                OnCommandExecuted?.Invoke(sender, message);
-            };
-
-            _modbusManager.OnRegisterValueChanged += (address, value) =>
-            {
-                // Автоматическое обновление переменных при изменении регистров
-                UpdateVariablesFromModbus(address, value);
-            };
         }
 
         private void InitializeUpdateTimer()
@@ -146,34 +113,6 @@ namespace ProtolScadaRemake
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка инициализации трендов из БД: {ex.Message}");
-            }
-        }
-
-        // Методы управления Modbus
-        public async Task<bool> InitializeModbusAsync()
-        {
-            try
-            {
-                bool success = await _modbusManager.InitializeAsync();
-
-                if (success)
-                {
-                    // Настраиваем команды для работы с ModbusManager
-                    foreach (var command in Commands.Items)
-                    {
-                        command.SetModbusManager(_modbusManager);
-                    }
-
-                    // Запускаем таймер обновления
-                    StartUpdateTimer();
-                }
-
-                return success;
-            }
-            catch (Exception ex)
-            {
-                Log.Add("Ошибка", $"Ошибка инициализации Modbus: {ex.Message}", 2);
-                return false;
             }
         }
 
@@ -272,31 +211,10 @@ namespace ProtolScadaRemake
             }
         }
 
-        // Методы работы с Modbus
-        public bool WriteToModbus(string tagName, ushort value)
-        {
-            return _modbusManager?.WriteToModbus(tagName, value) ?? false;
-        }
-
-        public bool WriteToRegister(byte unitId, ushort address, ushort value, string description = "")
-        {
-            return _modbusManager?.WriteToRegister(unitId, address, value, description) ?? false;
-        }
-
-        public bool ProcessModeCommand(byte unitId, ushort registerAddress, ushort value, string description)
-        {
-            return _modbusManager?.ProcessModeCommand(unitId, registerAddress, value, description) ?? false;
-        }
-
         // Утилитарные методы
         public DBUtils GetDbUtils()
         {
             return _dbUtils;
-        }
-
-        public ModbusManager GetModbusManager()
-        {
-            return _modbusManager;
         }
 
         public DatabaseTrendManager GetTrendManager()
@@ -307,7 +225,6 @@ namespace ProtolScadaRemake
         public void DisconnectAll()
         {
             StopUpdateTimer();
-            _modbusManager?.Disconnect();
         }
 
         public void Clear()

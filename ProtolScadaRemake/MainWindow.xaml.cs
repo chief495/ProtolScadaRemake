@@ -25,13 +25,10 @@ namespace ProtolScadaRemake
 
         private DBUtils _dbUtils;
         private DispatcherTimer _logSyncTimer;
-        private ModbusManager _modbusManager;
         private DispatcherTimer _updateTimer;
-        private ModbusController _modbusController;
         private bool _modbusInitialized = false;
         private Button _activeNavigationButton;
 
-        TWordsArea HR_0000 = new TWordsArea("127.0.0.1", 502, 1, 0x0000, 0x60);
         // Объявление потоков
         private Thread ReadDeviceDataThread;
         private Thread WriteDeviceDataThread;
@@ -41,6 +38,10 @@ namespace ProtolScadaRemake
         private Thread ReadVariablesThread;
 
         private FrameProductStatistics _productStatistics;
+
+        // Добавляем таймер для обновления UI
+        private DispatcherTimer _uiUpdateTimer;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -49,13 +50,11 @@ namespace ProtolScadaRemake
             _global = new TGlobal();
             Debug.WriteLine("TGlobal создан");
 
-            // Используйте DBUtils из _global, а не создавайте новый с другим паролем!
+            // Используйте DBUtils из _global
             _dbUtils = _global.GetDbUtils();
             Debug.WriteLine("DBUtils получен");
 
             ModbusInitializer.InitializeAllVariables(_global);
-            // Инициализация Modbus (без блокировки UI)
-            //InitializeModbusAsync();
 
             StartUpdateTimer();
 
@@ -63,12 +62,6 @@ namespace ProtolScadaRemake
             _logSyncTimer.Interval = TimeSpan.FromSeconds(30);
             _logSyncTimer.Tick += async (s, e) => await SyncLogsWithDatabaseAsync();
             _logSyncTimer.Start();
-
-            // Добавление тестовых записей в журнал
-            _global.Log.Add("Система", "Приложение запущено", 0);
-            _global.Log.Add("Пользователь", "Пользователь вошел в систему", 1);
-            _global.Log.Add("Предупреждение", "Низкий уровень бака", 2);
-            _global.Log.Add("Событие", "Запуск процесса перемешивания", 3);
 
             // Таймер для времени
             timer = new DispatcherTimer();
@@ -79,8 +72,10 @@ namespace ProtolScadaRemake
             // Таймер для добавления тестовых записей
             _logTestTimer = new DispatcherTimer();
             _logTestTimer.Interval = TimeSpan.FromSeconds(5);
-            //_logTestTimer.Tick += LogTestTimer_Tick;
             _logTestTimer.Start();
+
+            // Запускаем таймер обновления UI (как RepaintTimer в старом проекте)
+            StartUiUpdateTimer();
 
             // Инициализация кнопок
             InitializeButtons();
@@ -89,185 +84,123 @@ namespace ProtolScadaRemake
             ShowMainPage();
         }
 
-        //private async void InitializeModbusAsync()
-        //{
-        //    try
-        //    {
-        //        Debug.WriteLine("Инициализация Modbus...");
+        private void StartUiUpdateTimer()
+        {
+            _uiUpdateTimer = new DispatcherTimer();
+            _uiUpdateTimer.Interval = TimeSpan.FromMilliseconds(500); // Как в старом проекте
+            _uiUpdateTimer.Tick += UiUpdateTimer_Tick;
+            _uiUpdateTimer.Start();
+        }
 
-        //        // Создаем ModbusController для прямого доступа
-        //        _modbusController = new ModbusController("127.0.0.1", 502, 1);
-        //        Debug.WriteLine("ModbusController создан");
+        private void UiUpdateTimer_Tick(object sender, EventArgs e)
+        {
+            // Обновляем счетчик аварий
+            UpdateFaultCounter();
 
-        //        // Настройка обработчиков событий
-        //        _modbusController.OnStatusChanged += (message) =>
-        //        {
-        //            Dispatcher.Invoke(() =>
-        //            {
-        //                Debug.WriteLine($"Modbus статус: {message}");
-        //            });
-        //        };
-
-        //        _modbusController.OnConnectionStateChanged += (isConnected) =>
-        //        {
-        //            Dispatcher.Invoke(() =>
-        //            {
-        //                Debug.WriteLine($"Modbus соединение: {(isConnected ? "Установлено" : "Разорвано")}");
-        //                UpdateConnectionStatus(isConnected);
-        //            });
-        //        };
-
-        //        _modbusController.OnRegisterValueChanged += (address, value) =>
-        //        {
-        //            Dispatcher.Invoke(() =>
-        //            {
-        //                Debug.WriteLine($"Регистр {address} = {value}");
-        //                UpdateVariableFromRegister(address, value);
-        //            });
-        //        };
-
-        //        // Пробуем подключиться в фоне с задержкой
-        //        _ = Task.Run(async () =>
-        //        {
-        //            await Task.Delay(3000);
-        //            try
-        //            {
-        //                bool connected = await _modbusController.ConnectAsync();
-        //                if (connected)
-        //                {
-        //                    Debug.WriteLine("Modbus подключен успешно");
-
-        //                    // Запускаем опрос регистров конвейера (0-3)
-        //                    ushort[] registersToPoll = { 0, 1, 2, 3 };
-        //                    _modbusController.StartPolling(registersToPoll);
-        //                    Debug.WriteLine("Опрос регистров запущен");
-        //                }
-        //                else
-        //                {
-        //                    Debug.WriteLine("Не удалось подключиться к Modbus серверу");
-        //                }
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                Debug.WriteLine($"Ошибка подключения Modbus: {ex.Message}");
-        //            }
-        //        });
-
-        //        // Также создаем ModbusManager для расширенной функциональности
-        //        _modbusManager = new ModbusManager(_global);
-        //        Debug.WriteLine("ModbusManager создан");
-
-        //        _modbusInitialized = true;
-        //        Debug.WriteLine("Modbus инициализация завершена");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Debug.WriteLine($"Ошибка инициализации Modbus: {ex.Message}");
-        //        _modbusInitialized = false;
-        //    }
-        //}
-
-        //private void UpdateVariableFromRegister(ushort address, ushort value)
-        //{
-        //    switch (address)
-        //    {
-        //        case 0:
-        //            UpdateVariable("CONVEYOR_STATUS", value);
-        //            break;
-        //        case 1:
-        //            UpdateVariable("CONVEYOR_SPEED", value);
-        //            break;
-        //        case 2:
-        //            UpdateVariable("ITEM_COUNT", value);
-        //            break;
-        //        case 3:
-        //            UpdateVariable("EMERGENCY_STOP", value);
-        //            break;
-        //    }
-        //}
-
-        //private void UpdateVariable(string tagName, ushort value)
-        //{
-        //    try
-        //    {
-        //        var variable = _global.Variables.GetByName(tagName);
-        //        if (variable != null)
-        //        {
-        //            variable.ValueReal = value;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Debug.WriteLine($"Ошибка обновления переменной {tagName}: {ex.Message}");
-        //    }
-        //}
+            // Обновляем качество связи с контроллером
+            UpdateControllerConnectionQuality();
+        }
 
         private void StartUpdateTimer()
         {
             _updateTimer = new DispatcherTimer();
             _updateTimer.Interval = TimeSpan.FromSeconds(2);
-            _updateTimer.Tick += UpdateTimer_Tick;
             _updateTimer.Start();
         }
 
-        private void UpdateTimer_Tick(object sender, EventArgs e)
-        {
-            bool isConnected = _modbusController?.IsConnected ?? false;
-            UpdateConnectionStatus(isConnected);
-            UpdateFaultCounter();
-        }
-
-        private void UpdateConnectionStatus(bool isConnected)
+        // Метод для обновления качества связи с контроллером (как в старом проекте)
+        private void UpdateControllerConnectionQuality()
         {
             try
             {
-                Dispatcher.Invoke(() =>
+                var areas = ModbusInitializer.GetModbusAreas();
+
+                if (areas == null || areas.Count == 0)
+                    return;
+
+                // Суммируем FaultsCount всех областей (как в старом проекте)
+                float totalFaults = 0;
+                int areaCount = 0;
+
+                foreach (var area in areas)
                 {
-                    if (ControllerConnectionQualityLabel != null)
+                    if (area != null)
                     {
-                        if (isConnected)
-                        {
-                            ControllerConnectionQualityLabel.Text = "✓ Связь установлена";
-                        }
-                        else
-                        {
-                            ControllerConnectionQualityLabel.Text = "✗ Связь отсутствует";
-                        }
+                        totalFaults += area.FaultsCount;
+                        areaCount++;
                     }
-                });
+                }
+
+                // Формула из старого проекта: F = F / 23; F = (2 - F) * 50;
+                // В старом проекте было 23 области
+                if (areaCount > 0)
+                {
+                    float quality = totalFaults / areaCount; // Вместо деления на 23, делим на реальное количество областей
+                    quality = (2 - quality) * 50;
+
+                    // Ограничиваем значение от 0 до 100
+                    quality = Math.Max(0, Math.Min(100, quality));
+
+                    Dispatcher.Invoke(() =>
+                    {
+                        if (ControllerConnectionQualityLabel != null)
+                        {
+                            ControllerConnectionQualityLabel.Text = $"{quality:F0}%";
+                        }
+                    });
+                }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Ошибка обновления статуса: {ex.Message}");
+                Debug.WriteLine($"Ошибка обновления качества связи: {ex.Message}");
             }
         }
 
+        // Метод для обновления счетчика аварий
         private void UpdateFaultCounter()
         {
             try
             {
-                if (_modbusController?.IsConnected == true)
+                // Получаем список областей из ModbusInitializer
+                var areas = ModbusInitializer.GetModbusAreas();
+
+                if (areas == null || areas.Count == 0)
+                    return;
+
+                // Суммируем FaultsCount всех областей
+                float totalFaults = 0;
+
+                foreach (var area in areas)
                 {
-                    var emergencyStopValue = _modbusController.GetRegisterValue(3);
-
-                    Dispatcher.Invoke(() =>
+                    if (area != null)
                     {
-                        if (FaultCounterLabel != null)
-                        {
-                            FaultCounterLabel.Text = emergencyStopValue.ToString();
+                        totalFaults += area.FaultsCount;
+                    }
+                }
 
-                            if (emergencyStopValue > 0)
+                // Обновляем текст счетчика в UI
+                Dispatcher.Invoke(() =>
+                {
+                    if (FaultCounterLabel != null)
+                    {
+                        FaultCounterLabel.Text = totalFaults.ToString();
+
+                        // Опционально: меняем цвет в зависимости от количества аварий
+                        if (FaultCounterLabel.Parent is Border border)
+                        {
+                            if (totalFaults > 0)
                             {
-                                FaultCounterLabel.Foreground = Brushes.White;
-                                var border = FaultCounterLabel.Parent as Border;
-                                if (border != null)
-                                {
-                                    border.Background = Brushes.Red;
-                                }
+                                // Если есть аварии - красный фон
+                                border.Background = new SolidColorBrush(Colors.Red);
+                            }
+                            else
+                            {
+                                // Если аварий нет - зеленый фон
+                                border.Background = new SolidColorBrush(Colors.Green);
                             }
                         }
-                    });
-                }
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -282,8 +215,7 @@ namespace ProtolScadaRemake
                 _updateTimer?.Stop();
                 _logTestTimer?.Stop();
                 _logSyncTimer?.Stop();
-                _modbusManager?.Disconnect();
-                _modbusController?.Disconnect();
+                _uiUpdateTimer?.Stop();
 
                 // Остановить таймер панели статистики
                 _productStatistics?.StopTimer();
@@ -349,19 +281,6 @@ namespace ProtolScadaRemake
             }
         }
 
-        //private void LogTestTimer_Tick(object sender, EventArgs e)
-        //{
-        //    string[] groups = { "Система", "Пользователь", "Оборудование", "Рецептура" };
-        //    string[] messages = { "Автоматическое обновление данных", "Проверка связи с оборудованием" };
-
-        //    Random rnd = new Random();
-        //    string group = groups[rnd.Next(groups.Length)];
-        //    string message = $"{messages[rnd.Next(messages.Length)]} - {DateTime.Now:HH:mm:ss}";
-        //    short imageIndex = (short)rnd.Next(0, 4);
-
-        //    _ = AddLogAsync(group, message, imageIndex);
-        //}
-
         private void Timer_Tick(object sender, EventArgs e)
         {
             TimeLabel.Text = DateTime.Now.ToString("HH:mm:ss");
@@ -389,7 +308,7 @@ namespace ProtolScadaRemake
                 if (_ReceptPage == null)
                 {
                     _ReceptPage = new FrameReceptPage();
-                    _ReceptPage.Global = _global; // Передаем глобальный объект
+                    _ReceptPage.Global = _global;
                 }
 
                 ContentGrid.Children.Add(_ReceptPage);
@@ -455,8 +374,8 @@ namespace ProtolScadaRemake
 
                 if (_emPage == null)
                 {
-                    _emPage = new FrameEmPage(); // Убрать параметр
-                    _emPage.Initialize(_global); // Использовать метод Initialize
+                    _emPage = new FrameEmPage();
+                    _emPage.Initialize(_global);
                 }
 
                 ContentGrid.Children.Add(_emPage);
@@ -548,8 +467,6 @@ namespace ProtolScadaRemake
             }
             else
             {
-                // Если панель уже существует, создаем новый экземпляр
-                // Или удаляем из предыдущего родителя
                 if (_productStatistics.Parent != null)
                 {
                     var parent = _productStatistics.Parent as Panel;
@@ -557,44 +474,10 @@ namespace ProtolScadaRemake
                 }
             }
 
-            // Добавляем панель статистики напрямую в ContentGrid
             ContentGrid.Children.Add(_productStatistics);
-
-            // Центрируем панель (как в WinForms коде)
             _productStatistics.HorizontalAlignment = HorizontalAlignment.Center;
             _productStatistics.VerticalAlignment = VerticalAlignment.Center;
         }
-
-        //private void ShowPage(string pageName)
-        //{
-        //    ContentGrid.Children.Clear();
-        //    TitleLabel.Text = pageName.ToUpper();
-
-        //    Button? activeButton = pageName switch
-        //    {
-        //        "ГГД" => GgdPageButton,
-        //        "ГРО" => GroPageButton,
-        //        "ТС" => TcPageButton,
-        //        "Рецептура" => ReceptPageButton,
-        //        "Журнал" => LogPageButton,
-        //        _ => null
-        //    };
-
-        //    if (activeButton != null)
-        //        SetActiveButton(activeButton);
-
-        //    var textBlock = new TextBlock
-        //    {
-        //        Text = $"{pageName.ToUpper()}\n\nСтраница в разработке",
-        //        HorizontalAlignment = HorizontalAlignment.Center,
-        //        VerticalAlignment = VerticalAlignment.Center,
-        //        FontSize = 24,
-        //        FontWeight = FontWeights.Bold,
-        //        TextAlignment = TextAlignment.Center,
-        //        Foreground = Brushes.Gray
-        //    };
-        //    ContentGrid.Children.Add(textBlock);
-        //}
 
         private void ShowError(string message)
         {
@@ -618,9 +501,9 @@ namespace ProtolScadaRemake
             try
             {
                 var buttons = new[] {
-                MainPageButton, GgdPageButton, GroPageButton,
-                TcPageButton, EmPageButton, ReceptPageButton,
-                LogPageButton, TrendsButton
+                    MainPageButton, GgdPageButton, GroPageButton,
+                    TcPageButton, EmPageButton, ReceptPageButton,
+                    LogPageButton, TrendsButton
                 };
 
                 _activeNavigationButton = activeButton;
@@ -629,7 +512,6 @@ namespace ProtolScadaRemake
                 {
                     if (button != null)
                     {
-                        // Для кнопок с Template установим Tag
                         button.Tag = button == activeButton ? "Active" : "Normal";
                     }
                 }

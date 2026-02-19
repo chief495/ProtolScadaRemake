@@ -18,14 +18,7 @@ namespace ProtolScadaRemake
         public bool NeedToWrite = false;
         public string WriteValue = "";
 
-        private ModbusManager _modbusManager;
-
         public TCommandTag() { }
-
-        public void SetModbusManager(ModbusManager manager)
-        {
-            _modbusManager = manager;
-        }
 
         public void SetLocate(int NewAddress)
         {
@@ -67,56 +60,64 @@ namespace ProtolScadaRemake
 
         public void SendToController()
         {
-            if (NeedToWrite && _modbusManager != null)
+            TcpClient client;
+            bool[] BB = new bool[1];
+            if (NeedToWrite)
             {
-                try
+                switch (Type)
                 {
-                    ushort value = 0;
-
-                    switch (Type)
-                    {
-                        case "Bool":
-                            value = (ushort)(WriteValue.ToLower() == "true" ? 1 : 0);
-                            break;
-                        case "Int_16":
-                            value = ushort.Parse(WriteValue);
-                            break;
-                        case "Float_32":
-                            // Для Float нужно 2 регистра
-                            float floatValue = float.Parse(WriteValue);
-                            byte[] bytes = BitConverter.GetBytes(floatValue);
-                            ushort[] registers = new ushort[2];
-                            registers[0] = (ushort)((bytes[1] << 8) | bytes[0]);
-                            registers[1] = (ushort)((bytes[3] << 8) | bytes[2]);
-
-                            // Отправляем оба регистра
-                            for (int i = 0; i < 2; i++)
-                            {
-                                _modbusManager.WriteToRegister(
-                                    (byte)Plc_DeviceAddress,
-                                    (ushort)(Address + i),
-                                    registers[i],
-                                    $"{Description} (часть {i + 1})");
-                            }
+                    case "Bool":
+                        try
+                        {
+                            ushort[] W = new ushort[1];
+                            W[0] = 0;
+                            if (WriteValue == "true") W[0] = 1;
+                            client = new TcpClient();
+                            client.Connect(Plc_IpAddress, Plc_PortNum);
+                            var factory = new ModbusFactory();
+                            IModbusMaster master = factory.CreateMaster(client);
+                            master.WriteMultipleRegisters(Convert.ToByte(Plc_DeviceAddress), Convert.ToUInt16(Address), W);
+                            client.Close();
                             NeedToWrite = false;
-                            return;
-                    }
+                        }
+                        catch { }
+                        break;
+                    case "Float_32":
+                        try
+                        {
+                            float D = Convert.ToSingle(WriteValue);
+                            byte[] HR = new byte[8];
+                            ushort[] HR2 = new ushort[2];
+                            BitConverter.GetBytes(D).CopyTo(HR, 0);
+                            HR2[0] = Convert.ToUInt16(HR[1] * 256 + HR[0]);
+                            HR2[1] = Convert.ToUInt16(HR[3] * 256 + HR[2]);
+                            client = new TcpClient();
+                            client.Connect(Plc_IpAddress, Plc_PortNum);
+                            var factory = new ModbusFactory();
+                            IModbusMaster master = factory.CreateMaster(client);
+                            master.WriteMultipleRegisters(Convert.ToByte(Plc_DeviceAddress), Convert.ToUInt16(Address), HR2);
+                            client.Close();
+                            NeedToWrite = false;
+                        }
+                        catch { }
+                        break;
+                    case "Int_16":
+                        try
+                        {
+                            Int16 I16 = Convert.ToInt16(WriteValue);
+                            client = new TcpClient();
+                            client.Connect(Plc_IpAddress, Plc_PortNum);
+                            var factory = new ModbusFactory();
+                            IModbusMaster master = factory.CreateMaster(client);
+                            master.WriteSingleRegister(Convert.ToByte(Plc_DeviceAddress), Convert.ToUInt16(Address), (ushort)I16);
+                            client.Close();
+                            NeedToWrite = false;
+                        }
+                        catch { }
+                        break;
 
-                    // Отправляем команду через ModbusManager
-                    bool success = _modbusManager.WriteToRegister(
-                        (byte)Plc_DeviceAddress,
-                        (ushort)Address,
-                        value,
-                        Description);
 
-                    if (success)
-                    {
-                        NeedToWrite = false;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Ошибка отправки команды {Name}: {ex.Message}");
+
                 }
             }
         }

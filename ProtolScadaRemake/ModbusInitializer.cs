@@ -1,11 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace ProtolScadaRemake
 {
     public static class ModbusInitializer
     {
+        // Области памяти Modbus (как в старом проекте)
+        public static TWordsArea HR_0000 { get; private set; }
+        public static TWordsArea HR_0060 { get; private set; }
+        public static TWordsArea HR_00C0 { get; private set; }
+        public static TWordsArea HR_0120 { get; private set; }
+        public static TWordsArea HR_0180 { get; private set; }
+        public static TWordsArea HR_01C0 { get; private set; }
+        public static TWordsArea HR_0240 { get; private set; }
+        public static TWordsArea HR_02A0 { get; private set; }
+        public static TWordsArea HR_0300 { get; private set; }
+        public static TWordsArea HR_0360 { get; private set; }
+        public static TWordsArea HR_03C0 { get; private set; }
+        public static TWordsArea HR_0420 { get; private set; }
+        public static TWordsArea HR_0480 { get; private set; }
+        public static TWordsArea HR_04E0 { get; private set; }
+        public static TWordsArea HR_0540 { get; private set; }
+        public static TWordsArea HR_05A0 { get; private set; }
+        public static TWordsArea HR_0620 { get; private set; }
+        public static TWordsArea HR_0680 { get; private set; }
+        public static TWordsArea HR_06F0 { get; private set; }
+        public static TWordsArea HR_0750 { get; private set; }
+        public static TWordsArea HR_07B0 { get; private set; }
+        public static TWordsArea HR_0810 { get; private set; }
+        public static TWordsArea HR_0870 { get; private set; }
+        public static TWordsArea HR_08D0 { get; private set; }
+
+        // Потоки для работы с Modbus
+        private static Thread ReadDeviceDataThread;
+        private static Thread WriteDeviceDataThread;
+        private static Thread ReadVariablesThread;
+
+        // Флаг для остановки потоков
+        private static bool _isRunning = false;
+
+        // Список областей для доступа из других классов
+        private static List<TWordsArea> _modbusAreas = new List<TWordsArea>();
+
         // Создает ВСЕ переменные Modbus, которые нужны вашим WPF элементам
         public static void InitializeAllVariables(TGlobal global)
         {
@@ -13,60 +51,66 @@ namespace ProtolScadaRemake
             {
                 Debug.WriteLine("=== ИНИЦИАЛИЗАЦИЯ MODBUS ДЛЯ WPF ЭЛЕМЕНТОВ ===");
 
-                // Настройки Modbus (из вашего старого проекта)
-                global.Plc_IpAddress = "192.168.100.5";
+                // Настройки Modbus
+                global.Plc_IpAddress = "192.168.88.64";
                 global.Plc_PortNum = 502;
                 global.Plc_DeviceAddress = 1;
 
-                // Группа 0x01 - 0x18 для разных систем (как в старом проекте)
+                // Очистка списков перед инициализацией
+                global.Clear();
 
-                // 1. Системные переменные и счетчики (Группа 0x12)
+                // ИНИЦИАЛИЗАЦИЯ ОБЛАСТЕЙ ПАМЯТИ
+                InitializeMemoryAreas(global);
+
+                // 1. Системные переменные и счетчики
                 InitializeSystemVariables(global);
 
-                // 2. Датчики T-400 (ГГД система)
+                // 2. Ёмкость T-400
                 InitializeT400Sensors(global);
 
-                // 3. Датчики T-500 (ГГД система)  
+                // 3. Ёмкость T-500
                 InitializeT500Sensors(global);
 
-                // 4. Датчики T-100, T-150, T-200, T-700
+                // 4. Ёмкости T-100, T-150, T-200, T-700
                 InitializeT100T150T200T700Sensors(global);
 
-                // 5. Датчики давления PT
-                InitializePTSensors(global);
+                // 5. Давление PT
+                //InitializePTSensors(global);
 
-                // 6. Датчики температуры TT
-                InitializeTTSensors(global);
+                //// 6. Температура TT
+                //InitializeTTSensors(global);
 
-                // 7. Датчики уровня LT
-                InitializeLTSensors(global);
+                //// 7. Уровень LT
+                //InitializeLTSensors(global);
 
-                // 8. Дискретные датчики уровня LAHH/LALL
-                InitializeDiscreteLevelSensors(global);
+                //// 8. Дискретные датчики уровня
+                //InitializeDiscreteLevelSensors(global);
 
-                // 9. Клапаны V
-                InitializeValves(global);
+                //// 9. Клапаны V
+                //InitializeValves(global);
 
-                // 10. Миксеры M
-                InitializeMixers(global);
+                //// 10. Миксеры M
+                //InitializeMixers(global);
 
-                // 11. Насосы P
-                InitializePumps(global);
+                //// 11. Насосы P
+                //InitializePumps(global);
 
-                // 12. Счетчики QM, расходомеры FM
-                InitializeCountersAndFlowMeters(global);
+                //// 12. Счетчики и расходомеры
+                //InitializeCountersAndFlowMeters(global);
 
-                // 13. Нагреватели HE
-                InitializeHeaters(global);
+                //// 13. Нагреватели HE
+                //InitializeHeaters(global);
 
                 // 14. Шнек A100
                 InitializeA100Screw(global);
 
-                // 15. Эмульсификатор M600
-                InitializeM600Emulsifier(global);
+                // 15. Насосы с управлением и эмульсификатор
+                //InitializePumpsWithControl(global);
 
-                // 16. Рецепты ГРО, ТС, ЭМ
-                InitializeRecipes(global);
+                // 16. Рецепты
+                InitializeGroRecipe(global);
+                InitializeTcRecipe(global);
+                InitializeEmRecipe(global);
 
                 // 17. PID регуляторы
                 InitializePIDControllers(global);
@@ -77,8 +121,10 @@ namespace ProtolScadaRemake
                 // 19. Дополнительные переменные
                 InitializeAdditionalVariables(global);
 
-                Debug.WriteLine($"=== СОЗДАНО ВСЕГО ПЕРЕМЕННЫХ: {GetVariableCount(global.Variables)} ===");
-                Debug.WriteLine($"=== СОЗДАНО ВСЕГО КОМАНД: {GetCommandCount(global.Commands)} ===");
+                // 20. Создание элементов
+                InitializeElements(global);
+
+                Debug.WriteLine("=== ИНИЦИАЛИЗАЦИЯ MODBUS ЗАВЕРШЕНА ===");
             }
             catch (Exception ex)
             {
@@ -86,9 +132,200 @@ namespace ProtolScadaRemake
             }
         }
 
+        // Инициализация областей памяти Modbus
+        private static void InitializeMemoryAreas(TGlobal global)
+        {
+            HR_0000 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0000, 0x60);
+            HR_0060 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0060, 0x60);
+            HR_00C0 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x00C0, 0x60);
+            HR_0120 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0120, 0x60);
+            HR_0180 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0180, 0x60);
+            HR_01C0 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x01C0, 0x60);
+            HR_0240 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0240, 0x60);
+            HR_02A0 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x02A0, 0x60);
+            HR_0300 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0300, 0x60);
+            HR_0360 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0360, 0x60);
+            HR_03C0 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x03C0, 0x60);
+            HR_0420 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0420, 0x60);
+            HR_0480 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0480, 0x60);
+            HR_04E0 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x04E0, 0x60);
+            HR_0540 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0540, 0x60);
+            HR_05A0 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x05A0, 0x60);
+            HR_0620 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0620, 0x60);
+            HR_0680 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0680, 0x60);
+            HR_06F0 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x06F0, 0x60);
+            HR_0750 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0750, 0x60);
+            HR_07B0 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x07B0, 0x60);
+            HR_0810 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0810, 0x60);
+            HR_0870 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x0870, 0x60);
+            HR_08D0 = new TWordsArea(global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, 0x08D0, 0x60);
+
+            // Сохраняем области в списке для доступа
+            _modbusAreas.Clear();
+            _modbusAreas.AddRange(new TWordsArea[] {
+                HR_0000, HR_0060, HR_00C0, HR_0120, HR_0180, HR_01C0, HR_0240, HR_02A0,
+                HR_0300, HR_0360, HR_03C0, HR_0420, HR_0480, HR_04E0, HR_0540, HR_05A0,
+                HR_0620, HR_0680, HR_06F0, HR_0750, HR_07B0, HR_0810, HR_0870, HR_08D0
+            });
+        }
+
+        // Запуск потоков Modbus (ТОЛЬКО ОСНОВНЫЕ ПОТОКИ, без Fault, Trend и DB)
+        public static void StartModbusThreads(TGlobal global)
+        {
+            if (_isRunning) return;
+
+            _isRunning = true;
+
+            // Запуск потока чтения данных с устройств
+            ReadDeviceDataThread = new Thread(() => ReadDeviceDataThreadTask(global));
+            ReadDeviceDataThread.Name = "ProtolModbusReader";
+            ReadDeviceDataThread.IsBackground = true;
+            ReadDeviceDataThread.Start();
+
+            // Запуск потока записи данных на устройства
+            WriteDeviceDataThread = new Thread(() => WriteDeviceDataThreadTask(global));
+            WriteDeviceDataThread.Name = "ProtolModbusWriter";
+            WriteDeviceDataThread.IsBackground = true;
+            WriteDeviceDataThread.Start();
+
+            // Запуск потока чтения переменных из областей
+            ReadVariablesThread = new Thread(() => ReadVariablesThreadTask(global));
+            ReadVariablesThread.Name = "ProtolReadVariables";
+            ReadVariablesThread.IsBackground = true;
+            ReadVariablesThread.Start();
+
+            Debug.WriteLine("=== ОСНОВНЫЕ ПОТОКИ MODBUS ЗАПУЩЕНЫ ===");
+            Debug.WriteLine("ВНИМАНИЕ: Потоки Fault, Trend и DB не запущены - реализуйте их при необходимости");
+        }
+
+        // Остановка потоков Modbus
+        public static void StopModbusThreads()
+        {
+            _isRunning = false;
+
+            try
+            {
+                ReadDeviceDataThread?.Join(500);
+                WriteDeviceDataThread?.Join(500);
+                ReadVariablesThread?.Join(500);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка при остановке потоков: {ex.Message}");
+            }
+
+            Debug.WriteLine("=== ПОТОКИ MODBUS ОСТАНОВЛЕНЫ ===");
+        }
+
+        // Поток чтения данных из устройств
+        private static void ReadDeviceDataThreadTask(TGlobal global)
+        {
+            while (_isRunning)
+            {
+                try
+                {
+                    // Получение областей переменных
+                    HR_0000?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_0060?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_00C0?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_0120?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_0180?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_01C0?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_0240?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_02A0?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_0300?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_0360?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_03C0?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_0420?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_0480?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_04E0?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_0540?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_05A0?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_0620?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_0680?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_06F0?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_0750?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_07B0?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_0810?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_0870?.GetModbusTcpHoldingRegisters(global.Log);
+                    HR_08D0?.GetModbusTcpHoldingRegisters(global.Log);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Ошибка чтения Modbus: {ex.Message}");
+                }
+
+                Thread.Sleep(50);
+            }
+        }
+
+        // Поток записи данных на устройства
+        private static void WriteDeviceDataThreadTask(TGlobal global)
+        {
+            while (_isRunning)
+            {
+                try
+                {
+                    // Отправка команд
+                    global.Commands?.SendToController();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Ошибка записи Modbus: {ex.Message}");
+                }
+
+                Thread.Sleep(50);
+            }
+        }
+
+        // Поток чтения значений переменных из полученных областей
+        private static void ReadVariablesThreadTask(TGlobal global)
+        {
+            while (_isRunning)
+            {
+                try
+                {
+                    if (global.Variables == null) continue;
+
+                    // Чтение значений переменных из полученных областей
+                    global.Variables.ReadGroup(HR_0000?.Data, 0x01);
+                    global.Variables.ReadGroup(HR_0060?.Data, 0x02);
+                    global.Variables.ReadGroup(HR_00C0?.Data, 0x03);
+                    global.Variables.ReadGroup(HR_0120?.Data, 0x04);
+                    global.Variables.ReadGroup(HR_0180?.Data, 0x05);
+                    global.Variables.ReadGroup(HR_01C0?.Data, 0x06);
+                    global.Variables.ReadGroup(HR_0240?.Data, 0x07);
+                    global.Variables.ReadGroup(HR_02A0?.Data, 0x08);
+                    global.Variables.ReadGroup(HR_0300?.Data, 0x09);
+                    global.Variables.ReadGroup(HR_0360?.Data, 0x0A);
+                    global.Variables.ReadGroup(HR_03C0?.Data, 0x0B);
+                    global.Variables.ReadGroup(HR_0420?.Data, 0x0C);
+                    global.Variables.ReadGroup(HR_0480?.Data, 0x0D);
+                    global.Variables.ReadGroup(HR_04E0?.Data, 0x0E);
+                    global.Variables.ReadGroup(HR_0540?.Data, 0x0F);
+                    global.Variables.ReadGroup(HR_05A0?.Data, 0x10);
+                    global.Variables.ReadGroup(HR_0620?.Data, 0x11);
+                    global.Variables.ReadGroup(HR_0680?.Data, 0x12);
+                    global.Variables.ReadGroup(HR_06F0?.Data, 0x13);
+                    global.Variables.ReadGroup(HR_0750?.Data, 0x14);
+                    global.Variables.ReadGroup(HR_07B0?.Data, 0x15);
+                    global.Variables.ReadGroup(HR_0810?.Data, 0x16);
+                    global.Variables.ReadGroup(HR_0870?.Data, 0x17);
+                    global.Variables.ReadGroup(HR_08D0?.Data, 0x18);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Ошибка чтения переменных: {ex.Message}");
+                }
+
+                Thread.Sleep(50);
+            }
+        }
+
+        // ========== МЕТОДЫ ИНИЦИАЛИЗАЦИИ ПЕРЕМЕННЫХ ==========
+
         private static void InitializeSystemVariables(TGlobal global)
         {
-            // Счетчик продукции (как в старом проекте)
             global.Variables.Add("SmenaProductCounter_Reset", 0x12, 0x0020, 1,
                 "Bool", "", "Нет;Да", "", "Сброс счетчика продукции за смену");
             global.Commands.Add("SmenaProductCounter_Reset", global.Plc_IpAddress,
@@ -108,304 +345,8 @@ namespace ProtolScadaRemake
                 "Float_32", "", "##0.#", " кг.", "Общий счетчик продукции");
         }
 
-        private static void InitializeT100T150T200T700Sensors(TGlobal global)
-        {
-            // Ёмкость T-100
-            global.Variables.Add("T100_StartMixer", 0x13, 0x0030, 1,
-                "Bool", "", "Нет;Да", "", "Включить миксер Т100");
-            global.Commands.Add("T100_StartMixer", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                0x0720, "Bool", "Нет;Да", "Включить миксер Т100");
-
-            // Ёмкость T-150
-            global.Variables.Add("T150_StartMixer", 0x13, 0x0031, 1,
-                "Bool", "", "Нет;Да", "", "Включить миксер Т150");
-            global.Commands.Add("T150_StartMixer", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                0x0721, "Bool", "Нет;Да", "Включить миксер Т150");
-
-            // Тензодатчики
-            global.Variables.Add("WIT100_Volume", 0x13, 0x0032, 1,
-                "Float_32", "", "##0.#", " кг.", "Вес в ёмкости Т100");
-            global.Variables.Add("WIT200_Volume", 0x13, 0x0034, 1,
-                "Float_32", "", "##0.#", " кг.", "Вес в ёмкости Т200");
-            global.Variables.Add("WIT700_Volume", 0x13, 0x0036, 1,
-                "Float_32", "", "##0.#", " кг.", "Вес в ёмкости Т700");
-        }
-
-        private static void InitializePTSensors(TGlobal global)
-        {
-            // Датчики давления PT (все из старого проекта)
-            CreateAnalogSensor(global, "PT103", "Float_32", "бар", 0x01, 0x0000,
-                "Датчик давления PT103", 0x0000, 0x0018);
-            CreateAnalogSensor(global, "PT104", "Float_32", "бар", 0x01, 0x0020,
-                "Датчик давления PT104", 0x0020, 0x0038);
-            CreateAnalogSensor(global, "PT105", "Float_32", "бар", 0x01, 0x0040,
-                "Датчик давления PT105", 0x0040, 0x0058);
-            CreateAnalogSensor(global, "PT205", "Float_32", "бар", 0x02, 0x0080,
-                "Датчик давления PT205", 0x0020, 0x0038);
-            CreateAnalogSensor(global, "PT206", "Float_32", "бар", 0x02, 0x00A0,
-                "Датчик давления PT206", 0x0040, 0x0058);
-            CreateAnalogSensor(global, "PT304", "Float_32", "бар", 0x03, 0x00C0,
-                "Датчик давления PT304", 0x0000, 0x0018);
-            CreateAnalogSensor(global, "PT404", "Float_32", "бар", 0x03, 0x00E0,
-                "Датчик давления PT404", 0x0020, 0x0038);
-            CreateAnalogSensor(global, "PT504", "Float_32", "бар", 0x03, 0x0100,
-                "Датчик давления PT504", 0x0040, 0x0058);
-            CreateAnalogSensor(global, "PT601", "Float_32", "бар", 0x04, 0x0120,
-                "Датчик давления PT601", 0x0000, 0x0018);
-            CreateAnalogSensor(global, "PT606", "Float_32", "бар", 0x04, 0x0140,
-                "Датчик давления PT606", 0x0020, 0x0038);
-            CreateAnalogSensor(global, "PT652", "Float_32", "бар", 0x04, 0x0160,
-                "Датчик давления PT652", 0x0040, 0x0058);
-            CreateAnalogSensor(global, "PT900", "Float_32", "бар", 0x05, 0x0180,
-                "Датчик давления PT900", 0x0000, 0x0018);
-            CreateAnalogSensor(global, "PT201", "Float_32", "бар", 0x0A, 0x0380,
-                "Датчик давления PT201", 0x0020, 0x0038);
-            CreateAnalogSensor(global, "PT604", "Float_32", "бар", 0x16, 0x0830,
-                "Датчик давления PT604", 0x0020, 0x0038);
-        }
-
-        private static void InitializeTTSensors(TGlobal global)
-        {
-            // Датчики температуры TT
-            CreateAnalogSensor(global, "TT102", "Float_32", "°C", 0x05, 0x01A0,
-                "Датчик температуры TT102", 0x0020, 0x0038);
-            CreateAnalogSensor(global, "TT152", "Float_32", "°C", 0x05, 0x01C0,
-                "Датчик температуры TT152", 0x0040, 0x0058);
-            CreateAnalogSensor(global, "TT202", "Float_32", "°C", 0x06, 0x01E0,
-                "Датчик температуры TT202", 0x0000, 0x0018);
-            CreateAnalogSensor(global, "TT252", "Float_32", "°C", 0x06, 0x0200,
-                "Датчик температуры TT252", 0x0020, 0x0038);
-            CreateAnalogSensor(global, "TT302", "Float_32", "°C", 0x06, 0x0220,
-                "Датчик температуры TT302", 0x0040, 0x0058);
-            CreateAnalogSensor(global, "TT402", "Float_32", "°C", 0x07, 0x0240,
-                "Датчик температуры TT402", 0x0000, 0x0018);
-            CreateAnalogSensor(global, "TT502", "Float_32", "°C", 0x07, 0x0260,
-                "Датчик температуры TT502", 0x0020, 0x0038);
-            CreateAnalogSensor(global, "TT602", "Float_32", "°C", 0x07, 0x0280,
-                "Датчик температуры TT602", 0x0040, 0x0058);
-            CreateAnalogSensor(global, "TT604", "Float_32", "°C", 0x08, 0x02A0,
-                "Датчик температуры TT604", 0x0000, 0x0018);
-            CreateAnalogSensor(global, "TT106", "Float_32", "°C", 0x0A, 0x03A0,
-                "Датчик температуры TT106", 0x0040, 0x0058);
-        }
-
-        private static void InitializeLTSensors(TGlobal global)
-        {
-            // Датчики уровня LT
-            CreateAnalogSensor(global, "LT303", "Float_32", "%", 0x08, 0x02C0,
-                "Датчик уровня LT303", 0x0020, 0x0038);
-            CreateAnalogSensor(global, "LT150", "Float_32", "%", 0x08, 0x02E0,
-                "Датчик уровня LT150", 0x0040, 0x0058);
-            CreateAnalogSensor(global, "LT253", "Float_32", "%", 0x09, 0x0300,
-                "Датчик уровня LT253", 0x0000, 0x0018);
-            CreateAnalogSensor(global, "LT403", "Float_32", "%", 0x09, 0x0320,
-                "Датчик уровня LT403", 0x0020, 0x0038);
-            CreateAnalogSensor(global, "LT503", "Float_32", "%", 0x09, 0x0340,
-                "Датчик уровня LT503", 0x0040, 0x0058);
-            CreateAnalogSensor(global, "LT651", "Float_32", "%", 0x0A, 0x0360,
-                "Датчик уровня LT651", 0x0000, 0x0018);
-            CreateAnalogSensor(global, "LT301", "Float_32", "%", 0x11, 0x0650,
-                "Датчик уровня LT301", 0x0030, 0x0048);
-        }
-
-        private static void InitializeDiscreteLevelSensors(TGlobal global)
-        {
-            // Дискретные датчики уровня
-            CreateDiscreteSensor(global, "LAHH101", 0x0B, 0x03C0,
-                "Датчик уровня LAHH101", 0x0000, 0x0005);
-            CreateDiscreteSensor(global, "LALL103", 0x0B, 0x03C8,
-                "Датчик уровня LALL103", 0x0008, 0x000D);
-            CreateDiscreteSensor(global, "LAHH151", 0x0B, 0x03D0,
-                "Датчик уровня LAHH151", 0x0010, 0x0015);
-            CreateDiscreteSensor(global, "LALL153", 0x0B, 0x03D8,
-                "Датчик уровня LALL153", 0x0018, 0x001D);
-            CreateDiscreteSensor(global, "LAHH653", 0x0B, 0x03E0,
-                "Датчик уровня LAHH653", 0x0020, 0x0025);
-            CreateDiscreteSensor(global, "LAHH201", 0x0B, 0x03E8,
-                "Датчик уровня LAHH201", 0x0028, 0x002D);
-            CreateDiscreteSensor(global, "LAHH251", 0x0B, 0x03F0,
-                "Датчик уровня LAHH251", 0x0030, 0x0035);
-            CreateDiscreteSensor(global, "LAHH301", 0x0B, 0x03F8,
-                "Датчик уровня LAHH301", 0x0038, 0x003D);
-            CreateDiscreteSensor(global, "LAHH302", 0x0B, 0x0400,
-                "Датчик уровня LAHH302", 0x0040, 0x0045);
-            CreateDiscreteSensor(global, "LAHH401", 0x0B, 0x0408,
-                "Датчик уровня LAHH401", 0x0048, 0x004D);
-            CreateDiscreteSensor(global, "LAHH501", 0x0B, 0x0410,
-                "Датчик уровня LAHH501", 0x0050, 0x0055);
-        }
-
-        private static void InitializeValves(TGlobal global)
-        {
-            // Клапаны V
-            CreateValve(global, "V101", 0x0C, 0x0420,
-                "Клапан V101", 0x0000, 0x0008);
-            CreateValve(global, "V151", 0x0C, 0x0430,
-                "Клапан V151", 0x0010, 0x0018);
-            CreateValve(global, "V152", 0x0C, 0x0440,
-                "Клапан V152", 0x0020, 0x0028);
-            CreateValve(global, "V601", 0x0C, 0x0450,
-                "Клапан V601", 0x0030, 0x0038);
-            CreateValve(global, "V602", 0x0C, 0x0460,
-                "Клапан V602", 0x0040, 0x0048);
-            CreateValve(global, "V302", 0x0C, 0x0470,
-                "Клапан V302", 0x0050, 0x0058);
-            CreateValve(global, "V305", 0x0D, 0x0480,
-                "Клапан V305", 0x0000, 0x0008);
-            CreateValve(global, "V401", 0x0D, 0x0490,
-                "Клапан V401", 0x0010, 0x0018);
-            CreateValve(global, "V501", 0x0D, 0x04A0,
-                "Клапан V501", 0x0020, 0x0028);
-            CreateValve(global, "V801", 0x0D, 0x04B0,
-                "Клапан V801", 0x0030, 0x0038);
-            CreateValve(global, "V803", 0x0D, 0x04C0,
-                "Клапан V803", 0x0040, 0x0048);
-            CreateValve(global, "V505", 0x0D, 0x04D0,
-                "Клапан V505", 0x0050, 0x0058);
-        }
-
-        private static void InitializeMixers(TGlobal global)
-        {
-            // Миксеры M
-            CreateMixer(global, "M100", 0x0E, 0x04E0,
-                "Миксер M100", 0x0000, 0x0008);
-            CreateMixer(global, "M150", 0x0E, 0x04F0,
-                "Миксер M150", 0x0010, 0x0018);
-            CreateMixer(global, "M200", 0x0E, 0x0500,
-                "Миксер M200", 0x0020, 0x0028);
-            CreateMixer(global, "M250", 0x0E, 0x0510,
-                "Миксер M250", 0x0030, 0x0038);
-            CreateMixer(global, "M400", 0x0E, 0x0520,
-                "Миксер M400", 0x0040, 0x0048);
-            CreateMixer(global, "M500", 0x0E, 0x0530,
-                "Миксер M500", 0x0050, 0x0058);
-        }
-
-        private static void InitializePumps(TGlobal global)
-        {
-            // Насосы P (обычные)
-            CreatePump(global, "P200", 0x0F, 0x0540,
-                "Насос P200", 0x0000, 0x0008);
-            CreatePump(global, "P201", 0x0F, 0x0550,
-                "Насос P201", 0x0010, 0x0018);
-            CreatePump(global, "P202", 0x0F, 0x0560,
-                "Насос P202", 0x0020, 0x0028);
-            CreatePump(global, "P300", 0x0F, 0x0570,
-                "Насос P300", 0x0030, 0x0038);
-            CreatePump(global, "P500", 0x0F, 0x0580,
-                "Насос P500", 0x0040, 0x0048);
-
-            // Реверсивные насосы
-            CreatePumpReverse(global, "P700", 0x0F, 0x0590,
-                "Насос P700", 0x0050, 0x0058);
-
-            // Насосы с управлением
-            CreatePumpWithControl(global, "P100", 0x12, 0x0680,
-                "Насос P100", 0x0000, 0x0010);
-            CreatePumpWithControl(global, "P400", 0x12, 0x06B0,
-                "Насос P400", 0x0030, 0x0040);
-            CreatePumpWithControl(global, "P602", 0x15, 0x07B0,
-                "Насос P602", 0x0000, 0x0010);
-            CreatePumpWithControl(global, "P601", 0x15, 0x07D0,
-                "Насос P601", 0x0020, 0x0030);
-            CreatePumpWithControl(global, "P651", 0x16, 0x0810,
-                "Насос P651", 0x0000, 0x0010);
-        }
-
-        private static void InitializeCountersAndFlowMeters(TGlobal global)
-        {
-            // Счетчики
-            CreateCounter(global, "QM400", "Float_32", "л", 0x10, 0x05A0,
-                "Счетчик воды QM-400", 0x0000, 0x0008);
-            CreateCounter(global, "QM500", "Float_32", "л", 0x10, 0x05B0,
-                "Счетчик воды QM-500", 0x0010, 0x0018);
-
-            // Расходомеры
-            CreateAnalogSensor(global, "QM401", "Float_32", "кг/ч", 0x10, 0x05C0,
-                "Расходомер QM401", 0x0020, 0x0028);
-            CreateAnalogSensor(global, "FM601", "Float_32", "кг/ч", 0x10, 0x05D0,
-                "Расходомер FM601", 0x0030, 0x0040);
-            CreateAnalogSensor(global, "FM602", "Float_32", "кг/ч", 0x11, 0x0620,
-                "Расходомер FM602", 0x0000, 0x0010);
-            CreateAnalogSensor(global, "FM401", "Float_32", "кг/ч", 0x13, 0x06F0,
-                "Расходомер FM401", 0x0000, 0x0010);
-        }
-
-        private static void InitializeHeaters(TGlobal global)
-        {
-            // Нагреватели HE
-            CreateHeater(global, "HE300", 0x11, 0x0670,
-                "Нагреватель HE300", 0x0050, 0x0058);
-            CreateHeater(global, "HE700", 0x14, 0x0770,
-                "Нагреватель HE700.1", 0x0020, 0x0028);
-            CreateHeater(global, "HE750", 0x14, 0x0780,
-                "Нагреватель HE750", 0x0030, 0x0038);
-            CreateHeater(global, "HE800", 0x14, 0x0794,
-                "Нагреватель HE800", 0x0044, 0x004C);
-            CreateHeater(global, "HE700_2", 0x18, 0x08DE,
-                "Нагреватель HE700.2", 0x000E, 0x0016);
-
-            // Команды управления нагревателями
-            global.Variables.Add("HE300_StartHeater", 0x14, 0x0040, 1,
-                "Bool", "", "Нет;Да", "", "Включить нагреватель HE300");
-            global.Commands.Add("HE300_StartHeater", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                0x0790, "Bool", "Нет;Да", "Включить нагреватель HE300");
-
-            global.Variables.Add("HE750_StartHeater", 0x14, 0x0041, 1,
-                "Bool", "", "Нет;Да", "", "Включить нагреватель HE750");
-            global.Commands.Add("HE750_StartHeater", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                0x0791, "Bool", "Нет;Да", "Включить нагреватель HE750");
-
-            global.Variables.Add("HE800_StartHeater", 0x14, 0x0054, 1,
-                "Bool", "", "Нет;Да", "", "Включить нагреватель HE800");
-            global.Commands.Add("HE800_StartHeater", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                0x07A4, "Bool", "Нет;Да", "Включить нагреватель HE800");
-        }
-
-        private static void InitializeA100Screw(TGlobal global)
-        {
-            // A100 - Шнек
-            CreateAnalogSensor(global, "A100_Speed", "Float_32", "%", 0x14, 0x0750,
-                "Скорость шнека А-100", 0x0000, 0x0010);
-            global.Commands.Add("A100_Speed", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                0x0738, "Float_32", "##0.#", "Скорость шнека А-100");
-
-            // Дополнительные переменные для A100
-            global.Variables.Add("GRO_Recept_A100BlockTemp", 0x18, 0x0042, 1,
-                "Float_32", "", "##0", " °С", "Температура блокировки А-100");
-            global.Commands.Add("GRO_Recept_A100BlockTemp", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                0x0912, "Float_32", "##0.###", "Температура блокировки А-100");
-
-            global.Variables.Add("GRO_Recept_A100BlockWeith", 0x18, 0x0044, 1,
-                "Float_32", "", "##0", " кг.", "Масса блокировки А-100");
-            global.Commands.Add("GRO_Recept_A100BlockWeith", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                0x0914, "Float_32", "##0.###", "Масса блокировки А-100");
-        }
-
-        private static void InitializeM600Emulsifier(TGlobal global)
-        {
-            // Эмульсификатор M600
-            CreatePumpWithControl(global, "M600", 0x15, 0x07F0,
-                "Эмульсификатор M600", 0x0040, 0x0050);
-
-            global.Variables.Add("EM_M600_SpeedSp", 0x18, 0x0036, 1,
-                "Float_32", "", "##0", " %", "Скорость эмульсификатора М-600");
-            global.Commands.Add("EM_M600_SpeedSp", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                0x0906, "Float_32", "##0.###", "Скорость эмульсификатора М-600");
-        }
-
         private static void InitializeT400Sensors(TGlobal global)
         {
-            // Т-400 Управление
             global.Variables.Add("T400_StartMixer", 0x12, 0x0026, 1,
                 "Bool", "", "Нет;Да", "", "Включить миксер Т400");
             global.Commands.Add("T400_StartMixer", global.Plc_IpAddress,
@@ -429,29 +370,10 @@ namespace ProtolScadaRemake
             global.Commands.Add("T400_SpWater", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x06AA, "Float_32", "##0.#", "Объем наполнения Т400");
-
-            // Датчики T-400
-            CreateAnalogSensor(global, "TT402", "Float_32", "°C", 0x07, 0x0240,
-                "Датчик температуры TT402", 0x0000, 0x0018);
-            CreateAnalogSensor(global, "LT403", "Float_32", "%", 0x09, 0x0320,
-                "Датчик уровня LT403", 0x0020, 0x0038);
-            CreateAnalogSensor(global, "PT404", "Float_32", "бар", 0x03, 0x00E0,
-                "Датчик давления PT404", 0x0020, 0x0038);
-            CreateDiscreteSensor(global, "LAHH401", 0x0B, 0x0408,
-                "Датчик уровня LAHH401", 0x0048, 0x004D);
-            CreateValve(global, "V401", 0x0D, 0x0490,
-                "Клапан V-401", 0x0010, 0x0018);
-            CreatePumpWithControl(global, "P400", 0x12, 0x06B0,
-                "Насос P-400", 0x0030, 0x0040);
-            CreateMixer(global, "M400", 0x0E, 0x0520,
-                "Миксер M-400", 0x0040, 0x0048);
-            CreateCounter(global, "QM400", "Float_32", "л", 0x10, 0x05A0,
-                "Счетчик воды QM-400", 0x0000, 0x0008);
         }
 
         private static void InitializeT500Sensors(TGlobal global)
         {
-            // Т-500 Управление
             global.Variables.Add("T500_StartMixer", 0x12, 0x0027, 1,
                 "Bool", "", "Нет;Да", "", "Включить миксер Т500");
             global.Commands.Add("T500_StartMixer", global.Plc_IpAddress,
@@ -475,36 +397,199 @@ namespace ProtolScadaRemake
             global.Commands.Add("T500_SpWater", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x06AE, "Float_32", "##0.#", "Объем наполнения Т500");
-
-            // Датчики T-500
-            CreateAnalogSensor(global, "TT502", "Float_32", "°C", 0x07, 0x0260,
-                "Датчик температуры TT502", 0x0020, 0x0038);
-            CreateAnalogSensor(global, "LT503", "Float_32", "%", 0x09, 0x0340,
-                "Датчик уровня LT503", 0x0040, 0x0058);
-            CreateAnalogSensor(global, "PT504", "Float_32", "бар", 0x03, 0x0100,
-                "Датчик давления PT504", 0x0040, 0x0058);
-            CreateDiscreteSensor(global, "LAHH501", 0x0B, 0x0410,
-                "Датчик уровня LAHH501", 0x0050, 0x0055);
-            CreateValve(global, "V501", 0x0D, 0x04A0,
-                "Клапан V-501", 0x0020, 0x0028);
-            CreatePumpReverse(global, "P500", 0x0F, 0x0580,
-                "Насос P-500", 0x0040, 0x0048);
-            CreateMixer(global, "M500", 0x0E, 0x0530,
-                "Миксер M-500", 0x0050, 0x0058);
-            CreateCounter(global, "QM500", "Float_32", "л", 0x10, 0x05B0,
-                "Счетчик воды QM-500", 0x0010, 0x0018);
         }
 
-        private static void InitializeRecipes(TGlobal global)
+        private static void InitializeT100T150T200T700Sensors(TGlobal global)
         {
-            // Рецепт ГРО
-            InitializeGroRecipe(global);
+            global.Variables.Add("T100_StartMixer", 0x13, 0x0030, 1,
+                "Bool", "", "Нет;Да", "", "Включить миксер Т100");
+            global.Commands.Add("T100_StartMixer", global.Plc_IpAddress,
+                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+                0x0720, "Bool", "Нет;Да", "Включить миксер Т100");
 
-            // Рецепт ТС
-            InitializeTcRecipe(global);
+            global.Variables.Add("T150_StartMixer", 0x13, 0x0031, 1,
+                "Bool", "", "Нет;Да", "", "Включить миксер Т150");
+            global.Commands.Add("T150_StartMixer", global.Plc_IpAddress,
+                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+                0x0721, "Bool", "Нет;Да", "Включить миксер Т150");
 
-            // Рецепт ЭМ
-            InitializeEmRecipe(global);
+            global.Variables.Add("WIT100_Volume", 0x13, 0x0032, 1,
+                "Float_32", "", "##0.#", " кг.", "Вес в ёмкости Т100");
+            global.Variables.Add("WIT200_Volume", 0x13, 0x0034, 1,
+                "Float_32", "", "##0.#", " кг.", "Вес в ёмкости Т200");
+            global.Variables.Add("WIT700_Volume", 0x13, 0x0036, 1,
+                "Float_32", "", "##0.#", " кг.", "Вес в ёмкости Т700");
+        }
+
+        //private static void InitializePTSensors(TGlobal global)
+        //{
+        //    CreateAnalogSensor(global, "PT103", "Float_32", "бар", 0x01, 0x0000, "Датчик давления PT103");
+        //    CreateAnalogSensor(global, "PT104", "Float_32", "бар", 0x01, 0x0020, "Датчик давления PT104");
+        //    CreateAnalogSensor(global, "PT105", "Float_32", "бар", 0x01, 0x0040, "Датчик давления PT105");
+        //    CreateAnalogSensor(global, "PT205", "Float_32", "бар", 0x02, 0x0080, "Датчик давления PT205");
+        //    CreateAnalogSensor(global, "PT206", "Float_32", "бар", 0x02, 0x00A0, "Датчик давления PT206");
+        //    CreateAnalogSensor(global, "PT304", "Float_32", "бар", 0x03, 0x00C0, "Датчик давления PT304");
+        //    CreateAnalogSensor(global, "PT404", "Float_32", "бар", 0x03, 0x00E0, "Датчик давления PT404");
+        //    CreateAnalogSensor(global, "PT504", "Float_32", "бар", 0x03, 0x0100, "Датчик давления PT504");
+        //    CreateAnalogSensor(global, "PT601", "Float_32", "бар", 0x04, 0x0120, "Датчик давления PT601");
+        //    CreateAnalogSensor(global, "PT606", "Float_32", "бар", 0x04, 0x0140, "Датчик давления PT606");
+        //    CreateAnalogSensor(global, "PT652", "Float_32", "бар", 0x04, 0x0160, "Датчик давления PT652");
+        //    CreateAnalogSensor(global, "PT900", "Float_32", "бар", 0x05, 0x0180, "Датчик давления PT900");
+        //    CreateAnalogSensor(global, "PT201", "Float_32", "бар", 0x0A, 0x0380, "Датчик давления PT201");
+        //    CreateAnalogSensor(global, "PT604", "Float_32", "бар", 0x16, 0x0830, "Датчик давления PT604");
+        //}
+
+        //private static void InitializeTTSensors(TGlobal global)
+        //{
+        //    CreateAnalogSensor(global, "TT102", "Float_32", "°C", 0x05, 0x01A0, "Датчик температуры TT102");
+        //    CreateAnalogSensor(global, "TT152", "Float_32", "°C", 0x05, 0x01C0, "Датчик температуры TT152");
+        //    CreateAnalogSensor(global, "TT202", "Float_32", "°C", 0x06, 0x01E0, "Датчик температуры TT202");
+        //    CreateAnalogSensor(global, "TT252", "Float_32", "°C", 0x06, 0x0200, "Датчик температуры TT252");
+        //    CreateAnalogSensor(global, "TT302", "Float_32", "°C", 0x06, 0x0220, "Датчик температуры TT302");
+        //    CreateAnalogSensor(global, "TT402", "Float_32", "°C", 0x07, 0x0240, "Датчик температуры TT402");
+        //    CreateAnalogSensor(global, "TT502", "Float_32", "°C", 0x07, 0x0260, "Датчик температуры TT502");
+        //    CreateAnalogSensor(global, "TT602", "Float_32", "°C", 0x07, 0x0280, "Датчик температуры TT602");
+        //    CreateAnalogSensor(global, "TT604", "Float_32", "°C", 0x08, 0x02A0, "Датчик температуры TT604");
+        //    CreateAnalogSensor(global, "TT106", "Float_32", "°C", 0x0A, 0x03A0, "Датчик температуры TT106");
+        //}
+
+        //private static void InitializeLTSensors(TGlobal global)
+        //{
+        //    CreateAnalogSensor(global, "LT303", "Float_32", "%", 0x08, 0x02C0, "Датчик уровня LT303");
+        //    CreateAnalogSensor(global, "LT150", "Float_32", "%", 0x08, 0x02E0, "Датчик уровня LT150");
+        //    CreateAnalogSensor(global, "LT253", "Float_32", "%", 0x09, 0x0300, "Датчик уровня LT253");
+        //    CreateAnalogSensor(global, "LT403", "Float_32", "%", 0x09, 0x0320, "Датчик уровня LT403");
+        //    CreateAnalogSensor(global, "LT503", "Float_32", "%", 0x09, 0x0340, "Датчик уровня LT503");
+        //    CreateAnalogSensor(global, "LT651", "Float_32", "%", 0x0A, 0x0360, "Датчик уровня LT651");
+        //    CreateAnalogSensor(global, "LT301", "Float_32", "%", 0x11, 0x0650, "Датчик уровня LT301");
+        //}
+
+        //private static void InitializeDiscreteLevelSensors(TGlobal global)
+        //{
+        //    CreateDiscreteSensor(global, "LAHH101", 0x0B, 0x03C0, "Датчик уровня LAHH101");
+        //    CreateDiscreteSensor(global, "LALL103", 0x0B, 0x03C8, "Датчик уровня LALL103");
+        //    CreateDiscreteSensor(global, "LAHH151", 0x0B, 0x03D0, "Датчик уровня LAHH151");
+        //    CreateDiscreteSensor(global, "LALL153", 0x0B, 0x03D8, "Датчик уровня LALL153");
+        //    CreateDiscreteSensor(global, "LAHH653", 0x0B, 0x03E0, "Датчик уровня LAHH653");
+        //    CreateDiscreteSensor(global, "LAHH201", 0x0B, 0x03E8, "Датчик уровня LAHH201");
+        //    CreateDiscreteSensor(global, "LAHH251", 0x0B, 0x03F0, "Датчик уровня LAHH251");
+        //    CreateDiscreteSensor(global, "LAHH301", 0x0B, 0x03F8, "Датчик уровня LAHH301");
+        //    CreateDiscreteSensor(global, "LAHH302", 0x0B, 0x0400, "Датчик уровня LAHH302");
+        //    CreateDiscreteSensor(global, "LAHH401", 0x0B, 0x0408, "Датчик уровня LAHH401");
+        //    CreateDiscreteSensor(global, "LAHH501", 0x0B, 0x0410, "Датчик уровня LAHH501");
+        //}
+
+        //private static void InitializeValves(TGlobal global)
+        //{
+        //    CreateValve(global, "V101", 0x0C, 0x0420, "Клапан V101");
+        //    CreateValve(global, "V151", 0x0C, 0x0430, "Клапан V151");
+        //    CreateValve(global, "V152", 0x0C, 0x0440, "Клапан V152");
+        //    CreateValve(global, "V601", 0x0C, 0x0450, "Клапан V601");
+        //    CreateValve(global, "V602", 0x0C, 0x0460, "Клапан V602");
+        //    CreateValve(global, "V302", 0x0C, 0x0470, "Клапан V302");
+        //    CreateValve(global, "V305", 0x0D, 0x0480, "Клапан V305");
+        //    CreateValve(global, "V401", 0x0D, 0x0490, "Клапан V401");
+        //    CreateValve(global, "V501", 0x0D, 0x04A0, "Клапан V501");
+        //    CreateValve(global, "V801", 0x0D, 0x04B0, "Клапан V801");
+        //    CreateValve(global, "V803", 0x0D, 0x04C0, "Клапан V803");
+        //    CreateValve(global, "V505", 0x0D, 0x04D0, "Клапан V505");
+        //}
+
+        //private static void InitializeMixers(TGlobal global)
+        //{
+        //    CreateMixer(global, "M100", 0x0E, 0x04E0, "Миксер M100");
+        //    CreateMixer(global, "M150", 0x0E, 0x04F0, "Миксер M150");
+        //    CreateMixer(global, "M200", 0x0E, 0x0500, "Миксер M200");
+        //    CreateMixer(global, "M250", 0x0E, 0x0510, "Миксер M250");
+        //    CreateMixer(global, "M400", 0x0E, 0x0520, "Миксер M400");
+        //    CreateMixer(global, "M500", 0x0E, 0x0530, "Миксер M500");
+        //}
+
+        //private static void InitializePumps(TGlobal global)
+        //{
+        //    CreatePump(global, "P200", 0x0F, 0x0540, "Насос P200");
+        //    CreatePump(global, "P201", 0x0F, 0x0550, "Насос P201");
+        //    CreatePump(global, "P202", 0x0F, 0x0560, "Насос P202");
+        //    CreatePump(global, "P300", 0x0F, 0x0570, "Насос P300");
+        //    CreatePump(global, "P500", 0x0F, 0x0580, "Насос P500");
+        //    CreatePumpReverse(global, "P700", 0x0F, 0x0590, "Насос P700");
+        //}
+
+        //private static void InitializePumpsWithControl(TGlobal global)
+        //{
+        //    // Насосы с управлением
+        //    CreatePumpWithControl(global, "P100", 0x12, 0x0680, "Насос P100");
+        //    CreatePumpWithControl(global, "P400", 0x12, 0x06B0, "Насос P400");
+        //    CreatePumpWithControl(global, "P602", 0x15, 0x07B0, "Насос P602");
+        //    CreatePumpWithControl(global, "P601", 0x15, 0x07D0, "Насос P601");
+        //    CreatePumpWithControl(global, "P651", 0x16, 0x0810, "Насос P651");
+
+        //    // Эмульсификатор M600
+        //    CreatePumpWithControl(global, "M600", 0x15, 0x07F0, "Эмульсификатор M600");
+        //}
+
+        //private static void InitializeCountersAndFlowMeters(TGlobal global)
+        //{
+        //    CreateCounter(global, "QM400", "Float_32", "л", 0x10, 0x05A0, "Счетчик воды QM-400");
+        //    CreateCounter(global, "QM500", "Float_32", "л", 0x10, 0x05B0, "Счетчик воды QM-500");
+        //    CreateAnalogSensor(global, "QM401", "Float_32", "кг/ч", 0x10, 0x05C0, "Расходомер QM401");
+        //    CreateAnalogSensor(global, "FM601", "Float_32", "кг/ч", 0x10, 0x05D0, "Расходомер FM601");
+        //    CreateAnalogSensor(global, "FM602", "Float_32", "кг/ч", 0x11, 0x0620, "Расходомер FM602");
+        //    CreateAnalogSensor(global, "FM401", "Float_32", "кг/ч", 0x13, 0x06F0, "Расходомер FM401");
+        //}
+
+        //private static void InitializeHeaters(TGlobal global)
+        //{
+        //    CreateHeater(global, "HE300", 0x11, 0x0670, "Нагреватель HE300");
+        //    CreateHeater(global, "HE700", 0x14, 0x0770, "Нагреватель HE700.1");
+        //    CreateHeater(global, "HE750", 0x14, 0x0780, "Нагреватель HE750");
+        //    CreateHeater(global, "HE800", 0x14, 0x0794, "Нагреватель HE800");
+        //    CreateHeater(global, "HE700_2", 0x18, 0x08DE, "Нагреватель HE700.2");
+
+        //    global.Variables.Add("HE300_StartHeater", 0x14, 0x0040, 1,
+        //        "Bool", "", "Нет;Да", "", "Включить нагреватель HE300");
+        //    global.Commands.Add("HE300_StartHeater", global.Plc_IpAddress,
+        //        global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+        //        0x0790, "Bool", "Нет;Да", "Включить нагреватель HE300");
+
+        //    global.Variables.Add("HE750_StartHeater", 0x14, 0x0041, 1,
+        //        "Bool", "", "Нет;Да", "", "Включить нагреватель HE750");
+        //    global.Commands.Add("HE750_StartHeater", global.Plc_IpAddress,
+        //        global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+        //        0x0791, "Bool", "Нет;Да", "Включить нагреватель HE750");
+
+        //    global.Variables.Add("HE800_StartHeater", 0x14, 0x0054, 1,
+        //        "Bool", "", "Нет;Да", "", "Включить нагреватель HE800");
+        //    global.Commands.Add("HE800_StartHeater", global.Plc_IpAddress,
+        //        global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+        //        0x07A4, "Bool", "Нет;Да", "Включить нагреватель HE800");
+
+        //    global.Variables.Add("HE700_Rejim", 0x18, 0x001E, 1,
+        //        "Int_16", "", "##0", "", "Режим нагревателя HE-100");
+        //    global.Commands.Add("HE700_Rejim", global.Plc_IpAddress,
+        //        global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+        //        0x08EE, "Int_16", "##0", "Режим нагревателя HE-100");
+        //}
+
+        private static void InitializeA100Screw(TGlobal global)
+        {
+            global.Variables.Add("A100_Speed", 0x13, 0x0048, 1,
+                "Float_32", "", "##0.#", " %", "Скорость шнека А-100");
+            global.Commands.Add("A100_Speed", global.Plc_IpAddress,
+                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+                0x0738, "Float_32", "##0.#", "Скорость шнека А-100");
+
+            global.Variables.Add("GRO_Recept_A100BlockTemp", 0x18, 0x0042, 1,
+                "Float_32", "", "##0", " °С", "Температура блокировки А-100");
+            global.Commands.Add("GRO_Recept_A100BlockTemp", global.Plc_IpAddress,
+                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+                0x0912, "Float_32", "##0.###", "Температура блокировки А-100");
+
+            global.Variables.Add("GRO_Recept_A100BlockWeith", 0x18, 0x0044, 1,
+                "Float_32", "", "##0", " кг.", "Масса блокировки А-100");
+            global.Commands.Add("GRO_Recept_A100BlockWeith", global.Plc_IpAddress,
+                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+                0x0914, "Float_32", "##0.###", "Масса блокировки А-100");
         }
 
         private static void InitializeGroRecipe(TGlobal global)
@@ -553,7 +638,6 @@ namespace ProtolScadaRemake
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x085C, "Float_32", "##0.##", "Подготовка ГРО. Автомат. Задание массы.");
 
-            // Управление режимами ГРО
             global.Commands.Add("GRO_RejimToOff", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x085E, "Bool", "Нет;Да", "Подготовка ГРО. Режим OFF.");
@@ -564,7 +648,6 @@ namespace ProtolScadaRemake
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0860, "Bool", "Нет;Да", "Подготовка ГРО. Режим Автомат.");
 
-            // Полуавтоматический режим ГРО
             global.Commands.Add("GRO_Manual_Selitra_Start", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0861, "Bool", "Нет;Да", "Подготовка ГРО. Режим полуавто. Пуск наполнения селитры.");
@@ -601,7 +684,6 @@ namespace ProtolScadaRemake
             global.Variables.Add("GRO_ManualKislotaCounter", 0x17, 0x0000, 1,
                 "Float_32", "", "##0.#", " кг.", "Подготовка ГРО. Полуатомат. Набранная масса кислоты.");
 
-            // Автоматический режим ГРО
             global.Commands.Add("GRO_Auto_Start", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0872, "Bool", "Нет;Да", "Подготовка ГРО. Режим Автомат. Пуск.");
@@ -625,7 +707,6 @@ namespace ProtolScadaRemake
             global.Variables.Add("GRO_AutoKislotaCurrent", 0x17, 0x000F, 1,
                 "Float_32", "", "##0.#", " кг.", "Подготовка ГРО. Автомат. Текущая масса кислоты.");
 
-            // Транспортировка ГРО
             global.Commands.Add("GRO_TransportStart", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0881, "Bool", "Нет;Да", "Подготовка ГРО. Включить перекачку в Т-150.");
@@ -669,7 +750,6 @@ namespace ProtolScadaRemake
             global.Variables.Add("TC_Rejim", 0x17, 0x001D, 1,
                 "Int_16", "", "##0", "", "Режим подготовки TC");
 
-            // Управление режимами ТС
             global.Commands.Add("TC_RejimToOff", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x088E, "Bool", "Нет;Да", "Подготовка TC. Режим OFF.");
@@ -680,7 +760,6 @@ namespace ProtolScadaRemake
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0890, "Bool", "Нет;Да", "Подготовка TC. Режим Автомат.");
 
-            // Полуавтоматический режим ТС
             global.Commands.Add("TC_ManualStartDisel", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0891, "Bool", "Нет;Да", "Подготовка TC. Режим Полуатомат. Пуск дизеля");
@@ -694,7 +773,6 @@ namespace ProtolScadaRemake
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0894, "Bool", "Нет;Да", "Подготовка TC. Режим Полуатомат. Пауза");
 
-            // Автоматический режим ТС
             global.Commands.Add("TC_AutolStart", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0895, "Bool", "Нет;Да", "Подготовка TC. Режим Автомат.Пуск");
@@ -705,7 +783,6 @@ namespace ProtolScadaRemake
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0897, "Bool", "Нет;Да", "Подготовка TC. Режим Автомат. Пауза");
 
-            // Транспортировка ТС
             global.Commands.Add("TC_TransportStart", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0898, "Bool", "Нет;Да", "Подготовка TC. Включить перекачку в Т-250.");
@@ -713,7 +790,6 @@ namespace ProtolScadaRemake
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0899, "Bool", "Нет;Да", "Подготовка TC. Отключить перекачку в Т-250.");
 
-            // Переменные ТС
             global.Variables.Add("TC_ManualDiselCurrent", 0x17, 0x002A, 1,
                 "Float_32", "", "##0.#", " кг.", "Подготовка TC. Полуавтомат. Текущая масса дизельного топлива.");
             global.Variables.Add("TC_ManualEmulgatorCurrent", 0x17, 0x002C, 1,
@@ -790,7 +866,6 @@ namespace ProtolScadaRemake
             global.Variables.Add("EM_Rejim", 0x17, 0x004A, 1,
                 "Int_16", "", "##0", "", "Режим подготовки EM");
 
-            // Управление режимами ЭМ
             global.Commands.Add("EM_RejimToOff", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x08BB, "Bool", "Нет;Да", "Подготовка ЭМ. Режим OFF.");
@@ -798,7 +873,6 @@ namespace ProtolScadaRemake
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x08BC, "Bool", "Нет;Да", "Подготовка ЭМ. Режим Автомат.");
 
-            // Затравка ЭМ
             global.Commands.Add("EM_ZatravkaStart", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x08BD, "Bool", "Нет;Да", "Подготовка ЭМ. Режим Автомат. Пуск затравки.");
@@ -806,7 +880,6 @@ namespace ProtolScadaRemake
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x08BE, "Bool", "Нет;Да", "Подготовка ЭМ. Режим Автомат. Останов затравки.");
 
-            // Автоматический режим ЭМ
             global.Commands.Add("EM_AutoStart", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x08BF, "Bool", "Нет;Да", "Подготовка ЭМ. Режим Автомат. Пуск.");
@@ -831,11 +904,16 @@ namespace ProtolScadaRemake
             global.Commands.Add("EM_Recept_ReverseTime", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x08FB, "Int_16", "##0", "Время реверса Р-700");
+
+            global.Variables.Add("EM_M600_SpeedSp", 0x18, 0x0036, 1,
+                "Float_32", "", "##0", " %", "Скорость эмульсификатора М-600");
+            global.Commands.Add("EM_M600_SpeedSp", global.Plc_IpAddress,
+                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+                0x0906, "Float_32", "##0.###", "Скорость эмульсификатора М-600");
         }
 
         private static void InitializePIDControllers(TGlobal global)
         {
-            // PID P601
             global.Variables.Add("P601_PID_P", 0x17, 0x0056, 1,
                 "Float_32", "", "##0.###", "", "PID P601. Коэффициент P");
             global.Commands.Add("P601_PID_P", global.Plc_IpAddress,
@@ -866,7 +944,6 @@ namespace ProtolScadaRemake
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0908, "Bool", "Нет;Да", "PID-регулятор насоса P-601. Автонастройка");
 
-            // PID P602
             global.Variables.Add("P602_PID_P", 0x17, 0x005E, 1,
                 "Float_32", "", "##0.###", "", "PID-регулятор насоса P-602. Коэффициент P");
             global.Commands.Add("P602_PID_P", global.Plc_IpAddress,
@@ -897,7 +974,6 @@ namespace ProtolScadaRemake
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x090A, "Bool", "Нет;Да", "PID-регулятор насоса P-602. Автонастройка");
 
-            // PID M600
             global.Variables.Add("M600_PID_P", 0x18, 0x0006, 1,
                 "Float_32", "", "##0.###", "", "PID-регулятор эмульсификатора M-600. Коэффициент P");
             global.Commands.Add("M600_PID_P", global.Plc_IpAddress,
@@ -917,12 +993,11 @@ namespace ProtolScadaRemake
                 0x08DA, "Float_32", "##0.###", "PID-регулятор эмульсификатора M-600. Коэффициент D");
 
             global.Variables.Add("M600_PID_T", 0x18, 0x000C, 1,
-                "Float_32", "", "##0.###", "", "PID -регулятор эмульсификатора M-600. Коэффициент T");
+                "Float_32", "", "##0.###", "", "PID-регулятор эмульсификатора M-600. Коэффициент T");
             global.Commands.Add("M600_PID_T", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x08DC, "Float_32", "##0.###", "PID-регулятор эмульсификатора M-600. Коэффициент T");
 
-            // PID P651
             global.Variables.Add("P651_PID_Tune", 0x18, 0x003C, 1,
                 "Bool", "", "Нет;Да", "", "PID-регулятор насоса P-651. Автонастройка");
             global.Commands.Add("P651_PID_Tune", global.Plc_IpAddress,
@@ -954,7 +1029,6 @@ namespace ProtolScadaRemake
             global.Variables.Add("EM_UnloadCounter", 0x18, 0x0027, 1,
                 "Float_32", "", "##0.##", " кг.", "Режим отгрузки продукта. Отгружено");
 
-            // Отгрузка по времени
             global.Commands.Add("EM_Unload_TimeStart", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x08F9, "Bool", "Нет;Да", "Режим отгрузки продукта по времени. Пуск");
@@ -962,7 +1036,6 @@ namespace ProtolScadaRemake
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x08FA, "Bool", "Нет;Да", "Режим отгрузки продукта по времени. Стоп");
 
-            // Отгрузка по массе
             global.Commands.Add("EM_Unload_MassStart", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x090E, "Bool", "Нет;Да", "Режим отгрузки продукта по массе. Старт");
@@ -973,7 +1046,6 @@ namespace ProtolScadaRemake
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0910, "Float_32", "##0.###", "Режим отгрузки продукта по массе. Масса задания");
 
-            // Тарирование
             global.Variables.Add("EM_UnloadTorirovanieTime", 0x18, 0x002C, 1,
                 "Float_32", "", "##0", " сек.", "Режим отгрузки продукта. Торирование. Время торирования");
             global.Commands.Add("EM_Unload_Torirovanie_Start", global.Plc_IpAddress,
@@ -1016,7 +1088,6 @@ namespace ProtolScadaRemake
             global.Variables.Add("M600_EmergensyStop", 0x17, 0x0055, 1,
                 "Bool", "", "Нет;Да", "", "Блокировка работы эмульсификатора");
 
-            // Управление клапаном V-302
             global.Commands.Add("VLV302_StartButton", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0904, "Bool", "Нет;Да", "Открыть клапан V-302");
@@ -1024,339 +1095,224 @@ namespace ProtolScadaRemake
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x0905, "Bool", "Нет;Да", "Закрыть клапан V-302");
 
-            global.Variables.Add("HE700_Rejim", 0x18, 0x001E, 1,
-                "Int_16", "", "##0", "", "Режим нагревателя HE-100");
-            global.Commands.Add("HE700_Rejim", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                0x08EE, "Int_16", "##0", "Режим нагревателя HE-100");
-
-            // Скорость P400
             global.Variables.Add("P400_SpeedHi", 0x18, 0x004C, 1,
                 "Float_32", "", "##0", " %", "Номинальная скорость Р-400");
             global.Commands.Add("P400_SpeedHi", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
                 0x091C, "Float_32", "##0.###", "Номинальная скорость Р-400");
-        }
 
-        private static void CreatePumpWithControl(TGlobal global, string name,
-            int group, ushort commandAddr, string description, ushort inputAddr,
-            ushort outputAddr)
-        {
-            // Насос с дополнительным управлением
-            CreatePump(global, name, group, commandAddr, description, inputAddr, outputAddr);
-
-            // Дополнительные переменные управления скоростью
-            if (name == "P100")
-            {
-                global.Variables.Add("P100_SpeedHi", 0x18, 0x0046, 1,
-                    "Float_32", "", "##0", " %", $"Номинальная скорость {name}");
-                global.Commands.Add("P100_SpeedHi", global.Plc_IpAddress,
-                    global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                    0x0916, "Float_32", "##0.###", $"Номинальная скорость {name}");
-
-                global.Variables.Add("P100_SpeedLow", 0x18, 0x0048, 1,
-                    "Float_32", "", "##0", " %", $"Минимальная скорость {name}");
-                global.Commands.Add("P100_SpeedLow", global.Plc_IpAddress,
-                    global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                    0x0918, "Float_32", "##0.###", $"Минимальная скорость {name}");
-
-                global.Variables.Add("P100_MinMass", 0x18, 0x004A, 1,
-                    "Float_32", "", "##0", " кг.", $"Минимальная масса для {name}");
-                global.Commands.Add("P100_MinMass", global.Plc_IpAddress,
-                    global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                    0x091A, "Float_32", "##0.###", $"Минимальная масса для {name}");
-            }
-        }
-
-        // ========== МЕТОДЫ СОЗДАНИЯ ТИПОВЫХ УСТРОЙСТВ ==========
-
-        private static void CreateAnalogSensor(TGlobal global, string name, string type,
-            string unit, int group, ushort commandAddr, string description,
-            ushort inputAddr, ushort outputAddr)
-        {
-            // Переменные для чтения из ПЛК (Input - то что пишет PLC)
-            global.Variables.Add(name + "_Manual", group, inputAddr, 1,
-                "Bool", "", "Автомат;Ручной", "", $"Ручной режим {name}");
-            global.Variables.Add(name + "_ManualValue", group, (ushort)(inputAddr + 0x01), 2,
-                "Float_32", "", "##0.#", unit, $"Ручное значение {name}");
-
-            // Переменные для записи в ПЛК (Output - то что читает SCADA)
-            global.Variables.Add(name + "_Value", group, outputAddr, 2,
-                type, "", "##0.#", unit, $"Текущее значение {name}");
-            global.Variables.Add(name + "_Status", group, (ushort)(outputAddr + 0x02), 1,
-                "Int_16", "", "##0", "", $"Статус {name}");
-            global.Variables.Add(name + "_Fault", group, (ushort)(outputAddr + 0x03), 1,
-                "Bool", "", "Норма;Авария", "", $"Ошибка {name}");
-            global.Variables.Add(name + "_Warning_Low", group, (ushort)(outputAddr + 0x04), 1,
-                "Bool", "", "Норма;Предупреждение", "", $"Нижнее предупр. {name}");
-            global.Variables.Add(name + "_Warning_Hi", group, (ushort)(outputAddr + 0x05), 1,
-                "Bool", "", "Норма;Предупреждение", "", $"Верхнее предупр. {name}");
-            global.Variables.Add(name + "_Fault_Low", group, (ushort)(outputAddr + 0x06), 1,
-                "Bool", "", "Норма;Авария", "", $"Нижнее аварийное {name}");
-            global.Variables.Add(name + "_Fault_Hi", group, (ushort)(outputAddr + 0x07), 1,
-                "Bool", "", "Норма;Авария", "", $"Верхнее аварийное {name}");
-
-            // Команды для записи в ПЛК
-            global.Commands.Add(name + "_Manual", global.Plc_IpAddress,
+            global.Variables.Add("P100_SpeedHi", 0x18, 0x0046, 1,
+                "Float_32", "", "##0", " %", "Номинальная скорость P-100");
+            global.Commands.Add("P100_SpeedHi", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                commandAddr, "Bool", "Автомат;Ручной", $"Ручной режим {name}");
-            global.Commands.Add(name + "_ManualValue", global.Plc_IpAddress,
+                0x0916, "Float_32", "##0.###", "Номинальная скорость P-100");
+
+            global.Variables.Add("P100_SpeedLow", 0x18, 0x0048, 1,
+                "Float_32", "", "##0", " %", "Минимальная скорость P-100");
+            global.Commands.Add("P100_SpeedLow", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                (ushort)(commandAddr + 0x01), "Float_32", $"##0.## {unit}",
-                $"Ручное значение {name}");
-        }
+                0x0918, "Float_32", "##0.###", "Минимальная скорость P-100");
 
-        private static void CreateDiscreteSensor(TGlobal global, string name,
-            int group, ushort commandAddr, string description, ushort inputAddr,
-            ushort outputAddr)
-        {
-            // Дискретный датчик (только состояние)
-            global.Variables.Add(name, group, outputAddr, 1,
-                "Bool", "", "Норма;Сработал", "", description);
-            global.Variables.Add(name + "_Fault", group, (ushort)(outputAddr + 0x01), 1,
-                "Bool", "", "Норма;Авария", "", $"Ошибка {name}");
-
-            // Команда сброса
-            global.Commands.Add(name + "_Reset", global.Plc_IpAddress,
+            global.Variables.Add("P100_MinMass", 0x18, 0x004A, 1,
+                "Float_32", "", "##0", " кг.", "Минимальная масса для P-100");
+            global.Commands.Add("P100_MinMass", global.Plc_IpAddress,
                 global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                commandAddr, "Bool", "Нет;Да", $"Сброс {name}");
+                0x091A, "Float_32", "##0.###", "Минимальная масса для P-100");
         }
 
-        private static void CreateValve(TGlobal global, string name,
-            int group, ushort commandAddr, string description, ushort inputAddr,
-            ushort outputAddr)
+        private static void InitializeElements(TGlobal global)
         {
-            // Клапан
-            global.Variables.Add(name + "_Open", group, outputAddr, 1,
-                "Bool", "", "Закрыт;Открыт", "", $"Состояние {name}");
-            global.Variables.Add(name + "_Closed", group, (ushort)(outputAddr + 0x01), 1,
-                "Bool", "", "Открыт;Закрыт", "", $"Состояние {name}");
-            global.Variables.Add(name + "_Fault", group, (ushort)(outputAddr + 0x02), 1,
-                "Bool", "", "Норма;Авария", "", $"Ошибка {name}");
-
-            // Команды управления
-            global.Commands.Add(name + "_Command", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                commandAddr, "Bool", "Закрыть;Открыть", $"Управление {name}");
+            // Создание элементов как в старом проекте
+            TElementPumpReverse A100 = new TElementPumpReverse(global, "A100", 0x0000, 0x0010, 0x14, 0x0750);
+            TElementPt PT103 = new TElementPt(global, "PT103", 0x0000, 0x0018, 0x01, 0x0000);
+            TElementPt PT104 = new TElementPt(global, "PT104", 0x0020, 0x0038, 0x01, 0x0020);
+            TElementPt PT105 = new TElementPt(global, "PT105", 0x0040, 0x0058, 0x01, 0x0040);
+            TElementLt PT205 = new TElementLt(global, "PT205", 0x0020, 0x0038, 0x02, 0x0080);
+            TElementLt PT206 = new TElementLt(global, "PT206", 0x0040, 0x0058, 0x02, 0x00A0);
+            TElementPt PT304 = new TElementPt(global, "PT304", 0x0000, 0x0018, 0x03, 0x00C0);
+            TElementPt PT404 = new TElementPt(global, "PT404", 0x0020, 0x0038, 0x03, 0x00E0);
+            TElementPt PT504 = new TElementPt(global, "PT504", 0x0040, 0x0058, 0x03, 0x0100);
+               TElementPt PT601 = new TElementPt(global, "PT601", 0x0000, 0x0018, 0x04, 0x0120);
+            TElementPt PT606 = new TElementPt(global, "PT606", 0x0020, 0x0038, 0x04, 0x0140);
+            TElementPt PT652 = new TElementPt(global, "PT652", 0x0040, 0x0058, 0x04, 0x0160);
+            TElementPt PT900 = new TElementPt(global, "PT900", 0x0000, 0x0018, 0x05, 0x0180);
+            TElementTt TT102 = new TElementTt(global, "TT102", 0x0020, 0x0038, 0x05, 0x01A0);
+            TElementTt TT152 = new TElementTt(global, "TT152", 0x0040, 0x0058, 0x05, 0x01C0);
+            TElementTt TT202 = new TElementTt(global, "TT202", 0x0000, 0x0018, 0x06, 0x01E0);
+            TElementTt TT252 = new TElementTt(global, "TT252", 0x0020, 0x0038, 0x06, 0x0200);
+            TElementTt TT302 = new TElementTt(global, "TT302", 0x0040, 0x0058, 0x06, 0x0220);
+            TElementTt TT402 = new TElementTt(global, "TT402", 0x0000, 0x0018, 0x07, 0x0240);
+            TElementTt TT502 = new TElementTt(global, "TT502", 0x0020, 0x0038, 0x07, 0x0260);
+            TElementTt TT602 = new TElementTt(global, "TT602", 0x0040, 0x0058, 0x07, 0x0280);
+            TElementTt TT604 = new TElementTt(global, "TT604", 0x0000, 0x0018, 0x08, 0x02A0);
+            TElementLt LT303 = new TElementLt(global, "LT303", 0x0020, 0x0038, 0x08, 0x02C0);
+            TElementLt LT150 = new TElementLt(global, "LT150", 0x0040, 0x0058, 0x08, 0x02E0);
+            TElementLt LT253 = new TElementLt(global, "LT253", 0x0000, 0x0018, 0x09, 0x0300);
+            TElementLt LT403 = new TElementLt(global, "LT403", 0x0020, 0x0038, 0x09, 0x0320);
+            TElementLt LT503 = new TElementLt(global, "LT503", 0x0040, 0x0058, 0x09, 0x0340);
+            TElementLt LT651 = new TElementLt(global, "LT651", 0x0000, 0x0018, 0x0A, 0x0360);
+            TElementPt LALL203 = new TElementPt(global, "PT201", 0x0020, 0x0038, 0x0A, 0x0380);
+            TElementTt TT106 = new TElementTt(global, "TT106", 0x0040, 0x0058, 0x0A, 0x03A0);
+            TElementLs LAHH101 = new TElementLs(global, "LAHH101", 0x0000, 0x0005, 0x0B, 0x03C0);
+            TElementLs LALL103 = new TElementLs(global, "LALL103", 0x0008, 0x000D, 0x0B, 0x03C8);
+            TElementLs LAHH151 = new TElementLs(global, "LAHH151", 0x0010, 0x0015, 0x0B, 0x03D0);
+            TElementLs LALL153 = new TElementLs(global, "LALL153", 0x0018, 0x001D, 0x0B, 0x03D8);
+            TElementLs LAHH653 = new TElementLs(global, "LAHH653", 0x0020, 0x0025, 0x0B, 0x03E0);
+            TElementLs LAHH201 = new TElementLs(global, "LAHH201", 0x0028, 0x002D, 0x0B, 0x03E8);
+            TElementLs LAHH251 = new TElementLs(global, "LAHH251", 0x0030, 0x0035, 0x0B, 0x03F0);
+            TElementLs LAHH301 = new TElementLs(global, "LAHH301", 0x0038, 0x003D, 0x0B, 0x03F8);
+            TElementLs LAHH302 = new TElementLs(global, "LAHH302", 0x0040, 0x0045, 0x0B, 0x0400);
+            TElementLs LAHH401 = new TElementLs(global, "LAHH401", 0x0048, 0x004D, 0x0B, 0x0408);
+            TElementLs LAHH501 = new TElementLs(global, "LAHH501", 0x0050, 0x0055, 0x0B, 0x0410);
+            TElementVlv V101 = new TElementVlv(global, "V101", 0x0000, 0x0008, 0x0C, 0x0420);
+            TElementVlv V151 = new TElementVlv(global, "V151", 0x0010, 0x0018, 0x0C, 0x0430);
+            TElementVlv V152 = new TElementVlv(global, "V152", 0x0020, 0x0028, 0x0C, 0x0440);
+            TElementVlv V601 = new TElementVlv(global, "V601", 0x0030, 0x0038, 0x0C, 0x0450);
+            TElementVlv V602 = new TElementVlv(global, "V602", 0x0040, 0x0048, 0x0C, 0x0460);
+            TElementVlv V302 = new TElementVlv(global, "V302", 0x0050, 0x0058, 0x0C, 0x0470);
+            TElementVlv V305 = new TElementVlv(global, "V305", 0x0000, 0x0008, 0x0D, 0x0480);
+            TElementVlv V401 = new TElementVlv(global, "V401", 0x0010, 0x0018, 0x0D, 0x0490);
+            TElementVlv V501 = new TElementVlv(global, "V501", 0x0020, 0x0028, 0x0D, 0x04A0);
+            TElementVlv V801 = new TElementVlv(global, "V801", 0x0030, 0x0038, 0x0D, 0x04B0);
+            TElementVlv V803 = new TElementVlv(global, "V803", 0x0040, 0x0048, 0x0D, 0x04C0);
+            TElementVlv V505 = new TElementVlv(global, "V505", 0x0050, 0x0058, 0x0D, 0x04D0);
+            TElementMixer M100 = new TElementMixer(global, "M100", 0x0000, 0x0008, 0x0E, 0x04E0);
+            TElementMixer M150 = new TElementMixer(global, "M150", 0x0010, 0x0018, 0x0E, 0x04F0);
+            TElementMixer M200 = new TElementMixer(global, "M200", 0x0020, 0x0028, 0x0E, 0x0500);
+            TElementMixer M250 = new TElementMixer(global, "M250", 0x0030, 0x0038, 0x0E, 0x0510);
+            TElementMixer M400 = new TElementMixer(global, "M400", 0x0040, 0x0048, 0x0E, 0x0520);
+            TElementMixer M500 = new TElementMixer(global, "M500", 0x0050, 0x0058, 0x0E, 0x0530);
+            TElementPump P200 = new TElementPump(global, "P200", 0x0000, 0x0008, 0x0F, 0x0540);
+            TElementPump P201 = new TElementPump(global, "P201", 0x0010, 0x0018, 0x0F, 0x0550);
+            TElementPump P202 = new TElementPump(global, "P202", 0x0020, 0x0028, 0x0F, 0x0560);
+            TElementPump P300 = new TElementPump(global, "P300", 0x0030, 0x0038, 0x0F, 0x0570);
+            TElementPump P500 = new TElementPump(global, "P500", 0x0040, 0x0048, 0x0F, 0x0580);
+            TElementPumpReverse P700 = new TElementPumpReverse(global, "P700", 0x0050, 0x0058, 0x0F, 0x0590);
+            TElementQM QM400 = new TElementQM(global, "QM400", 0x0000, 0x0008, 0x10, 0x05A0);
+            TElementQM QM500 = new TElementQM(global, "QM500", 0x0010, 0x0018, 0x10, 0x05B0);
+            TElementQM2 QM401 = new TElementQM2(global, "QM401", 0x0020, 0x0028, 0x10, 0x05C0);
+            TElementFM FM601 = new TElementFM(global, "FM601", 0x0030, 0x0040, 0x10, 0x05D0);
+            TElementFM FM602 = new TElementFM(global, "FM602", 0x0000, 0x0010, 0x11, 0x0620);
+            TElementLt LT301 = new TElementLt(global, "LT301", 0x0030, 0x0048, 0x11, 0x0650);
+            TElementHe HE300 = new TElementHe(global, "HE300", 0x0050, 0x0058, 0x11, 0x0670);
+            TElementPumpUz P100 = new TElementPumpUz(global, "P100", 0x0000, 0x0010, 0x12, 0x0680);
+            TElementPumpUz P400 = new TElementPumpUz(global, "P400", 0x0030, 0x0040, 0x12, 0x06B0);
+            TElementFM FM401 = new TElementFM(global, "FM401", 0x0000, 0x0010, 0x13, 0x06F0);
+            TElementHe HE700 = new TElementHe(global, "HE700.1", 0x0020, 0x0028, 0x14, 0x0770);
+            TElementHe HE750 = new TElementHe(global, "HE750", 0x0030, 0x0038, 0x14, 0x0780);
+            TElementHe HE800 = new TElementHe(global, "HE800", 0x0044, 0x004C, 0x14, 0x0794);
+            TElementPumpUz P602 = new TElementPumpUz(global, "P602", 0x0000, 0x0010, 0x15, 0x07B0);
+            TElementPumpUz P601 = new TElementPumpUz(global, "P601", 0x0020, 0x0030, 0x15, 0x07D0);
+            TElementPumpUz M600 = new TElementPumpUz(global, "M600", 0x0040, 0x0050, 0x15, 0x07F0);
+            TElementPumpUz P651 = new TElementPumpUz(global, "P651", 0x0000, 0x0010, 0x16, 0x0810);
+            TElementPt PT604 = new TElementPt(global, "PT604", 0x0020, 0x0038, 0x16, 0x0830);
+            TElementHe HE700_2 = new TElementHe(global, "HE700.2", 0x000E, 0x0016, 0x18, 0x08DE);
         }
 
-        private static void CreatePump(TGlobal global, string name,
-            int group, ushort commandAddr, string description, ushort inputAddr,
-            ushort outputAddr)
-        {
-            // Насос
-            global.Variables.Add(name + "_IsWork", group, outputAddr, 1,
-                "Bool", "", "Стоп;Работает", "", $"Состояние {name}");
-            global.Variables.Add(name + "_Fault", group, (ushort)(outputAddr + 0x01), 1,
-                "Bool", "", "Норма;Авария", "", $"Ошибка {name}");
-            global.Variables.Add(name + "_Manual", group, (ushort)(outputAddr + 0x02), 1,
-                "Bool", "", "Автомат;Ручной", "", $"Ручной режим {name}");
+        // ========== ТИПОВЫЕ МЕТОДЫ ДЛЯ СОЗДАНИЯ УСТРОЙСТВ ==========
 
-            // Команды управления
-            global.Commands.Add(name + "_Start", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                commandAddr, "Bool", "Стоп;Пуск", $"Пуск {name}");
-            global.Commands.Add(name + "_Stop", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                (ushort)(commandAddr + 0x01), "Bool", "Пуск;Стоп", $"Стоп {name}");
-        }
-
-        private static void CreatePumpReverse(TGlobal global, string name,
-            int group, ushort commandAddr, string description, ushort inputAddr,
-            ushort outputAddr)
-        {
-            // Реверсивный насос
-            CreatePump(global, name, group, commandAddr, description, inputAddr, outputAddr);
-
-            // Дополнительные переменные для реверса
-            global.Variables.Add(name + "_Direction", group, (ushort)(outputAddr + 0x03), 1,
-                "Bool", "", "Прямой;Реверс", "", $"Направление {name}");
-
-            // Команда реверса
-            global.Commands.Add(name + "_Reverse", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                (ushort)(commandAddr + 0x02), "Bool", "Прямой;Реверс", $"Реверс {name}");
-        }
-
-        private static void CreateMixer(TGlobal global, string name,
-            int group, ushort commandAddr, string description, ushort inputAddr,
-            ushort outputAddr)
-        {
-            // Миксер (аналогично насосу)
-            CreatePump(global, name, group, commandAddr, description, inputAddr, outputAddr);
-        }
-
-        private static void CreateCounter(TGlobal global, string name, string type,
-            string unit, int group, ushort commandAddr, string description,
-            ushort inputAddr, ushort outputAddr)
-        {
-            // Счетчик
-            global.Variables.Add(name + "_Total", group, outputAddr, 2,
-                type, "", "##0.##", unit, description);
-            global.Variables.Add(name + "_Manual", group, (ushort)(outputAddr + 0x02), 1,
-                "Bool", "", "Автомат;Ручной", "", $"Ручной режим {name}");
-
-            // Команда сброса
-            global.Commands.Add(name + "_Reset", global.Plc_IpAddress,
-                global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
-                commandAddr, "Bool", "Нет;Да", $"Сброс {name}");
-        }
-
-        private static void CreateHeater(TGlobal global, string name,
-            int group, ushort commandAddr, string description, ushort inputAddr,
-            ushort outputAddr)
-        {
-            // Нагреватель
-            global.Variables.Add(name + "_IsWork", group, outputAddr, 1,
-                "Bool", "", "Выключен;Включен", "", $"Состояние {name}");
-            global.Variables.Add(name + "_Temperature", group, (ushort)(outputAddr + 0x01), 2,
-                "Float_32", "", "##0.#", "°C", $"Температура {name}");
-            global.Variables.Add(name + "_Fault", group, (ushort)(outputAddr + 0x03), 1,
-                "Bool", "", "Норма;Авария", "", $"Ошибка {name}");
-        }
-
-        // ========== МЕТОДЫ ДЛЯ РАБОТЫ С MODBUS ==========
-
-        public static void StartModbusConnection(TGlobal global)
-        {
-            // Здесь будет запуск реального Modbus-клиента
-            // Пока просто устанавливаем настройки
-            Debug.WriteLine($"Modbus настроен: {global.Plc_IpAddress}:{global.Plc_PortNum}");
-        }
-
-        public static void UpdateModbusData(TGlobal global)
-        {
-            // Этот метод будет вызываться из таймера для обновления данных
-            // В реальном проекте здесь будет чтение из Modbus
-
-            // Эмуляция данных для тестирования
-            //UpdateEmulatedData(global);
-        }
-
-        //private static void UpdateEmulatedData(TGlobal global)
+        //private static void CreateAnalogSensor(TGlobal global, string name, string type,
+        //    string unit, int group, ushort commandAddr, string description)
         //{
-        //    if (global?.Variables == null) return;
+        //    global.Variables.Add(name, group, commandAddr, 2,
+        //        type, "", "##0.#", unit, description);
+        //}
 
-        //    Random rnd = new Random();
+        //private static void CreateDiscreteSensor(TGlobal global, string name,
+        //    int group, ushort commandAddr, string description)
+        //{
+        //    global.Variables.Add(name, group, commandAddr, 1,
+        //        "Bool", "", "Норма;Сработал", "", description);
+        //}
 
-        //    foreach (var variable in global.Variables.All)
+        //private static void CreateValve(TGlobal global, string name,
+        //    int group, ushort commandAddr, string description)
+        //{
+        //    global.Variables.Add(name, group, commandAddr, 1,
+        //        "Bool", "", "Закрыт;Открыт", "", description);
+        //}
+
+        //private static void CreatePump(TGlobal global, string name,
+        //    int group, ushort commandAddr, string description)
+        //{
+        //    global.Variables.Add(name, group, commandAddr, 1,
+        //        "Bool", "", "Стоп;Работает", "", description);
+        //}
+
+        //private static void CreatePumpReverse(TGlobal global, string name,
+        //    int group, ushort commandAddr, string description)
+        //{
+        //    CreatePump(global, name, group, commandAddr, description);
+        //}
+
+        //private static void CreateMixer(TGlobal global, string name,
+        //    int group, ushort commandAddr, string description)
+        //{
+        //    CreatePump(global, name, group, commandAddr, description);
+        //}
+
+        //private static void CreatePumpWithControl(TGlobal global, string name,
+        //    int group, ushort commandAddr, string description)
+        //{
+        //    CreatePump(global, name, group, commandAddr, description);
+
+        //    // Добавляем дополнительные переменные для насосов с управлением
+        //    if (name == "P100")
         //    {
-        //        if (!variable.LastRead.HasValue ||
-        //            (DateTime.Now - variable.LastRead.Value).TotalSeconds > 1)
-        //        {
-        //            // Эмуляция обновления данных
-        //            if (variable.Type == "Float_32")
-        //            {
-        //                // Разные типы датчиков - разные диапазоны значений
-        //                float baseValue = 0;
+        //        global.Variables.Add("P100_SpeedHi", 0x18, 0x0046, 1,
+        //            "Float_32", "", "##0", " %", "Номинальная скорость P-100");
+        //        global.Commands.Add("P100_SpeedHi", global.Plc_IpAddress,
+        //            global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+        //            0x0916, "Float_32", "##0.###", "Номинальная скорость P-100");
 
-        //                if (variable.Name.Contains("TT")) // Температура
-        //                    baseValue = 20 + (float)rnd.NextDouble() * 10;
-        //                else if (variable.Name.Contains("PT")) // Давление
-        //                    baseValue = 1 + (float)rnd.NextDouble() * 5;
-        //                else if (variable.Name.Contains("LT")) // Уровень
-        //                    baseValue = 50 + (float)rnd.NextDouble() * 30;
-        //                else if (variable.Name.Contains("FM")) // Расход
-        //                    baseValue = 100 + (float)rnd.NextDouble() * 200;
-        //                else if (variable.Name.Contains("QM")) // Счетчик
-        //                    baseValue = Math.Max(0, variable.ValueReal + (float)rnd.NextDouble() * 10);
-        //                else if (variable.Name.Contains("WIT")) // Вес
-        //                    baseValue = 1000 + (float)rnd.NextDouble() * 500;
-        //                else
-        //                    baseValue = (float)rnd.NextDouble() * 100;
+        //        global.Variables.Add("P100_SpeedLow", 0x18, 0x0048, 1,
+        //            "Float_32", "", "##0", " %", "Минимальная скорость P-100");
+        //        global.Commands.Add("P100_SpeedLow", global.Plc_IpAddress,
+        //            global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+        //            0x0918, "Float_32", "##0.###", "Минимальная скорость P-100");
 
-        //                variable.ValueReal = baseValue;
-        //                variable.ValueString = variable.ValueReal.ToString("F1");
-
-        //                // Добавляем единицы измерения если есть
-        //                if (!string.IsNullOrEmpty(variable.TextAfter))
-        //                    variable.ValueString += " " + variable.TextAfter;
-        //            }
-        //            else if (variable.Type == "Bool")
-        //            {
-        //                // Для булевых - случайное изменение с малой вероятностью
-        //                if (rnd.Next(100) < 5) // 5% вероятность изменения
-        //                {
-        //                    variable.ValueReal = variable.ValueReal > 0 ? 0 : 1;
-
-        //                    // Форматирование для перечислений
-        //                    if (!string.IsNullOrEmpty(variable.Format))
-        //                    {
-        //                        string[] values = variable.Format.Split(';');
-        //                        if (values.Length == 2)
-        //                        {
-        //                            variable.ValueString = values[(int)variable.ValueReal];
-        //                        }
-        //                        else
-        //                        {
-        //                            variable.ValueString = variable.ValueReal > 0 ? "true" : "false";
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        variable.ValueString = variable.ValueReal > 0 ? "true" : "false";
-        //                    }
-        //                }
-        //            }
-        //            else if (variable.Type == "Int_16")
-        //            {
-        //                variable.ValueReal = rnd.Next(0, 100);
-        //                variable.ValueString = ((int)variable.ValueReal).ToString();
-        //            }
-
-        //            variable.LastRead = DateTime.Now;
-        //        }
+        //        global.Variables.Add("P100_MinMass", 0x18, 0x004A, 1,
+        //            "Float_32", "", "##0", " кг.", "Минимальная масса для P-100");
+        //        global.Commands.Add("P100_MinMass", global.Plc_IpAddress,
+        //            global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+        //            0x091A, "Float_32", "##0.###", "Минимальная масса для P-100");
+        //    }
+        //    else if (name == "P400")
+        //    {
+        //        global.Variables.Add("P400_SpeedHi", 0x18, 0x004C, 1,
+        //            "Float_32", "", "##0", " %", "Номинальная скорость Р-400");
+        //        global.Commands.Add("P400_SpeedHi", global.Plc_IpAddress,
+        //            global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+        //            0x091C, "Float_32", "##0.###", "Номинальная скорость Р-400");
+        //    }
+        //    else if (name == "M600")
+        //    {
+        //        global.Variables.Add("EM_M600_SpeedSp", 0x18, 0x0036, 1,
+        //            "Float_32", "", "##0", " %", "Скорость эмульсификатора М-600");
+        //        global.Commands.Add("EM_M600_SpeedSp", global.Plc_IpAddress,
+        //            global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers",
+        //            0x0906, "Float_32", "##0.###", "Скорость эмульсификатора М-600");
         //    }
         //}
 
-        private static int GetVariableCount(TVariableList variables)
+        //private static void CreateCounter(TGlobal global, string name, string type,
+        //    string unit, int group, ushort commandAddr, string description)
+        //{
+        //    global.Variables.Add(name, group, commandAddr, 2,
+        //        type, "", "##0.##", unit, description);
+        //}
+
+        //private static void CreateHeater(TGlobal global, string name,
+        //    int group, ushort commandAddr, string description)
+        //{
+        //    global.Variables.Add(name, group, commandAddr, 1,
+        //        "Bool", "", "Выключен;Включен", "", description);
+        //}
+
+        // Метод для получения списка областей
+        public static List<TWordsArea> GetModbusAreas()
         {
-            // В зависимости от реализации TVariableList, используйте соответствующий метод
-            // Если есть свойство Count
-            if (variables.GetType().GetProperty("Count") != null)
-            {
-                return (int)variables.GetType().GetProperty("Count").GetValue(variables);
-            }
-            // Или если есть метод GetCount
-            else if (variables.GetType().GetMethod("GetCount") != null)
-            {
-                return (int)variables.GetType().GetMethod("GetCount").Invoke(variables, null);
-            }
-            // Или если есть свойство Items
-            else if (variables.GetType().GetProperty("Items") != null)
-            {
-                var items = variables.GetType().GetProperty("Items").GetValue(variables);
-                if (items is System.Collections.ICollection collection)
-                {
-                    return collection.Count;
-                }
-            }
-
-            // Если ничего не найдено, вернем 0
-            return 0;
-        }
-
-        private static int GetCommandCount(TCommandList commands)
-        {
-            // Аналогично для команд
-            if (commands.GetType().GetProperty("Count") != null)
-            {
-                return (int)commands.GetType().GetProperty("Count").GetValue(commands);
-            }
-            else if (commands.GetType().GetMethod("GetCount") != null)
-            {
-                return (int)commands.GetType().GetMethod("GetCount").Invoke(commands, null);
-            }
-            else if (commands.GetType().GetProperty("Items") != null)
-            {
-                var items = commands.GetType().GetProperty("Items").GetValue(commands);
-                if (items is System.Collections.ICollection collection)
-                {
-                    return collection.Count;
-                }
-            }
-
-            return 0;
+            return _modbusAreas;
         }
     }
 }

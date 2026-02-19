@@ -210,8 +210,8 @@
         <!-- P651 -->
         <local:Element_PumpUzUnderPanel x:Name="P651" 
                             HorizontalAlignment="Left" 
-                            Margin="1068,0,0,0" 
-                            VerticalAlignment="Center"/>
+                            Margin="1078,465,0,0" 
+                            VerticalAlignment="Top"/>
 
         <!-- P700 -->
 
