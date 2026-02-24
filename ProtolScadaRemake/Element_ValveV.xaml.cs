@@ -60,28 +60,28 @@ namespace ProtolScadaRemake
                 Tag = Global.Variables?.GetByName(VarName + "_IsClose");
                 if (Tag != null && Tag.ValueReal > 0)
                 {
-                    ValveIcon.Source = FindResource("ValveHCloseIcon") as ImageSource;
+                    ValveIcon.Source = FindResource("ValveVCloseIcon") as ImageSource;
                 }
 
                 // Клапан в открытом положении
                 Tag = Global.Variables?.GetByName(VarName + "_IsOpen");
                 if (Tag != null && Tag.ValueReal > 0)
                 {
-                    ValveIcon.Source = FindResource("ValveHCOpenIcon") as ImageSource;
+                    ValveIcon.Source = FindResource("ValveVCOpenIcon") as ImageSource;
                 }
 
                 // Клапан в движении
                 Tag = Global.Variables?.GetByName(VarName + "_IsMoving");
                 if (Tag != null && Tag.ValueReal > 0)
                 {
-                    ValveIcon.Source = FindResource("ValveHMovingIcon") as ImageSource;
+                    ValveIcon.Source = FindResource("ValveVMovingIcon") as ImageSource;
                 }
 
                 // Заклинивание клапана
                 Tag = Global.Variables?.GetByName(VarName + "_Fault");
                 if (Tag != null && Tag.ValueReal > 0)
                 {
-                    ValveIcon.Source = FindResource("ValveHCFaultIcon") as ImageSource;
+                    ValveIcon.Source = FindResource("ValveVCFaultIcon") as ImageSource;
                 }
             }
             catch (Exception ex)

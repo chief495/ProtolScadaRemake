@@ -259,7 +259,7 @@ namespace ProtolScadaRemake
             }
         }
 
-        // Метод для отправки команды (как в старом проекте)
+        // Метод для отправки команды 
         public void SendCommand(string commandName, string value)
         {
             var command = Commands.GetByName(commandName);

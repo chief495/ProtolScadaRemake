@@ -14,34 +14,54 @@ namespace ProtolScadaRemake
         public string Description = ""; // Описание элемента
         public TGlobal Global;
         public string VarName = ""; // Основание для имен
+        public string Name { get; set; }
         public Element_3ValveH()
         {
             InitializeComponent();
         }
         public void UpdateElement()
         {
-            if (TAGNAME != null && !string.IsNullOrEmpty(VarName))
+            // Проверяем, что Global инициализирован
+            if (Global == null)
             {
-                TAGNAME.Text = VarName;
+                // Все равно обновляем имя тега, если оно есть
+                if (TAGNAME != null && !string.IsNullOrEmpty(VarName))
+                {
+                    TAGNAME.Text = !string.IsNullOrEmpty(Name) ? Name : VarName;
+                }
+                return;
             }
-            // Ручной режим
-            TVariableTag Tag = Global.Variables.GetByName(VarName + "_Manual");
-            if (Tag != null) if (Tag.ValueReal <= 0) HandImage.Visibility = Visibility.Hidden;
-            if (Tag != null) if (Tag.ValueReal > 0) HandImage.Visibility = Visibility.Hidden;
-            // Положение по умолчанию
-            ValveIcon.Source = FindResource("3xValveIcon") as ImageSource;
-            // Клапан в закрытом положении
-            Tag = Global.Variables.GetByName(VarName + "_IsClose");
-            if (Tag != null) if (Tag.ValueReal > 0) ValveIcon.Source = FindResource("3xValveCloseIcon") as ImageSource;
-            // Клапан в открытом положении
-            Tag = Global.Variables.GetByName(VarName + "_IsOpen");
-            if (Tag != null) if (Tag.ValueReal > 0) ValveIcon.Source = FindResource("3xValveOpenIcon") as ImageSource;
-            // Клапан в движении
-            Tag = Global.Variables.GetByName(VarName + "_IsMoving");
-            if (Tag != null) if (Tag.ValueReal > 0) ValveIcon.Source = FindResource("3xValveMoveIcon") as ImageSource;
-            // Заклинивание клапана
-            Tag = Global.Variables.GetByName(VarName + "_Fault");
-            if (Tag != null) if (Tag.ValueReal > 0) ValveIcon.Source = FindResource("3xValveFaultIcon") as ImageSource;
+
+            try
+            {
+                // Обновляем имя тега
+                if (TAGNAME != null)
+                {
+                    TAGNAME.Text = !string.IsNullOrEmpty(Name) ? Name : VarName;
+                }
+                // Ручной режим
+                TVariableTag Tag = Global.Variables.GetByName(VarName + "_Manual");
+                if (Tag != null) if (Tag.ValueReal <= 0) HandImage.Visibility = Visibility.Hidden;
+                if (Tag != null) if (Tag.ValueReal > 0) HandImage.Visibility = Visibility.Hidden;
+                // Положение по умолчанию
+                ValveIcon.Source = FindResource("3xValveIcon") as ImageSource;
+                // Клапан в закрытом положении
+                Tag = Global.Variables.GetByName(VarName + "_IsClose");
+                if (Tag != null) if (Tag.ValueReal > 0) ValveIcon.Source = FindResource("3xValveCloseIcon") as ImageSource;
+                // Клапан в открытом положении
+                Tag = Global.Variables.GetByName(VarName + "_IsOpen");
+                if (Tag != null) if (Tag.ValueReal > 0) ValveIcon.Source = FindResource("3xValveOpenIcon") as ImageSource;
+                // Клапан в движении
+                Tag = Global.Variables.GetByName(VarName + "_IsMoving");
+                if (Tag != null) if (Tag.ValueReal > 0) ValveIcon.Source = FindResource("3xValveMoveIcon") as ImageSource;
+                // Заклинивание клапана
+                Tag = Global.Variables.GetByName(VarName + "_Fault");
+                if (Tag != null) if (Tag.ValueReal > 0) ValveIcon.Source = FindResource("3xValveFaultIcon") as ImageSource;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка обновления Element_ValveV {VarName}: {ex.Message}");
+            }
         }
         private void ValueLabel_Click(object sender, MouseButtonEventArgs e)
         {

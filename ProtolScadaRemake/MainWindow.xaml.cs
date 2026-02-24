@@ -108,7 +108,7 @@ namespace ProtolScadaRemake
             _updateTimer.Start();
         }
 
-        // Метод для обновления качества связи с контроллером (как в старом проекте)
+        // Метод для обновления качества связи с контроллером 
         private void UpdateControllerConnectionQuality()
         {
             try
@@ -118,7 +118,7 @@ namespace ProtolScadaRemake
                 if (areas == null || areas.Count == 0)
                     return;
 
-                // Суммируем FaultsCount всех областей (как в старом проекте)
+                // Суммируем FaultsCount всех областей 
                 float totalFaults = 0;
                 int areaCount = 0;
 
@@ -131,11 +131,11 @@ namespace ProtolScadaRemake
                     }
                 }
 
-                // Формула из старого проекта: F = F / 23; F = (2 - F) * 50;
+                // Формула: F = F / 23; F = (2 - F) * 50;
                 // В старом проекте было 23 области
                 if (areaCount > 0)
                 {
-                    float quality = totalFaults / areaCount; // Вместо деления на 23, делим на реальное количество областей
+                    float quality = totalFaults / areaCount; // Делим на реальное количество областей
                     quality = (2 - quality) * 50;
 
                     // Ограничиваем значение от 0 до 100

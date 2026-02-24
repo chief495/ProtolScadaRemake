@@ -9,7 +9,6 @@ namespace ProtolScadaRemake
     {
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
-        private bool _isInitialized = false;
 
         public FrameGroPage()
         {
@@ -25,29 +24,26 @@ namespace ProtolScadaRemake
             // Инициализация всех элементов
             InitializeElements();
 
-            // Настройка таймера обновления
-            InitializeTimer();
+            // Настройка таймера обновления (10 Гц как в старом проекте)
+            _repaintTimer = new DispatcherTimer();
+            _repaintTimer.Interval = TimeSpan.FromMilliseconds(100);
+            _repaintTimer.Tick += RepaintTimer_Tick;
 
-            UpdatePanelsVisibility();
+            // Подписка на события
+            SubscribeToEvents();
 
             System.Diagnostics.Debug.WriteLine("FrameGroPage инициализирован");
         }
 
         private void FrameGroPage_Loaded(object sender, RoutedEventArgs e)
         {
-            if (!_isInitialized && _global != null)
-            {
-                InitializeElements();
-                InitializeTimer();
-                UpdatePanelsVisibility();   
-                _isInitialized = true;
-            }
+            // Запуск таймера после загрузки
             _repaintTimer?.Start();
         }
 
         private void FrameGroPage_Unloaded(object sender, RoutedEventArgs e)
         {
-            _repaintTimer?.Stop();
+            Cleanup();
         }
 
         private void InitializeElements()
@@ -71,7 +67,6 @@ namespace ProtolScadaRemake
 
                 // Датчики температуры
                 InitializeSensor(TT102, "TT102", "Датчик температуры TT-102", "TT-102", "°C");
-                // TT106 удален
                 InitializeSensor(TT152, "TT152", "Датчик температуры TT-152", "TT-152", "°C");
                 InitializeSensor(TT302, "TT302", "Датчик температуры TT-302", "TT-302", "°C");
                 InitializeSensor(TT402, "TT402", "Датчик температуры TT-402", "TT-402", "°C");
@@ -195,7 +190,6 @@ namespace ProtolScadaRemake
                 {
                     HE700ComboBox.SelectedIndex = (int)tag.ValueReal;
                 }
-
             }
             catch (Exception ex)
             {
@@ -203,113 +197,23 @@ namespace ProtolScadaRemake
             }
         }
 
-        private void InitializeTimer()
+        private void SubscribeToEvents()
         {
-            _repaintTimer = new DispatcherTimer();
-            _repaintTimer.Interval = TimeSpan.FromMilliseconds(100);
-            _repaintTimer.Tick += RepaintTimer_Tick;
-        }
-
-        private void InitializeSensor(Element_AI sensor, string varName, string description, string name, string eu)
-        {
-            if (sensor != null && _global != null)
+            if (_global != null)
             {
-                sensor.Global = _global;
-                sensor.VarName = varName;
-                sensor.Description = description;
-                sensor.Name = name;
-                sensor.EU = eu;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован датчик: {name} ({varName})");
+                _global.OnVariablesUpdated += Global_OnVariablesUpdated;
             }
         }
 
-        private void InitializeDiscreteSensor(Element_DI sensor, string varName, string description, string name)
+        private void Global_OnVariablesUpdated(object sender, EventArgs e)
         {
-            if (sensor != null && _global != null)
-            {
-                sensor.Global = _global;
-                sensor.VarName = varName;
-                sensor.Description = description;
-                sensor.Name = name;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован дискретный датчик: {name} ({varName})");
-            }
-        }
-
-        private void InitializePumpUzUnderPanel(Element_PumpUzUnderPanel pump, string varName, string description, string name)
-        {
-            if (pump != null && _global != null)
-            {
-                pump.Global = _global;
-                pump.VarName = varName;
-                pump.Description = description;
-                pump.Name = name;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован насос: {name} ({varName})");
-            }
-        }
-
-        private void InitializePumpReverse(Element_PumpHReverse pump, string varName, string description, string name)
-        {
-            if (pump != null && _global != null)
-            {
-                pump.Global = _global;
-                pump.VarName = varName;
-                pump.Description = description;
-                pump.Name = name;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован насос обратный: {name} ({varName})");
-            }
-        }
-
-        private void InitializeValveV(Element_ValveV valve, string varName, string description, string name)
-        {
-            if (valve != null && _global != null)
-            {
-                valve.Global = _global;
-                valve.VarName = varName;
-                valve.Description = description;
-                valve.Name = name;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован клапан: {name} ({varName})");
-            }
-        }
-
-        private void InitializeValveH(Element_ValveH valve, string varName, string description, string name)
-        {
-            if (valve != null && _global != null)
-            {
-                valve.Global = _global;
-                valve.VarName = varName;
-                valve.Description = description;
-                valve.Name = name;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован клапан горизонтальный: {name} ({varName})");
-            }
-        }
-
-        private void Initialize3ValveH(Element_3ValveH valve, string varName, string description, string name)
-        {
-            if (valve != null && _global != null)
-            {
-                valve.Global = _global;
-                valve.VarName = varName;
-                valve.Description = description;
-                valve.Name = name;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован 3-ходовой клапан: {name} ({varName})");
-            }
-        }
-
-        private void InitializeHeater(Element_Heater heater, string varName, string description, string name)
-        {
-            if (heater != null && _global != null)
-            {
-                heater.Global = _global;
-                heater.VarName = varName;
-                heater.Description = description;
-                heater.Name = name;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован нагреватель: {name} ({varName})");
-            }
+            // Обновляем все элементы при изменении переменных Modbus
+            UpdateAllElements();
         }
 
         private void RepaintTimer_Tick(object sender, EventArgs e)
         {
-            // Останавливаем таймер на время обновления
+            // Останавливаем таймер на время обновления (как в старом проекте)
             _repaintTimer.Stop();
 
             try
@@ -317,17 +221,17 @@ namespace ProtolScadaRemake
                 // 1. Обновление всех элементов
                 UpdateAllElements();
 
-                // 2. Сброс команд
+                // 2. Сброс команд (как в старом проекте)
                 ResetCommands();
 
                 // 3. Обновление режимов работы
                 UpdateOperationMode();
 
+                // 4. Обновление видимости панелей
                 UpdatePanelsVisibility();
 
-                // 4. Обновление счетчиков
+                // 5. Обновление счетчиков
                 UpdateCounters();
-
             }
             catch (Exception ex)
             {
@@ -335,7 +239,7 @@ namespace ProtolScadaRemake
             }
             finally
             {
-                // Запускаем таймер снова
+                // Запускаем таймер снова (как в старом проекте)
                 _repaintTimer.Start();
             }
         }
@@ -359,7 +263,6 @@ namespace ProtolScadaRemake
 
             // Датчики температуры
             TT102?.UpdateElement();
-            // TT106 удален
             TT152?.UpdateElement();
             TT302?.UpdateElement();
             TT402?.UpdateElement();
@@ -481,45 +384,70 @@ namespace ProtolScadaRemake
             {
                 if (_global?.Commands == null) return;
 
+                TCommandTag command;
+
                 // Сброс команд миксеров
-                ResetCommand("M100_StartMixer");
-                ResetCommand("M150_StartMixer");
-                ResetCommand("M400_StartMixer");
+                command = _global.Commands.GetByName("M100_StartMixer");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("M150_StartMixer");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("M400_StartMixer");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
 
                 // Сброс команд нагревателей
-                ResetCommand("HE300_IsOn");
-                ResetCommand("HE750_IsOn");
+                command = _global.Commands.GetByName("HE300_IsOn");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("HE750_IsOn");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
 
                 // Сброс команд подачи вещества
-                ResetCommand("GRO_Manual_Selitra_Start");
-                ResetCommand("GRO_Manual_Water_Start");
-                ResetCommand("GRO_Manual_Kislota_Start");
-                ResetCommand("GRO_Manual_Stop");
-                ResetCommand("GRO_Manual_Pause");
+                command = _global.Commands.GetByName("GRO_Manual_Selitra_Start");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("GRO_Manual_Water_Start");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("GRO_Manual_Kislota_Start");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("GRO_Manual_Stop");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("GRO_Manual_Pause");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
 
                 // Сброс команд транспортировки
-                ResetCommand("GRO_TransportStart");
-                ResetCommand("GRO_TransportStop");
+                command = _global.Commands.GetByName("GRO_TransportStart");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("GRO_TransportStop");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
 
                 // Сброс команды задания массы Т-100
-                ResetCommand("T100_MassSp");
-
+                command = _global.Commands.GetByName("T100_MassSp");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка сброса команд: {ex.Message}");
             }
         }
-
-        private void ResetCommand(string commandName)
-        {
-            var command = _global.Commands.GetByName(commandName);
-            if (command != null && !command.NeedToWrite)
-            {
-                command.WriteValue = "false";
-            }
-        }
-
 
         private void UpdateOperationMode()
         {
@@ -591,18 +519,131 @@ namespace ProtolScadaRemake
 
         private void UpdateCounters()
         {
-            // Обновление счетчиков в панели
-            UpdateTextBox(GRO_ManualSelitraCounterEdit, "GRO_ManualSelitraCounter");
-            UpdateTextBox(GRO_ManualWaterCounterEdit, "GRO_ManualWaterCounter");
-            UpdateTextBox(GRO_ManualKislotaCounterEdit, "GRO_ManualKislotaCounter");
+            try
+            {
+                // Обновление счетчиков в панели
+                var tag = _global.Variables.GetByName("GRO_ManualSelitraCounter");
+                if (tag != null && GRO_ManualSelitraCounterEdit != null)
+                {
+                    GRO_ManualSelitraCounterEdit.Text = tag.ValueString;
+                }
+
+                tag = _global.Variables.GetByName("GRO_ManualWaterCounter");
+                if (tag != null && GRO_ManualWaterCounterEdit != null)
+                {
+                    GRO_ManualWaterCounterEdit.Text = tag.ValueString;
+                }
+
+                tag = _global.Variables.GetByName("GRO_ManualKislotaCounter");
+                if (tag != null && GRO_ManualKislotaCounterEdit != null)
+                {
+                    GRO_ManualKislotaCounterEdit.Text = tag.ValueString;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка обновления счетчиков: {ex.Message}");
+            }
         }
 
-        private void UpdateTextBox(TextBox textBox, string varName)
+        // ========== МЕТОДЫ ИНИЦИАЛИЗАЦИИ ЭЛЕМЕНТОВ ==========
+
+        private void InitializeSensor(Element_AI sensor, string varName, string description, string name, string eu)
         {
-            var tag = _global.Variables.GetByName(varName);
-            if (tag != null)
+            if (sensor != null && _global != null)
             {
-                textBox.Text = tag.ValueString;
+                sensor.Global = _global;
+                sensor.VarName = varName;
+                sensor.Description = description;
+                sensor.Name = name;
+                sensor.EU = eu;
+                System.Diagnostics.Debug.WriteLine($"Инициализирован датчик: {name} ({varName})");
+            }
+        }
+
+        private void InitializeDiscreteSensor(Element_DI sensor, string varName, string description, string name)
+        {
+            if (sensor != null && _global != null)
+            {
+                sensor.Global = _global;
+                sensor.VarName = varName;
+                sensor.Description = description;
+                sensor.Name = name;
+                System.Diagnostics.Debug.WriteLine($"Инициализирован дискретный датчик: {name} ({varName})");
+            }
+        }
+
+        private void InitializePumpUzUnderPanel(Element_PumpUzUnderPanel pump, string varName, string description, string name)
+        {
+            if (pump != null && _global != null)
+            {
+                pump.Global = _global;
+                pump.VarName = varName;
+                pump.Description = description;
+                pump.Name = name;
+                pump.UpdateElement();
+                System.Diagnostics.Debug.WriteLine($"Инициализирован насос: {name} ({varName})");
+            }
+        }
+
+        private void InitializePumpReverse(Element_PumpHReverse pump, string varName, string description, string name)
+        {
+            if (pump != null && _global != null)
+            {
+                pump.Global = _global;
+                pump.VarName = varName;
+                pump.Description = description;
+                pump.Name = name;
+                pump.UpdateElement();
+                System.Diagnostics.Debug.WriteLine($"Инициализирован насос обратный: {name} ({varName})");
+            }
+        }
+
+        private void InitializeValveV(Element_ValveV valve, string varName, string description, string name)
+        {
+            if (valve != null && _global != null)
+            {
+                valve.Global = _global;
+                valve.VarName = varName;
+                valve.Description = description;
+                valve.Name = name;
+                System.Diagnostics.Debug.WriteLine($"Инициализирован клапан: {name} ({varName})");
+            }
+        }
+
+        private void InitializeValveH(Element_ValveH valve, string varName, string description, string name)
+        {
+            if (valve != null && _global != null)
+            {
+                valve.Global = _global;
+                valve.VarName = varName;
+                valve.Description = description;
+                valve.Name = name;
+                System.Diagnostics.Debug.WriteLine($"Инициализирован клапан горизонтальный: {name} ({varName})");
+            }
+        }
+
+        private void Initialize3ValveH(Element_3ValveH valve, string varName, string description, string name)
+        {
+            if (valve != null && _global != null)
+            {
+                valve.Global = _global;
+                valve.VarName = varName;
+                valve.Description = description;
+                valve.Name = name;
+                System.Diagnostics.Debug.WriteLine($"Инициализирован 3-ходовой клапан: {name} ({varName})");
+            }
+        }
+
+        private void InitializeHeater(Element_Heater heater, string varName, string description, string name)
+        {
+            if (heater != null && _global != null)
+            {
+                heater.Global = _global;
+                heater.VarName = varName;
+                heater.Description = description;
+                heater.Name = name;
+                System.Diagnostics.Debug.WriteLine($"Инициализирован нагреватель: {name} ({varName})");
             }
         }
 
@@ -615,12 +656,22 @@ namespace ProtolScadaRemake
             if (isChecked)
             {
                 _global.Log.Add("Пользователь", "Включение миксера M100", 1);
-                SendCommand("M100_StartMixer", "true");
+                TCommandTag command = _global.Commands.GetByName("M100_StartMixer");
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                }
             }
             else
             {
                 _global.Log.Add("Пользователь", "Отключение миксера M100", 1);
-                SendCommand("M100_StartMixer", "false");
+                TCommandTag command = _global.Commands.GetByName("M100_StartMixer");
+                if (command != null)
+                {
+                    command.WriteValue = "false";
+                    command.NeedToWrite = true;
+                }
             }
         }
 
@@ -631,12 +682,22 @@ namespace ProtolScadaRemake
             if (isChecked)
             {
                 _global.Log.Add("Пользователь", "Включение миксера M150", 1);
-                SendCommand("M150_StartMixer", "true");
+                TCommandTag command = _global.Commands.GetByName("M150_StartMixer");
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                }
             }
             else
             {
                 _global.Log.Add("Пользователь", "Отключение миксера M150", 1);
-                SendCommand("M150_StartMixer", "false");
+                TCommandTag command = _global.Commands.GetByName("M150_StartMixer");
+                if (command != null)
+                {
+                    command.WriteValue = "false";
+                    command.NeedToWrite = true;
+                }
             }
         }
 
@@ -647,12 +708,22 @@ namespace ProtolScadaRemake
             if (isChecked)
             {
                 _global.Log.Add("Пользователь", "Включение миксера M400", 1);
-                SendCommand("M400_StartMixer", "true");
+                TCommandTag command = _global.Commands.GetByName("M400_StartMixer");
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                }
             }
             else
             {
                 _global.Log.Add("Пользователь", "Отключение миксера M400", 1);
-                SendCommand("M400_StartMixer", "false");
+                TCommandTag command = _global.Commands.GetByName("M400_StartMixer");
+                if (command != null)
+                {
+                    command.WriteValue = "false";
+                    command.NeedToWrite = true;
+                }
             }
         }
 
@@ -663,12 +734,22 @@ namespace ProtolScadaRemake
             if (isChecked)
             {
                 _global.Log.Add("Пользователь", "Включение нагревателя HE-300", 1);
-                SendCommand("HE300_IsOn", "true");
+                TCommandTag command = _global.Commands.GetByName("HE300_IsOn");
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                }
             }
             else
             {
                 _global.Log.Add("Пользователь", "Отключение нагревателя HE-300", 1);
-                SendCommand("HE300_IsOn", "false");
+                TCommandTag command = _global.Commands.GetByName("HE300_IsOn");
+                if (command != null)
+                {
+                    command.WriteValue = "false";
+                    command.NeedToWrite = true;
+                }
             }
         }
 
@@ -679,16 +760,25 @@ namespace ProtolScadaRemake
             if (isChecked)
             {
                 _global.Log.Add("Пользователь", "Включение нагревателя HE-750", 1);
-                SendCommand("HE750_IsOn", "true");
+                TCommandTag command = _global.Commands.GetByName("HE750_IsOn");
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                }
             }
             else
             {
                 _global.Log.Add("Пользователь", "Отключение нагревателя HE-750", 1);
-                SendCommand("HE750_IsOn", "false");
+                TCommandTag command = _global.Commands.GetByName("HE750_IsOn");
+                if (command != null)
+                {
+                    command.WriteValue = "false";
+                    command.NeedToWrite = true;
+                }
             }
         }
 
-        // Обработчик изменения режима через панель
         private void GroModePanel_ModeChanged(object sender, OperationMode mode)
         {
             if (_global == null) return;
@@ -703,7 +793,13 @@ namespace ProtolScadaRemake
                     _ => "GRO_RejimToOff"
                 };
 
-                SendCommand(commandName, "true", $"Переход в режим {mode}");
+                TCommandTag command = _global.Commands.GetByName(commandName);
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                    _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
+                }
             }
             catch (Exception ex)
             {
@@ -715,91 +811,220 @@ namespace ProtolScadaRemake
 
         private void SetT100MassButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("T100_MassSp", T100MassSpEdit.Text, "Задание массы в Т-100");
+            if (_global == null) return;
+
+            try
+            {
+                TCommandTag command = _global.Commands.GetByName("T100_MassSp");
+                if (command != null && T100MassSpEdit != null)
+                {
+                    command.WriteValue = T100MassSpEdit.Text;
+                    command.NeedToWrite = true;
+                    _global.Log.Add("Пользователь", "Задание массы в Т-100", 1);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка задания массы Т-100: {ex.Message}");
+            }
         }
 
         private void A100SpeedSpEdit_TextChanged(object sender, TextChangedEventArgs e)
         {
             // Автоматическая отправка при изменении текста
-            if (!string.IsNullOrEmpty(A100SpeedSpEdit.Text))
+            if (_global != null && !string.IsNullOrEmpty(A100SpeedSpEdit.Text))
             {
-                SendCommand("A100_Speed", A100SpeedSpEdit.Text, "Задание скорости A100");
+                try
+                {
+                    TCommandTag command = _global.Commands.GetByName("A100_Speed");
+                    if (command != null)
+                    {
+                        command.WriteValue = A100SpeedSpEdit.Text;
+                        command.NeedToWrite = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Ошибка задания скорости A100: {ex.Message}");
+                }
             }
         }
 
         private void SubstanceStartButton_Click(object sender, RoutedEventArgs e)
         {
-            // Сначала устанавливаем уставки
-            if (SelitraRadio.IsChecked == true)
+            if (_global == null) return;
+
+            try
             {
-                SendCommand("GRO_ManualSelitraCounterSp", SelitraSpEdit.Text, "Уставка селитры");
-                SendCommand("GRO_Manual_Selitra_Start", "true", "Пуск селитры");
+                // Сначала устанавливаем уставки
+                if (SelitraRadio.IsChecked == true)
+                {
+                    TCommandTag spCommand = _global.Commands.GetByName("GRO_ManualSelitraCounterSp");
+                    if (spCommand != null && SelitraSpEdit != null)
+                    {
+                        spCommand.WriteValue = SelitraSpEdit.Text;
+                        spCommand.NeedToWrite = true;
+                    }
+
+                    TCommandTag startCommand = _global.Commands.GetByName("GRO_Manual_Selitra_Start");
+                    if (startCommand != null)
+                    {
+                        startCommand.WriteValue = "true";
+                        startCommand.NeedToWrite = true;
+                    }
+                    _global.Log.Add("Пользователь", "Пуск селитры", 1);
+                }
+                else if (WaterRadio.IsChecked == true)
+                {
+                    TCommandTag spCommand = _global.Commands.GetByName("GRO_ManualWaterCounterSp");
+                    if (spCommand != null && WaterSpEdit != null)
+                    {
+                        spCommand.WriteValue = WaterSpEdit.Text;
+                        spCommand.NeedToWrite = true;
+                    }
+
+                    TCommandTag startCommand = _global.Commands.GetByName("GRO_Manual_Water_Start");
+                    if (startCommand != null)
+                    {
+                        startCommand.WriteValue = "true";
+                        startCommand.NeedToWrite = true;
+                    }
+                    _global.Log.Add("Пользователь", "Пуск воды", 1);
+                }
+                else if (KislotaRadio.IsChecked == true)
+                {
+                    TCommandTag spCommand = _global.Commands.GetByName("GRO_ManualKislotaCounterSp");
+                    if (spCommand != null && KislotaSpEdit != null)
+                    {
+                        spCommand.WriteValue = KislotaSpEdit.Text;
+                        spCommand.NeedToWrite = true;
+                    }
+
+                    TCommandTag startCommand = _global.Commands.GetByName("GRO_Manual_Kislota_Start");
+                    if (startCommand != null)
+                    {
+                        startCommand.WriteValue = "true";
+                        startCommand.NeedToWrite = true;
+                    }
+                    _global.Log.Add("Пользователь", "Пуск кислоты", 1);
+                }
             }
-            else if (WaterRadio.IsChecked == true)
+            catch (Exception ex)
             {
-                SendCommand("GRO_ManualWaterCounterSp", WaterSpEdit.Text, "Уставка воды");
-                SendCommand("GRO_Manual_Water_Start", "true", "Пуск воды");
-            }
-            else if (KislotaRadio.IsChecked == true)
-            {
-                SendCommand("GRO_ManualKislotaCounterSp", KislotaSpEdit.Text, "Уставка кислоты");
-                SendCommand("GRO_Manual_Kislota_Start", "true", "Пуск кислоты");
+                System.Diagnostics.Debug.WriteLine($"Ошибка пуска вещества: {ex.Message}");
             }
         }
 
         private void SubstanceStopButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("GRO_Manual_Stop", "true", "Остановка подачи вещества");
+            if (_global == null) return;
+
+            try
+            {
+                TCommandTag command = _global.Commands.GetByName("GRO_Manual_Stop");
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                    _global.Log.Add("Пользователь", "Остановка подачи вещества", 1);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка остановки вещества: {ex.Message}");
+            }
         }
 
         private void SubstancePauseButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("GRO_Manual_Pause", "true", "Пауза подачи вещества");
+            if (_global == null) return;
+
+            try
+            {
+                TCommandTag command = _global.Commands.GetByName("GRO_Manual_Pause");
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                    _global.Log.Add("Пользователь", "Пауза подачи вещества", 1);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка паузы вещества: {ex.Message}");
+            }
         }
 
         private void TransportStartButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("GRO_TransportStart", "true", "Пуск транспортировки");
+            if (_global == null) return;
+
+            try
+            {
+                TCommandTag command = _global.Commands.GetByName("GRO_TransportStart");
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                    _global.Log.Add("Пользователь", "Пуск транспортировки", 1);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка пуска транспортировки: {ex.Message}");
+            }
         }
 
         private void TransportStopButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("GRO_TransportStop", "true", "Остановка транспортировки");
+            if (_global == null) return;
+
+            try
+            {
+                TCommandTag command = _global.Commands.GetByName("GRO_TransportStop");
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                    _global.Log.Add("Пользователь", "Остановка транспортировки", 1);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка остановки транспортировки: {ex.Message}");
+            }
         }
 
         private void SaveHE700RejimButton_Click(object sender, RoutedEventArgs e)
         {
-            if (HE700ComboBox.SelectedIndex >= 0)
-            {
-                SendCommand("HE700_Rejim", HE700ComboBox.SelectedIndex.ToString(), "Смена режима HE-700");
-            }
-        }
+            if (_global == null) return;
 
-        private void SendCommand(string commandName, string value)
-        {
-            SendCommand(commandName, value, $"Команда {commandName}");
-        }
-
-        private void SendCommand(string commandName, string value, string description)
-        {
             try
             {
-                var command = _global?.Commands?.GetByName(commandName);
-                if (command != null)
+                if (HE700ComboBox.SelectedIndex >= 0)
                 {
-                    command.WriteValue = value;
-                    command.NeedToWrite = true;
-                    command.SendToController();
-
-                    if (!string.IsNullOrEmpty(description))
+                    TCommandTag command = _global.Commands.GetByName("HE700_Rejim");
+                    if (command != null)
                     {
-                        _global?.Log?.Add("Пользователь", description, 1);
+                        command.WriteValue = HE700ComboBox.SelectedIndex.ToString();
+                        command.NeedToWrite = true;
+                        _global.Log.Add("Пользователь", "Смена режима HE-700", 1);
                     }
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка отправки команды {commandName}: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка смены режима HE-700: {ex.Message}");
+            }
+        }
+
+        public void Cleanup()
+        {
+            _repaintTimer?.Stop();
+
+            if (_global != null)
+            {
+                _global.OnVariablesUpdated -= Global_OnVariablesUpdated;
             }
         }
     }
