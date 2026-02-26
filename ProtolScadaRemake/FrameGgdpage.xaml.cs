@@ -20,25 +20,6 @@ namespace ProtolScadaRemake
         public void Initialize(TGlobal global)
         {
             _global = global;
-            // ДИАГНОСТИКА: Вывод всех переменных
-            System.Diagnostics.Debug.WriteLine("========== СПИСОК ВСЕХ ПЕРЕМЕННЫХ ==========");
-
-            if (_global?.Variables != null)
-            {
-                System.Diagnostics.Debug.WriteLine($"Всего переменных: {_global.Variables.GetCount}");
-
-                foreach (var variable in _global.Variables.Items)
-                {
-                    System.Diagnostics.Debug.WriteLine($"  - {variable.Name}: {variable.ValueString}");
-                }
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("Variables is NULL!");
-            }
-
-            System.Diagnostics.Debug.WriteLine("==============================================");
-
 
             // Инициализация всех элементов
             InitializeElements();

@@ -39,19 +39,19 @@ namespace ProtolScadaRemake
                     HandImage.Visibility = Visibility.Hidden;
                 }
 
-                PumpIcon.Source = FindResource("PumpStopIcon") as ImageSource;
+                PumpIcon.Source = FindResource("PumpHStopIcon") as ImageSource;
 
                 Tag = Global.Variables?.GetByName(VarName + "_IsWork");
                 if (Tag != null && Tag.ValueReal > 0)
-                    PumpIcon.Source = FindResource("PumpStartIcon") as ImageSource;
+                    PumpIcon.Source = FindResource("PumpHStartIcon") as ImageSource;
 
                 Tag = Global.Variables?.GetByName(VarName + "_FeedbackOk");
                 if (Tag != null && Tag.ValueReal < 1)
-                    PumpIcon.Source = FindResource("PumpChangedIcon") as ImageSource;
+                    PumpIcon.Source = FindResource("PumpHChangedIcon") as ImageSource;
 
                 Tag = Global.Variables?.GetByName(VarName + "_Fault");
                 if (Tag != null && Tag.ValueReal > 0)
-                    PumpIcon.Source = FindResource("PumpFaultIcon") as ImageSource;
+                    PumpIcon.Source = FindResource("PumpHFaultIcon") as ImageSource;
             }
             catch (Exception ex)
             {

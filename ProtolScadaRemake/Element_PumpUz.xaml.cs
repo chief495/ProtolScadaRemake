@@ -39,27 +39,27 @@ namespace ProtolScadaRemake
                     HandImage.Visibility = Visibility.Hidden;
                 }
 
-                PumpIcon.Source = FindResource("PumpStopIcon") as ImageSource;
+                PumpIcon.Source = FindResource("PumpHStopIcon") as ImageSource;
                 SpeedBar.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ffb4b4b4"));
 
                 Tag = Global.Variables?.GetByName(VarName + "_IsWork");
                 if (Tag != null && Tag.ValueReal > 0)
                 {
-                    PumpIcon.Source = FindResource("PumpStartIcon") as ImageSource;
+                    PumpIcon.Source = FindResource("PumpHStartIcon") as ImageSource;
                     SpeedBar.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ff2fcc3a"));
                 }
 
                 Tag = Global.Variables?.GetByName(VarName + "_FeedbackOk");
                 if (Tag != null && Tag.ValueReal < 1)
                 {
-                    PumpIcon.Source = FindResource("PumpChangedIcon") as ImageSource;
+                    PumpIcon.Source = FindResource("PumpHChangedIcon") as ImageSource;
                     SpeedBar.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#fff2f208"));
                 }
 
                 Tag = Global.Variables?.GetByName(VarName + "_Fault");
                 if (Tag != null && Tag.ValueReal > 0)
                 {
-                    PumpIcon.Source = FindResource("PumpFaultIcon") as ImageSource;
+                    PumpIcon.Source = FindResource("PumpHFaultIcon") as ImageSource;
                     SpeedBar.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#fff22222"));
                 }
 

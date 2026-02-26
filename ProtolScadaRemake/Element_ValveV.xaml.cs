@@ -46,7 +46,7 @@ namespace ProtolScadaRemake
                     HandImage.Visibility = Visibility.Hidden;
                 }
 
-                ValveIcon.Source = FindResource("ValveVCloseIcon") as ImageSource;
+                ValveIcon.Source = FindResource("ValveVPassiveIcon") as ImageSource;
 
                 Tag = Global.Variables?.GetByName(VarName + "_IsClose");
                 if (Tag != null && Tag.ValueReal > 0)

@@ -134,7 +134,7 @@
             </GeometryDrawing>
         </DrawingGroup>
     </DrawingGroup>
-    <DrawingImage Drawing="{StaticResource PumpH_Fault_xaml}" x:Key="PumpFaultIcon"/>
+    <DrawingImage Drawing="{StaticResource PumpH_Fault_xaml}" x:Key="PumpHFaultIcon"/>
 
     <!-- Изображение - Смена состояния насоса -->
     <DrawingGroup x:Key="PumpH_Changed_xaml">
@@ -178,7 +178,7 @@
             </GeometryDrawing>
         </DrawingGroup>
     </DrawingGroup>
-    <DrawingImage Drawing="{StaticResource PumpH_Changed_xaml}" x:Key="PumpChangedIcon"/>
+    <DrawingImage Drawing="{StaticResource PumpH_Changed_xaml}" x:Key="PumpHChangedIcon"/>
 
     
     <!-- Изображение - Двух ходовой клапан (горизонтальный) - Открыт -->
