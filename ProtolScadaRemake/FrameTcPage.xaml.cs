@@ -578,90 +578,82 @@ namespace ProtolScadaRemake
 
         // ========== МЕТОДЫ ИНИЦИАЛИЗАЦИИ ЭЛЕМЕНТОВ ==========
 
-        private void InitializeSensor(Element_AI sensor, string varName, string description, string name, string eu)
+        private void InitializeSensor(Element_AI sensor, string varName, string description, string tagName, string eu)
         {
             if (sensor != null && _global != null)
             {
                 sensor.Global = _global;
                 sensor.VarName = varName;
                 sensor.Description = description;
-                sensor.Name = name;
-                sensor.EU = eu;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован датчик: {name} ({varName})");
+                sensor.TagName = tagName;
             }
         }
 
-        private void InitializeDiscreteSensor(Element_DI sensor, string varName, string description, string name)
+        private void InitializeDiscreteSensor(Element_DI sensor, string varName, string description, string tagName)
         {
             if (sensor != null && _global != null)
             {
                 sensor.Global = _global;
                 sensor.VarName = varName;
                 sensor.Description = description;
-                sensor.Name = name;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован дискретный датчик: {name} ({varName})");
+                sensor.TagName = tagName;
             }
         }
 
-        private void InitializePumpH(Element_PumpH pump, string varName, string description, string name)
+        private void InitializePumpH(Element_PumpH pump, string varName, string description, string tagName)
         {
             if (pump != null && _global != null)
             {
                 pump.Global = _global;
                 pump.VarName = varName;
                 pump.Description = description;
-                pump.Name = name;
+                pump.TagName = tagName;
                 pump.UpdateElement();
-                System.Diagnostics.Debug.WriteLine($"Инициализирован насос: {name} ({varName})");
             }
         }
 
-        private void InitializePumpUzUnderPanel(Element_PumpUzUnderPanel pump, string varName, string description, string name)
+        private void InitializePumpUzUnderPanel(Element_PumpUzUnderPanel pump, string varName, string description, string tagName)
         {
             if (pump != null && _global != null)
             {
                 pump.Global = _global;
                 pump.VarName = varName;
                 pump.Description = description;
-                pump.Name = name;
+                pump.TagName = tagName;
                 pump.UpdateElement();
-                System.Diagnostics.Debug.WriteLine($"Инициализирован насос: {name} ({varName})");
             }
         }
 
-        private void Initialize3Valve(Element_3ValveH valve, string varName, string description, string name)
+        private void Initialize3Valve(Element_3ValveH valve, string varName, string description, string tagName)
         {
             if (valve != null && _global != null)
             {
                 valve.Global = _global;
                 valve.VarName = varName;
                 valve.Description = description;
-                valve.Name = name;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован 3-ходовой клапан: {name} ({varName})");
+                valve.TagName = tagName;
             }
         }
 
-        private void InitializeValveH(Element_ValveH valve, string varName, string description, string name)
+        private void InitializeValveH(Element_ValveH valve, string varName, string description, string tagName)
         {
             if (valve != null && _global != null)
             {
                 valve.Global = _global;
                 valve.VarName = varName;
                 valve.Description = description;
-                valve.Name = name;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован клапан горизонтальный: {name} ({varName})");
+                valve.TagName = tagName;
             }
         }
 
-        private void InitializeHeater(Element_Heater heater, string varName, string description, string name)
+        private void InitializeHeater(Element_Heater heater, string varName, string description, string tagName)
         {
             if (heater != null && _global != null)
             {
                 heater.Global = _global;
                 heater.VarName = varName;
                 heater.Description = description;
-                heater.Name = name;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован нагреватель: {name} ({varName})");
+                heater.TagName = tagName;
             }
         }
 

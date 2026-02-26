@@ -20,6 +20,25 @@ namespace ProtolScadaRemake
         public void Initialize(TGlobal global)
         {
             _global = global;
+            // ДИАГНОСТИКА: Вывод всех переменных
+            System.Diagnostics.Debug.WriteLine("========== СПИСОК ВСЕХ ПЕРЕМЕННЫХ ==========");
+
+            if (_global?.Variables != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"Всего переменных: {_global.Variables.GetCount}");
+
+                foreach (var variable in _global.Variables.Items)
+                {
+                    System.Diagnostics.Debug.WriteLine($"  - {variable.Name}: {variable.ValueString}");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Variables is NULL!");
+            }
+
+            System.Diagnostics.Debug.WriteLine("==============================================");
+
 
             // Инициализация всех элементов
             InitializeElements();
@@ -116,65 +135,60 @@ namespace ProtolScadaRemake
             }
         }
 
-        private void InitializeSensor(Element_AI sensor, string varName, string description, string name, string eu)
+        private void InitializeSensor(Element_AI sensor, string varName, string description, string tagName, string eu)
         {
             if (sensor != null && _global != null)
             {
                 sensor.Global = _global;
                 sensor.VarName = varName;
                 sensor.Description = description;
-                sensor.Name = name;  // Добавлено: имя для отображения на мнемосхеме
+                sensor.TagName = tagName;  // Добавлено: имя для отображения на мнемосхеме
                 sensor.EU = eu;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован датчик: {name} ({varName})");
             }
         }
 
-        private void InitializeDiscreteSensor(Element_DI sensor, string varName, string description, string name)
+        private void InitializeDiscreteSensor(Element_DI sensor, string varName, string description, string tagName)
         {
             if (sensor != null && _global != null)
             {
                 sensor.Global = _global;
                 sensor.VarName = varName;
                 sensor.Description = description;
-                sensor.Name = name;  // Добавлено: имя для отображения на мнемосхеме
-                System.Diagnostics.Debug.WriteLine($"Инициализирован дискретный датчик: {name} ({varName})");
+                sensor.TagName = tagName;  // Добавлено: имя для отображения на мнемосхеме
             }
         }
 
-        private void InitializeValve(Element_ValveV valve, string varName, string description, string name)
+        private void InitializeValve(Element_ValveV valve, string varName, string description, string tagName)
         {
             if (valve != null && _global != null)
             {
                 valve.Global = _global;
                 valve.VarName = varName;
                 valve.Description = description;
-                valve.Name = name;  // Добавлено: имя для отображения на мнемосхеме
-                System.Diagnostics.Debug.WriteLine($"Инициализирован клапан: {name} ({varName})");
+                valve.TagName = tagName;  // Добавлено: имя для отображения на мнемосхеме
             }
         }
 
-        private void InitializePumpReverse(Element_PumpHReverse pump, string varName, string description, string name)
+        private void InitializePumpReverse(Element_PumpHReverse pump, string varName, string description, string tagName)
         {
             if (pump != null && _global != null)
             {
                 pump.Global = _global;
                 pump.VarName = varName;
                 pump.Description = description;
-                pump.Name = name;  // Добавлено: имя для отображения на мнемосхеме
+                pump.TagName = tagName;  // Добавлено: имя для отображения на мнемосхеме
                 pump.UpdateElement(); // для отображения имени тега
-                System.Diagnostics.Debug.WriteLine($"Инициализирован насос: {name} ({varName})");
             }
         }
 
-        private void InitializePumpUz(Element_PumpUz pump, string varName, string description, string name)
+        private void InitializePumpUz(Element_PumpUz pump, string varName, string description, string tagName)
         {
             if (pump != null && _global != null)
             {
                 pump.Global = _global;
                 pump.VarName = varName;
                 pump.Description = description;
-                pump.Name = name;  // Добавлено: имя для отображения на мнемосхеме
-                System.Diagnostics.Debug.WriteLine($"Инициализирован насос P-400: {name} ({varName})");
+                pump.TagName = tagName;  // Добавлено: имя для отображения на мнемосхеме
             }
         }
 

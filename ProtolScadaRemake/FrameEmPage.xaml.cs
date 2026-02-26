@@ -88,15 +88,15 @@ namespace ProtolScadaRemake
                 }
 
                 // ========== НАСОСЫ ==========
-                InitializePumpUzUnderPanel(P601, "P601", "Насос P-601");
-                InitializePumpUzUnderPanel(P602, "P602", "Насос P-602");
-                InitializePumpUz(M600, "M600", "Миксер M-600");
-                InitializePumpUzUnderPanel(P651, "P651", "Насос P-651");
+                InitializePumpUzUnderPanel(P601, "P601", "Насос P-601", "P-601");
+                InitializePumpUzUnderPanel(P602, "P602", "Насос P-602", "P-602");
+                InitializePumpUz(M600, "M600", "Миксер M-600", "M-600");
+                InitializePumpUzUnderPanel(P651, "P651", "Насос P-651", "P-651");
 
                 // ========== КЛАПАНЫ ==========
-                Initialize3Valve(SV601, "V601", "Клапан SV-601");
-                Initialize3Valve(SV602, "V602", "Клапан SV-602");
-                InitializeValve(V505, "V505", "Клапан V-505");
+                Initialize3Valve(SV601, "V601", "Клапан SV-601", "SV-601");
+                Initialize3Valve(SV602, "V602", "Клапан SV-602", "SV-602");
+                InitializeValve(V505, "V505", "Клапан V-505", "V-505");
 
                 // Инициализация панелей управления
                 InitializePanels();
@@ -518,66 +518,70 @@ namespace ProtolScadaRemake
         }
 
         // ========== ИНИЦИАЛИЗАЦИЯ ЭЛЕМЕНТОВ ==========
-        private void InitializeSensor(Element_AI sensor, string varName, string description, string name, string eu)
+        private void InitializeSensor(Element_AI sensor, string varName, string description, string tagName, string eu)
         {
             if (sensor != null && _global != null)
             {
                 sensor.Global = _global;
                 sensor.VarName = varName;
                 sensor.Description = description;
-                sensor.Name = name;
+                sensor.TagName = tagName;
                 sensor.EU = eu;
             }
         }
 
-        private void InitializeDiscreteSensor(Element_DI sensor, string varName, string description, string name)
+        private void InitializeDiscreteSensor(Element_DI sensor, string varName, string description, string tagName)
         {
             if (sensor != null && _global != null)
             {
                 sensor.Global = _global;
                 sensor.VarName = varName;
                 sensor.Description = description;
-                sensor.Name = name;
+                sensor.TagName = tagName;
             }
         }
 
-        private void InitializePumpUz(Element_PumpUz pump, string varName, string description)
+        private void InitializePumpUz(Element_PumpUz pump, string varName, string description, string tagName)
         {
             if (pump != null && _global != null)
             {
                 pump.Global = _global;
                 pump.VarName = varName;
                 pump.Description = description;
+                pump.TagName = tagName;
             }
         }
 
-        private void InitializePumpUzUnderPanel(Element_PumpUzUnderPanel pump, string varName, string description)
+        private void InitializePumpUzUnderPanel(Element_PumpUzUnderPanel pump, string varName, string description, string tagName)
         {
             if (pump != null && _global != null)
             {
                 pump.Global = _global;
                 pump.VarName = varName;
                 pump.Description = description;
+                pump.TagName = tagName;
             }
         }
 
-        private void Initialize3Valve(Element_3ValveH valve, string varName, string description)
+        private void Initialize3Valve(Element_3ValveH valve, string varName, string description, string tagName)
         {
             if (valve != null && _global != null)
             {
                 valve.Global = _global;
                 valve.VarName = varName;
                 valve.Description = description;
+                valve.TagName = tagName;
             }
         }
 
-        private void InitializeValve(Element_ValveV valve, string varName, string description)
+        private void InitializeValve(Element_ValveV valve, string varName, string description, string tagName)
         {
             if (valve != null && _global != null)
             {
                 valve.Global = _global;
                 valve.VarName = varName;
                 valve.Description = description;
+                valve.TagName = tagName;
             }
         }
 

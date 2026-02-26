@@ -12,7 +12,7 @@
             <RowDefinition Height="0*"/>
         </Grid.RowDefinitions>
         <TextBlock x:Name="TextBlockDesignation" HorizontalAlignment="Left" Margin="60,0,0,0" TextWrapping="Wrap" Text="Уровень" VerticalAlignment="Top" Height="15" Width="76" FontFamily="Arial" Foreground="White" TextAlignment="Center" />
-        <TextBlock x:Name="TagName" HorizontalAlignment="Left" Text="###" VerticalAlignment="Top" Height="15" RenderTransformOrigin="0,0" Width="60" FontFamily="Arial" Foreground="White" TextAlignment="Center"/>
+        <TextBlock x:Name="TagNameTextBlock" HorizontalAlignment="Left" Text="###" VerticalAlignment="Top" Height="15" RenderTransformOrigin="0,0" Width="60" FontFamily="Arial" Foreground="White" TextAlignment="Center"/>
         <Rectangle x:Name="ValueRect" HorizontalAlignment="Center" Height="30" Margin="0,15,0,0" Stroke="#FF267ABB" VerticalAlignment="Top" Width="130" Fill="#FF0D0C27" RadiusX="10" RadiusY="10"/>
         <Rectangle HorizontalAlignment="Left" Height="30" Margin="79,15,0,0" Stroke="#FF267ABB"  VerticalAlignment="Top" Width="54" RadiusX="10" RadiusY="10"/>
 

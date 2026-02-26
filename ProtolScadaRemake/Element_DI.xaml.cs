@@ -6,73 +6,39 @@ using System.Windows.Media;
 
 namespace ProtolScadaRemake
 {
-    /// <summary>
-    /// Логика взаимодействия для Element_DI.xaml
-    /// </summary>
     public partial class Element_DI : UserControl
     {
-        public string Description = ""; // Описание элемента
+        public string Description = "";
         public TGlobal Global;
-        public string VarName = ""; // Основание для имен
-
-        private string _name;
-
-        // Свойство Name для отображения на мнемосхеме
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                _name = value;
-                // Обновляем TextBlock при изменении свойства
-                if (TagName != null)
-                    TagName.Text = value;
-            }
-        }
+        public string VarName = "";
+        public string TagName { get; set; } = "";
 
         public Element_DI()
         {
             InitializeComponent();
-            Loaded += Element_DI_Loaded;
-        }
-
-        private void Element_DI_Loaded(object sender, RoutedEventArgs e)
-        {
-            // При загрузке элемента устанавливаем значения из свойств
-            if (TagName != null && !string.IsNullOrEmpty(Name))
-                TagName.Text = Name;
-            else if (TagName != null && !string.IsNullOrEmpty(VarName))
-                TagName.Text = VarName;
         }
 
         public void UpdateElement()
         {
             try
             {
-                // Проверяем, что Global инициализирован
-                if (Global == null)
+                if (TagNameTextBlock != null)
                 {
-                    // Все равно обновляем имя, если оно есть
-                    UpdateName();
-                    return;
+                    TagNameTextBlock.Text = !string.IsNullOrEmpty(TagName) ? TagName : VarName;
                 }
 
-                // Обновляем имя
-                UpdateName();
+                if (Global == null) return;
 
-                // Ручной режим
                 TVariableTag Tag = Global.Variables?.GetByName(VarName + "_Manual");
                 if (Tag != null)
                 {
-                    HandImage.Visibility = Tag.ValueReal > 0 ?
-                        Visibility.Visible : Visibility.Hidden;
+                    HandImage.Visibility = Tag.ValueReal > 0 ? Visibility.Visible : Visibility.Hidden;
                 }
                 else
                 {
                     HandImage.Visibility = Visibility.Hidden;
                 }
 
-                // Состояние датчика
                 Tag = Global.Variables?.GetByName(VarName + "_Value");
                 if (Tag != null)
                 {
@@ -84,16 +50,6 @@ namespace ProtolScadaRemake
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка обновления Element_DI {VarName}: {ex.Message}");
-            }
-        }
-
-        private void UpdateName()
-        {
-            if (TagName != null)
-            {
-                // Используем Name, если он установлен, иначе VarName
-                string displayName = !string.IsNullOrEmpty(Name) ? Name : VarName;
-                TagName.Text = displayName;
             }
         }
 

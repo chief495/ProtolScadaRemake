@@ -6,15 +6,12 @@ using System.Windows.Media;
 
 namespace ProtolScadaRemake
 {
-    /// <summary>
-    /// Логика взаимодействия для Element_ValveH.xaml
-    /// </summary>
     public partial class Element_ValveV : UserControl
     {
-        public string Description = ""; // Описание элемента
+        public string Description = "";
         public TGlobal Global;
-        public string VarName = ""; // Основание для имен
-        public string Name { get; set; } // Имя для отображения на мнемосхеме
+        public string VarName = "";
+        public string TagName { get; set; } = "";
 
         public Element_ValveV()
         {
@@ -23,26 +20,22 @@ namespace ProtolScadaRemake
 
         public void UpdateElement()
         {
-            // Проверяем, что Global инициализирован
             if (Global == null)
             {
-                // Все равно обновляем имя тега, если оно есть
                 if (TAGNAME != null && !string.IsNullOrEmpty(VarName))
                 {
-                    TAGNAME.Text = !string.IsNullOrEmpty(Name) ? Name : VarName;
+                    TAGNAME.Text = !string.IsNullOrEmpty(TagName) ? TagName : VarName;
                 }
                 return;
             }
 
             try
             {
-                // Обновляем имя тега
                 if (TAGNAME != null)
                 {
-                    TAGNAME.Text = !string.IsNullOrEmpty(Name) ? Name : VarName;
+                    TAGNAME.Text = !string.IsNullOrEmpty(TagName) ? TagName : VarName;
                 }
 
-                // Ручной режим
                 TVariableTag Tag = Global.Variables?.GetByName(VarName + "_Manual");
                 if (Tag != null)
                 {
@@ -53,36 +46,23 @@ namespace ProtolScadaRemake
                     HandImage.Visibility = Visibility.Hidden;
                 }
 
-                // Положение по умолчанию
                 ValveIcon.Source = FindResource("ValveVCloseIcon") as ImageSource;
 
-                // Клапан в закрытом положении
                 Tag = Global.Variables?.GetByName(VarName + "_IsClose");
                 if (Tag != null && Tag.ValueReal > 0)
-                {
                     ValveIcon.Source = FindResource("ValveVCloseIcon") as ImageSource;
-                }
 
-                // Клапан в открытом положении
                 Tag = Global.Variables?.GetByName(VarName + "_IsOpen");
                 if (Tag != null && Tag.ValueReal > 0)
-                {
                     ValveIcon.Source = FindResource("ValveVCOpenIcon") as ImageSource;
-                }
 
-                // Клапан в движении
                 Tag = Global.Variables?.GetByName(VarName + "_IsMoving");
                 if (Tag != null && Tag.ValueReal > 0)
-                {
                     ValveIcon.Source = FindResource("ValveVMovingIcon") as ImageSource;
-                }
 
-                // Заклинивание клапана
                 Tag = Global.Variables?.GetByName(VarName + "_Fault");
                 if (Tag != null && Tag.ValueReal > 0)
-                {
                     ValveIcon.Source = FindResource("ValveVCFaultIcon") as ImageSource;
-                }
             }
             catch (Exception ex)
             {

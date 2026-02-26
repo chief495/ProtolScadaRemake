@@ -20,6 +20,6 @@
                 </TransformGroup>
             </Image.RenderTransform>
         </Image>
-        <TextBlock x:Name="TagName" HorizontalAlignment="Left" Margin="34,0,0,0" TextWrapping="Wrap" Text="TAG" VerticalAlignment="Center" Height="16" Width="60" FontFamily="Arial" Foreground="White"/>
+        <TextBlock x:Name="TagNameTextBlock" HorizontalAlignment="Left" Margin="34,0,0,0" TextWrapping="Wrap" Text="TAG" VerticalAlignment="Center" Height="16" Width="60" FontFamily="Arial" Foreground="White"/>
     </Grid>
 </UserControl>
