@@ -5,41 +5,38 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Тарирование" 
-        Height="580" 
-        Width="420"
+        Height="450" 
+        Width="400"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
-        WindowStyle="None"
-        AllowsTransparency="True"
-        Background="Transparent"
+        Background="#FF1C1C1C"
+        Foreground="White"
         Loaded="Window_Loaded"
         Closing="Window_Closing">
 
     <Window.Resources>
-        <!-- Стиль кнопок -->
-        <Style TargetType="Button" x:Key="ActionButton">
+        <Style TargetType="Button">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="5"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="border" 
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8">
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
                             <ContentPresenter HorizontalAlignment="Center" 
                                               VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.85"/>
+                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.7"/>
+                                <Setter TargetName="border" Property="Opacity" Value="0.6"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="border" Property="Opacity" Value="0.4"/>
@@ -50,404 +47,234 @@
             </Setter>
         </Style>
 
-        <!-- Стиль текстовых полей -->
-        <Style TargetType="TextBox" x:Key="InputTextBox">
-            <Setter Property="Background" Value="#FF2D2D2D"/>
+        <Style TargetType="Label">
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FF4A4A4A"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="CaretBrush" Value="White"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6">
-                            <ScrollViewer x:Name="PART_ContentHost" 
-                                          VerticalAlignment="Center"
-                                          Margin="2,0"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <!-- Стиль для readonly текстовых полей -->
-        <Style TargetType="TextBox" x:Key="ReadOnlyTextBox" BasedOn="{StaticResource InputTextBox}">
-            <Setter Property="IsReadOnly" Value="True"/>
-            <Setter Property="Background" Value="#FF252525"/>
-            <Setter Property="BorderBrush" Value="#FF3A3A3A"/>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#333333"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#666666"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
     </Window.Resources>
 
-    <!-- Основной контейнер с тенью -->
-    <Border Background="#FF1E1E1E" 
-            CornerRadius="12" 
-            BorderBrush="#FF3A3A3A" 
-            BorderThickness="1"
-            Margin="10">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="20" 
-                              ShadowDepth="0" 
-                              Opacity="0.6" 
-                              Color="Black"/>
-        </Border.Effect>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0" 
+                   Text="ТАРИРОВАНИЕ СИСТЕМЫ ОТГРУЗКИ" 
+                   FontWeight="Bold" 
+                   FontSize="16"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,20"
+                   Foreground="#FF00FF00"/>
 
-            <!-- Заголовок окна -->
-            <Border Grid.Row="0" 
-                    Background="#FF2A2A2A" 
-                    CornerRadius="12,12,0,0"
-                    Padding="20,15"
-                    MouseLeftButtonDown="Window_MouseLeftButtonDown">
-                <Grid>
-                    <TextBlock Text="ТАРИРОВАНИЕ СИСТЕМЫ ОТГРУЗКИ" 
-                               FontWeight="Bold" 
-                               FontSize="16"
-                               Foreground="#FF00E676"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
+        <!-- Текущее состояние -->
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-                    <!-- Кнопка закрытия -->
-                    <Button x:Name="CloseButton"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center"
-                            Width="28"
-                            Height="28"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Cursor="Hand"
-                            Click="CancelButton_Click">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="border" 
-                                        Background="{TemplateBinding Background}"
-                                        CornerRadius="6">
-                                    <TextBlock Text="✕" 
-                                               Foreground="#FF888888"
-                                               FontSize="14"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="border" Property="Background" Value="#FF3A3A3A"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                </Grid>
+            <Label Grid.Column="0" Content="Текущее состояние:"/>
+            <Border x:Name="StateBorder"
+                    Grid.Column="1" 
+                    Background="Silver" 
+                    CornerRadius="3" 
+                    Padding="8,4"
+                    Margin="10,0,0,0">
+                <TextBlock x:Name="CurrStateLabel" 
+                           Text="Остановлен" 
+                           HorizontalAlignment="Center"
+                           FontWeight="Bold"/>
             </Border>
-
-            <!-- Содержимое -->
-            <ScrollViewer Grid.Row="1" 
-                          VerticalScrollBarVisibility="Auto"
-                          Padding="20,15,20,20">
-                <StackPanel>
-
-                    <!-- Блок: Текущее состояние -->
-                    <Border Background="#FF262626" 
-                            CornerRadius="10" 
-                            Padding="15"
-                            Margin="0,0,0,15">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock Grid.Column="0" 
-                                       Text="Текущее состояние:" 
-                                       Foreground="White"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"/>
-
-                            <Border x:Name="StateBorder"
-                                    Grid.Column="1" 
-                                    Background="#FF4A4A4A" 
-                                    CornerRadius="6" 
-                                    Padding="12,8">
-                                <TextBlock x:Name="CurrStateLabel" 
-                                           Text="Остановлен" 
-                                           Foreground="White"
-                                           FontWeight="SemiBold"
-                                           FontSize="13"
-                                           HorizontalAlignment="Center"/>
-                            </Border>
-                        </Grid>
-                    </Border>
-
-                    <!-- Блок: Параметры -->
-                    <Border Background="#FF262626" 
-                            CornerRadius="10" 
-                            Padding="15"
-                            Margin="0,0,0,15">
-                        <StackPanel>
-                            <TextBlock Text="ПАРАМЕТРЫ" 
-                                       Foreground="#FF888888"
-                                       FontWeight="SemiBold"
-                                       FontSize="11"
-                                       Margin="0,0,0,12"/>
-
-                            <!-- Измеренное время -->
-                            <Grid Margin="0,0,0,12">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="140"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="45"/>
-                                </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="0" 
-                                           Text="Измеренное время:" 
-                                           Foreground="White"
-                                           FontSize="13"
-                                           VerticalAlignment="Center"/>
-                                <TextBox x:Name="EM_UnloadTorirovanieTimeEdit" 
-                                         Grid.Column="1" 
-                                         Text="0"
-                                         Style="{StaticResource ReadOnlyTextBox}"/>
-                                <TextBlock Grid.Column="2" 
-                                           Text="сек" 
-                                           Foreground="#FF888888"
-                                           FontSize="13"
-                                           VerticalAlignment="Center"
-                                           Margin="8,0,0,0"/>
-                            </Grid>
-
-                            <!-- Установка массы -->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="140"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="45"/>
-                                </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="0" 
-                                           Text="Установка массы:" 
-                                           Foreground="White"
-                                           FontSize="13"
-                                           VerticalAlignment="Center"/>
-                                <TextBox x:Name="MassTextBox" 
-                                         Grid.Column="1" 
-                                         Text="10"
-                                         Style="{StaticResource InputTextBox}"/>
-                                <TextBlock Grid.Column="2" 
-                                           Text="кг" 
-                                           Foreground="#FF888888"
-                                           FontSize="13"
-                                           VerticalAlignment="Center"
-                                           Margin="8,0,0,0"/>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Кнопки управления -->
-                    <Grid Margin="0,0,0,15">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Button x:Name="StartButton" 
-                                Grid.Column="0"
-                                Content="СТАРТ"
-                                Background="#FF1B5E20"
-                                BorderBrush="#FF2E7D32"
-                                Style="{StaticResource ActionButton}"
-                                Margin="0,0,5,0"
-                                Click="StartButton_Click"/>
-
-                        <Button x:Name="PauseButton" 
-                                Grid.Column="1"
-                                Content="ПАУЗА"
-                                Background="#FFE65100"
-                                BorderBrush="#FFEF6C00"
-                                Style="{StaticResource ActionButton}"
-                                Margin="5,0"
-                                Click="PauseButton_Click"/>
-
-                        <Button x:Name="StopButton" 
-                                Grid.Column="2"
-                                Content="СТОП"
-                                Background="#FFB71C1C"
-                                BorderBrush="#FFD32F2F"
-                                Style="{StaticResource ActionButton}"
-                                Margin="5,0,0,0"
-                                Click="StopButton_Click"/>
-                    </Grid>
-
-                    <!-- Блок: Результат тарирования -->
-                    <Border CornerRadius="10" 
-                            Padding="15"
-                            Margin="0,0,0,15"
-                            BorderThickness="1">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#FF1A3A52" Offset="0"/>
-                                <GradientStop Color="#FF0D2137" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Border.BorderBrush>
-                            <SolidColorBrush Color="#FF2196F3" Opacity="0.3"/>
-                        </Border.BorderBrush>
-
-                        <StackPanel>
-                            <TextBlock Text="РЕЗУЛЬТАТ ТАРИРОВАНИЯ" 
-                                       Foreground="#FF64B5F6"
-                                       FontWeight="Bold"
-                                       FontSize="12"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,0,0,15"/>
-
-                            <!-- Масса -->
-                            <Grid Margin="0,0,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="140"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="55"/>
-                                </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="0" 
-                                           Text="Масса:" 
-                                           Foreground="White"
-                                           FontSize="13"
-                                           VerticalAlignment="Center"/>
-                                <TextBox x:Name="ResultMassTextBox" 
-                                         Grid.Column="1" 
-                                         Text="0"
-                                         Style="{StaticResource ReadOnlyTextBox}"/>
-                                <TextBlock Grid.Column="2" 
-                                           Text="кг" 
-                                           Foreground="#FF888888"
-                                           FontSize="13"
-                                           VerticalAlignment="Center"
-                                           Margin="8,0,0,0"/>
-                            </Grid>
-
-                            <!-- Время -->
-                            <Grid Margin="0,0,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="140"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="55"/>
-                                </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="0" 
-                                           Text="Время:" 
-                                           Foreground="White"
-                                           FontSize="13"
-                                           VerticalAlignment="Center"/>
-                                <TextBox x:Name="ResultTimeTextBox" 
-                                         Grid.Column="1" 
-                                         Text="0"
-                                         Style="{StaticResource ReadOnlyTextBox}"/>
-                                <TextBlock Grid.Column="2" 
-                                           Text="сек" 
-                                           Foreground="#FF888888"
-                                           FontSize="13"
-                                           VerticalAlignment="Center"
-                                           Margin="8,0,0,0"/>
-                            </Grid>
-
-                            <!-- Скорость -->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="140"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="55"/>
-                                </Grid.ColumnDefinitions>
-
-                                <TextBlock Grid.Column="0" 
-                                           Text="Скорость:" 
-                                           Foreground="White"
-                                           FontSize="13"
-                                           VerticalAlignment="Center"/>
-                                <TextBox x:Name="ResultSpeedTextBox" 
-                                         Grid.Column="1" 
-                                         Text="0"
-                                         Style="{StaticResource ReadOnlyTextBox}"/>
-                                <TextBlock Grid.Column="2" 
-                                           Text="кг/сек" 
-                                           Foreground="#FF888888"
-                                           FontSize="13"
-                                           VerticalAlignment="Center"
-                                           Margin="8,0,0,0"/>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Блок: Информация -->
-                    <Border Background="#FF262626" 
-                            CornerRadius="10" 
-                            Padding="15"
-                            Margin="0,0,0,20"
-                            BorderThickness="1"
-                            BorderBrush="#FF3A3A3A">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                <TextBlock Text="ℹ" 
-                                           Foreground="#FF64B5F6"
-                                           FontSize="14"
-                                           Margin="0,0,8,0"/>
-                                <TextBlock Text="ИНСТРУКЦИЯ" 
-                                           Foreground="#FF888888"
-                                           FontWeight="SemiBold"
-                                           FontSize="11"/>
-                            </StackPanel>
-
-                            <TextBlock TextWrapping="Wrap" 
-                                       Foreground="#FFAAAAAA"
-                                       FontSize="12"
-                                       LineHeight="20">
-                                <Run Text="1. Установите массу продукта для тарирования"/><LineBreak/>
-                                <Run Text="2. Нажмите кнопку СТАРТ"/><LineBreak/>
-                                <Run Text="3. Система отгрузит указанную массу и замерит время"/><LineBreak/>
-                                <Run Text="4. Результат используется для расчета скорости"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Кнопки ОК и Отмена -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Button x:Name="OkButton" 
-                                Grid.Column="1"
-                                Content="✓ ПРИМЕНИТЬ"
-                                Width="110"
-                                Background="#FF1B5E20"
-                                BorderBrush="#FF2E7D32"
-                                Style="{StaticResource ActionButton}"
-                                Margin="0,0,10,0"
-                                Click="OkButton_Click"/>
-
-                        <Button x:Name="CancelButton" 
-                                Grid.Column="2"
-                                Content="✕ ОТМЕНА"
-                                Width="110"
-                                Background="#FF424242"
-                                BorderBrush="#FF616161"
-                                Style="{StaticResource ActionButton}"
-                                Click="CancelButton_Click"/>
-                    </Grid>
-                </StackPanel>
-            </ScrollViewer>
         </Grid>
-    </Border>
+
+        <!-- Измеренное время тарирования -->
+        <Grid Grid.Row="2" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Column="0" Content="Измеренное время:"/>
+            <TextBox x:Name="EM_UnloadTorirovanieTimeEdit" 
+                     Grid.Column="1" 
+                     Text="0"
+                     Margin="10,0,5,0"
+                     IsReadOnly="True"/>
+            <Label Grid.Column="2" Content="сек"/>
+        </Grid>
+
+        <!-- Установка массы -->
+        <Grid Grid.Row="3" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Column="0" Content="Установка массы:"/>
+            <TextBox x:Name="MassTextBox" 
+                     Grid.Column="1" 
+                     Text="10"
+                     Margin="10,0,5,0"/>
+            <Label Grid.Column="2" Content="кг"/>
+        </Grid>
+
+        <!-- Кнопки управления -->
+        <Grid Grid.Row="4" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Кнопка СТАРТ -->
+            <Button x:Name="StartButton" 
+                    Grid.Column="0"
+                    Content="СТАРТ"
+                    Background="#FF1E5945"
+                    BorderBrush="#FF00FF00"
+                    Click="StartButton_Click"/>
+
+            <!-- Кнопка ПАУЗА -->
+            <Button x:Name="PauseButton" 
+                    Grid.Column="1"
+                    Content="ПАУЗА"
+                    Background="#FFFFA500"
+                    BorderBrush="#FFFFA500"
+                    Click="PauseButton_Click"/>
+
+            <!-- Кнопка СТОП -->
+            <Button x:Name="StopButton" 
+                    Grid.Column="2"
+                    Content="СТОП"
+                    Background="#7B001C"
+                    BorderBrush="#FF0033"
+                    Click="StopButton_Click"/>
+        </Grid>
+
+        <!-- Результат тарирования -->
+        <Border Grid.Row="5" 
+                Background="#1E3A5F" 
+                CornerRadius="5" 
+                Padding="10"
+                Margin="0,0,0,20">
+            <StackPanel>
+                <TextBlock Text="РЕЗУЛЬТАТ ТАРИРОВАНИЯ" 
+                           FontWeight="Bold" 
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,10"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Content="Масса:"/>
+                    <TextBox x:Name="ResultMassTextBox" 
+                             Grid.Column="1" 
+                             Text="0"
+                             Margin="10,0,5,0"
+                             IsReadOnly="True"/>
+                    <Label Grid.Column="2" Content="кг"/>
+                </Grid>
+
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Content="Время:"/>
+                    <TextBox x:Name="ResultTimeTextBox" 
+                             Grid.Column="1" 
+                             Text="0"
+                             Margin="10,0,5,0"
+                             IsReadOnly="True"/>
+                    <Label Grid.Column="2" Content="сек"/>
+                </Grid>
+
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Content="Скорость:"/>
+                    <TextBox x:Name="ResultSpeedTextBox" 
+                             Grid.Column="1" 
+                             Text="0"
+                             Margin="10,0,5,0"
+                             IsReadOnly="True"/>
+                    <Label Grid.Column="2" Content="кг/сек"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Информация -->
+        <Border Grid.Row="6" 
+                Background="#333333" 
+                CornerRadius="5" 
+                Padding="10"
+                Margin="0,0,0,20">
+            <TextBlock TextWrapping="Wrap" 
+                       FontSize="11">
+                <Run Text="Процедура тарирования определяет скорость отгрузки продукта.&#x0a;"/>
+                <Run Text="1. Установите массу продукта для тарирования&#x0a;"/>
+                <Run Text="2. Нажмите кнопку СТАРТ&#x0a;"/>
+                <Run Text="3. Система отгрузит указанную массу и замерит время&#x0a;"/>
+                <Run Text="4. Результат используется для расчета скорости отгрузки"/>
+            </TextBlock>
+        </Border>
+
+        <!-- Кнопки ОК и Отмена -->
+        <Grid Grid.Row="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Кнопка ОК -->
+            <Button x:Name="OkButton" 
+                    Grid.Column="1"
+                    Content="ОК"
+                    Width="80"
+                    Background="#FF1E5945"
+                    BorderBrush="#FF00FF00"
+                    Click="OkButton_Click"
+                    Margin="0,0,10,0"/>
+
+            <!-- Кнопка Отмена -->
+            <Button x:Name="CancelButton" 
+                    Grid.Column="2"
+                    Content="ОТМЕНА"
+                    Width="80"
+                    Background="#7B001C"
+                    BorderBrush="#FF0033"
+                    Click="CancelButton_Click"/>
+        </Grid>
+    </Grid>
 </Window>
