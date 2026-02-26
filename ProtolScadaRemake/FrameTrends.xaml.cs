@@ -17,7 +17,6 @@ namespace ProtolScadaRemake.Views
         private DateTime _toDate;
         private PlotModel _plotModel;
 
-        // Вспомогательный класс для ComboBox
         public class TrendItem
         {
             public TTrendTag Trend { get; set; }
@@ -83,14 +82,12 @@ namespace ProtolScadaRemake.Views
 
         private void SetupTimeControls()
         {
-            // Часы
             for (int i = 0; i < 24; i++)
             {
                 CmbFromHour.Items.Add(i.ToString("00"));
                 CmbToHour.Items.Add(i.ToString("00"));
             }
 
-            // Минуты
             string[] minutes = { "00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55" };
             foreach (var min in minutes)
             {
@@ -98,7 +95,6 @@ namespace ProtolScadaRemake.Views
                 CmbToMinute.Items.Add(min);
             }
 
-            // Текущее время
             CmbFromHour.SelectedItem = _fromDate.Hour.ToString("00");
             CmbFromMinute.SelectedItem = "00";
             CmbToHour.SelectedItem = _toDate.Hour.ToString("00");
@@ -123,25 +119,22 @@ namespace ProtolScadaRemake.Views
                 CmbTrend.Items.Clear();
                 TxtStatus.Text = "Загрузка трендов...";
 
-                // Список для хранения трендов
                 List<TTrendTag> availableTrends = new List<TTrendTag>();
 
-                // 1. Используем тренды из глобального объекта
-                if (_global?.Trends?.Items != null)
+                // 1. Локальные тренды из _global.Trends
+                if (_global?.Trends?.Items != null && _global.Trends.Items.Length > 0)
                 {
                     foreach (var trend in _global.Trends.Items)
                     {
                         availableTrends.Add(trend);
                     }
-                    TxtStatus.Text = $"Используются локальные тренды: {availableTrends.Count}";
                 }
 
-                // 2. Если есть TrendManager, пытаемся загрузить из БД
+                // 2. Тренды из DatabaseTrendManager
                 if (_global != null)
                 {
                     try
                     {
-                        // Получаем TrendManager через новый метод GetTrendManager()
                         var trendManager = _global.GetTrendManager();
                         if (trendManager != null)
                         {
@@ -151,26 +144,96 @@ namespace ProtolScadaRemake.Views
                                 await trendManager.InitializeAsync();
                             }
 
-                            if (trendManager.IsInitialized)
+                            if (trendManager.IsInitialized && trendManager.TrendCount > 0)
                             {
-                                // Используем GetAllTrends() вместо GetAllTrendNames()
                                 var dbTrends = trendManager.GetAllTrends();
                                 if (dbTrends != null && dbTrends.Count > 0)
                                 {
-                                    availableTrends.AddRange(dbTrends);
-                                    TxtStatus.Text = $"Загружено {dbTrends.Count} трендов из БД";
+                                    foreach (var trend in dbTrends)
+                                    {
+                                        if (!availableTrends.Any(t => t.Name == trend.Name))
+                                        {
+                                            availableTrends.Add(trend);
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        System.Diagnostics.Debug.WriteLine($"Ошибка загрузки трендов из БД: {ex.Message}");
+                        // Ошибка подключения к БД - продолжаем без неё
                     }
                 }
 
-                // 3. Заполняем ComboBox
-                foreach (var trend in availableTrends)
+                // 3. Дополняем трендами из переменных
+                if (_global?.Variables?.Items != null && _global.Variables.Items.Length > 0)
+                {
+                    var sensorPatterns = new Dictionary<string, (string unit, string prefix)>
+                    {
+                        { "TT", ("°C", "Температура") },
+                        { "PT", ("бар", "Давление") },
+                        { "LT", ("%", "Уровень") },
+                        { "FM", ("кг/ч", "Расход") },
+                        { "QM", ("л", "Счётчик") },
+                        { "WIT", ("кг", "Вес") }
+                    };
+
+                    var valueSuffixes = new[] { "_Value", "_MassFlow", "_Total", "_MassTotal" };
+
+                    foreach (var variable in _global.Variables.Items)
+                    {
+                        // Пропускаем если тренд уже есть
+                        if (availableTrends.Any(t => t.Name == variable.Name))
+                            continue;
+
+                        bool added = false;
+
+                        // Проверяем датчики (TT, PT, LT, FM, QM, WIT)
+                        foreach (var pattern in sensorPatterns)
+                        {
+                            if (variable.Name.StartsWith(pattern.Key))
+                            {
+                                bool hasSuffix = valueSuffixes.Any(s => variable.Name.EndsWith(s));
+                                if (hasSuffix)
+                                {
+                                    string baseName = variable.Name;
+                                    foreach (var suffix in valueSuffixes)
+                                    {
+                                        baseName = baseName.Replace(suffix, "");
+                                    }
+
+                                    string description = $"{pattern.Value.prefix} {baseName}";
+
+                                    var trend = new TTrendTag(
+                                        variable.Name,
+                                        description,
+                                        pattern.Value.unit,
+                                        60,
+                                        10000
+                                    );
+
+                                    availableTrends.Add(trend);
+                                    added = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Скорости насосов и приводов
+                        if (!added && variable.Name.EndsWith("_Speed"))
+                        {
+                            string baseName = variable.Name.Replace("_Speed", "");
+                            string description = $"Скорость {baseName}";
+
+                            var trend = new TTrendTag(variable.Name, description, "%", 10, 10000);
+                            availableTrends.Add(trend);
+                        }
+                    }
+                }
+
+                // 4. Заполняем ComboBox
+                foreach (var trend in availableTrends.OrderBy(t => t.Name))
                 {
                     string displayText = !string.IsNullOrEmpty(trend.Description)
                         ? $"{trend.Description} ({trend.Unit})"
@@ -183,11 +246,11 @@ namespace ProtolScadaRemake.Views
                     });
                 }
 
-                // 4. Выбираем первый если есть
+                // 5. Выбираем первый если есть
                 if (CmbTrend.Items.Count > 0)
                 {
                     CmbTrend.SelectedIndex = 0;
-                    TxtStatus.Text += $" - выбран первый тренд";
+                    TxtStatus.Text = $"Загружено {CmbTrend.Items.Count} трендов";
                 }
                 else
                 {
@@ -260,7 +323,7 @@ namespace ProtolScadaRemake.Views
             }
         }
 
-        private async void UpdatePlot()
+        private void UpdatePlot()
         {
             if (CmbTrend.SelectedItem == null)
             {
@@ -277,8 +340,25 @@ namespace ProtolScadaRemake.Views
 
             try
             {
-                // Получаем записи тренда
                 var records = trendItem.Trend.GetRecordsByTimeRange(_fromDate, _toDate);
+
+                // Если записей нет, пробуем получить текущее значение
+                if ((records == null || records.Count == 0) && _global?.Variables != null)
+                {
+                    var variable = _global.Variables.GetByName(trendItem.Trend.Name);
+                    if (variable != null)
+                    {
+                        records = new List<TTrendTagRecord>
+                        {
+                            new TTrendTagRecord
+                            {
+                                DateTime = DateTime.Now,
+                                ValueReal = variable.ValueReal,
+                                ValueString = variable.ValueString
+                            }
+                        };
+                    }
+                }
 
                 if (records == null || records.Count == 0)
                 {
@@ -288,7 +368,6 @@ namespace ProtolScadaRemake.Views
                     return;
                 }
 
-                // Создаем серию для графика
                 var lineSeries = new LineSeries
                 {
                     Title = trendItem.Trend.Description,
@@ -300,7 +379,6 @@ namespace ProtolScadaRemake.Views
                     StrokeThickness = 2
                 };
 
-                // Добавляем точки
                 foreach (var record in records)
                 {
                     lineSeries.Points.Add(new DataPoint(
@@ -309,7 +387,6 @@ namespace ProtolScadaRemake.Views
                     ));
                 }
 
-                // Настраиваем заголовок и оси
                 _plotModel.Title = $"Тренд: {trendItem.Trend.Description} ({trendItem.Trend.Unit})";
 
                 var yAxis = _plotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Left) as LinearAxis;
@@ -318,11 +395,17 @@ namespace ProtolScadaRemake.Views
                     yAxis.Title = $"Значение, {trendItem.Trend.Unit}";
                 }
 
-                // Добавляем серию и обновляем график
                 _plotModel.Series.Add(lineSeries);
                 _plotModel.InvalidatePlot(true);
 
-                TxtStatus.Text = $"Отображено {records.Count} точек за период: {_fromDate:dd.MM.yyyy HH:mm} - {_toDate:dd.MM.yyyy HH:mm}";
+                if (records.Count == 1)
+                {
+                    TxtStatus.Text = $"Текущее значение: {records[0].ValueReal:F2} {trendItem.Trend.Unit}";
+                }
+                else
+                {
+                    TxtStatus.Text = $"Отображено {records.Count} точек за период: {_fromDate:dd.MM.yyyy HH:mm} - {_toDate:dd.MM.yyyy HH:mm}";
+                }
             }
             catch (Exception ex)
             {
@@ -399,6 +482,11 @@ namespace ProtolScadaRemake.Views
             {
                 UpdatePlot();
             }
+        }
+
+        public void RefreshTrends()
+        {
+            LoadTrends();
         }
     }
 }
