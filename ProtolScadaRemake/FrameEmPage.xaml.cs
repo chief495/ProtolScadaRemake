@@ -10,7 +10,6 @@ namespace ProtolScadaRemake
     {
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
-        private bool _isInitialized = false;
 
         public FrameEmPage()
         {
@@ -22,27 +21,33 @@ namespace ProtolScadaRemake
         public void Initialize(TGlobal global)
         {
             _global = global;
-            InitializeElements();
-            InitializeTimer();
 
-            // ModePanel инициализируется через событие Loaded или через XAML
-            // У ModePanel может не быть свойства Global
+            // Инициализация всех элементов
+            InitializeElements();
+
+            // Настройка таймера обновления (10 Гц как в старом проекте)
+            _repaintTimer = new DispatcherTimer();
+            _repaintTimer.Interval = TimeSpan.FromMilliseconds(100);
+            _repaintTimer.Tick += RepaintTimer_Tick;
+
+            UpdatePanelsVisibility();
+
+            // Подписка на события
+            SubscribeToEvents();
+
+            System.Diagnostics.Debug.WriteLine("FrameGroPage инициализирован");
         }
 
         private void FrameEmPage_Loaded(object sender, RoutedEventArgs e)
         {
-            if (!_isInitialized && _global != null)
-            {
-                InitializeElements();
-                InitializeTimer();
-                _isInitialized = true;
-            }
+            UpdatePanelsVisibility();
+            // Запуск таймера после загрузки
             _repaintTimer?.Start();
         }
 
         private void FrameEmPage_Unloaded(object sender, RoutedEventArgs e)
         {
-            _repaintTimer?.Stop();
+            Cleanup();
         }
 
         private void InitializeElements()
@@ -76,6 +81,12 @@ namespace ProtolScadaRemake
                 if (M250 != null)
                     M250.StateChanged += M250Mixer_StateChanged;
 
+                // Панель режима
+                if (EmModePanel != null)
+                {
+                    EmModePanel.ModeChanged += EmModePanel_ModeChanged;
+                }
+
                 // ========== НАСОСЫ ==========
                 InitializePumpUzUnderPanel(P601, "P601", "Насос P-601");
                 InitializePumpUzUnderPanel(P602, "P602", "Насос P-602");
@@ -97,12 +108,18 @@ namespace ProtolScadaRemake
                 System.Diagnostics.Debug.WriteLine($"Ошибка инициализации элементов EM: {ex.Message}");
             }
         }
-
-        private void InitializeTimer()
+        private void SubscribeToEvents()
         {
-            _repaintTimer = new DispatcherTimer();
-            _repaintTimer.Interval = TimeSpan.FromMilliseconds(100);
-            _repaintTimer.Tick += RepaintTimer_Tick;
+            if (_global != null)
+            {
+                _global.OnVariablesUpdated += Global_OnVariablesUpdated;
+            }
+        }
+
+        private void Global_OnVariablesUpdated(object sender, EventArgs e)
+        {
+            // Обновляем все элементы при изменении переменных Modbus
+            UpdateAllElements();
         }
 
         private void RepaintTimer_Tick(object sender, EventArgs e)
@@ -289,7 +306,8 @@ namespace ProtolScadaRemake
                     {
                         case 0: // OFF
                             currRejimLabel.Text = "OFF";
-                            currRejimLabel.Foreground = Brushes.White;
+                  
+
                             currStageLabel.Text = "OFF";
                             currStageLabel.Foreground = Brushes.White;
                             break;
@@ -613,31 +631,17 @@ namespace ProtolScadaRemake
                     _ => "EM_RejimToOff"
                 };
 
-                SendCommand(commandName, "true");
-                _global.Log.Add("Пользователь", $"EM: Переход в режим {mode}", 1);
-
-                System.Diagnostics.Debug.WriteLine($"EM ModePanel: изменен режим на {mode}, команда {commandName}");
+                TCommandTag command = _global.Commands.GetByName(commandName);
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                    _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
+                }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка изменения режима EM: {ex.Message}");
-            }
-        }
-
-        private void EmModePanel_ModbusCommandRequested(object sender, ModbusCommandEventArgs e)
-        {
-            // Обработка Modbus команд от ModePanel
-            try
-            {
-                // Просто логируем событие, если нет свойства Handled
-                System.Diagnostics.Debug.WriteLine($"Modbus команда запрошена: {e}");
-
-                // Если нужно обработать команду, можно сделать так:
-                // SendModbusCommand(e.Command);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Ошибка обработки Modbus команды: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка изменения режима GRO: {ex.Message}");
             }
         }
 
@@ -745,17 +749,13 @@ namespace ProtolScadaRemake
             catch { }
         }
 
-        private void EmModePanel_Loaded(object sender, RoutedEventArgs e)
+        public void Cleanup()
         {
-            // Инициализация ModePanel после загрузки
-            // Если у ModePanel есть свойство Global, устанавливаем его
-            if (EmModePanel != null && _global != null)
+            _repaintTimer?.Stop();
+
+            if (_global != null)
             {
-                var globalProperty = EmModePanel.GetType().GetProperty("Global");
-                if (globalProperty != null)
-                {
-                    globalProperty.SetValue(EmModePanel, _global);
-                }
+                _global.OnVariablesUpdated -= Global_OnVariablesUpdated;
             }
         }
     }

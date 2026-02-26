@@ -27,8 +27,7 @@
                         Height="207"
                         ModbusRegisterAddress="102"
                         UnitId="1"
-                        ModeChanged="EmModePanel_ModeChanged"
-                        ModbusCommandRequested="EmModePanel_ModbusCommandRequested" Loaded="EmModePanel_Loaded"/>
+                        ModeChanged="EmModePanel_ModeChanged"/>
 
         <!-- Панель отгрузки (правый нижний угол) -->
         <local:UnloadPanel x:Name="UnloadPanelControl"

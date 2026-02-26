@@ -29,6 +29,8 @@ namespace ProtolScadaRemake
             _repaintTimer.Interval = TimeSpan.FromMilliseconds(100);
             _repaintTimer.Tick += RepaintTimer_Tick;
 
+            UpdatePanelsVisibility();
+
             // Подписка на события
             SubscribeToEvents();
 
@@ -37,6 +39,7 @@ namespace ProtolScadaRemake
 
         private void FrameGroPage_Loaded(object sender, RoutedEventArgs e)
         {
+            UpdatePanelsVisibility();
             // Запуск таймера после загрузки
             _repaintTimer?.Start();
         }
@@ -599,15 +602,36 @@ namespace ProtolScadaRemake
             }
         }
 
-        private void InitializeValveV(Element_ValveV valve, string varName, string description, string name)
+        private void InitializeValveV(Element_ValveV valve, string varName, string description, string tagName)
         {
             if (valve != null && _global != null)
             {
                 valve.Global = _global;
                 valve.VarName = varName;
                 valve.Description = description;
-                valve.Name = name;
-                System.Diagnostics.Debug.WriteLine($"Инициализирован клапан: {name} ({varName})");
+                valve.Name = tagName;
+
+                // ДИАГНОСТИКА
+                System.Diagnostics.Debug.WriteLine($"=== ДИАГНОСТИКА InitializeValveV ===");
+                System.Diagnostics.Debug.WriteLine($"valve: {valve != null}");
+                System.Diagnostics.Debug.WriteLine($"_global: {_global != null}");
+                System.Diagnostics.Debug.WriteLine($"_global.Variables: {_global?.Variables != null}");
+
+                var tag = _global?.Variables?.GetByName(varName);
+                System.Diagnostics.Debug.WriteLine($"Tag '{varName}' найден: {tag != null}");
+
+                if (tag != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Tag.ValueReal: {tag.ValueReal}");
+                    System.Diagnostics.Debug.WriteLine($"Tag.ValueString: {tag.ValueString}");
+                }
+
+                valve.UpdateElement();
+                System.Diagnostics.Debug.WriteLine($"Инициализирован клапан: {tagName} ({varName})");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"ОШИБКА: valve={valve != null}, _global={_global != null}");
             }
         }
 

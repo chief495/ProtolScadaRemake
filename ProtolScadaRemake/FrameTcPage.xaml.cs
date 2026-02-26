@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
-using System.Xml.Linq;
 
 namespace ProtolScadaRemake
 {
@@ -22,85 +21,166 @@ namespace ProtolScadaRemake
         public void Initialize(TGlobal global)
         {
             _global = global;
-            InitializeElements();
-            InitializeTimer();
 
-            UpdatePanelsVisibility();
+            // Инициализация всех элементов
+            InitializeElements();
+
             // Настройка таймера обновления (10 Гц как в старом проекте)
             _repaintTimer = new DispatcherTimer();
             _repaintTimer.Interval = TimeSpan.FromMilliseconds(100);
             _repaintTimer.Tick += RepaintTimer_Tick;
+
+            // Подписка на события
+            SubscribeToEvents();
+
+            // Первоначальное обновление видимости панелей
+            UpdatePanelsVisibility();
+
+            System.Diagnostics.Debug.WriteLine("FrameTcPage инициализирован");
         }
 
         private void FrameTcPage_Loaded(object sender, RoutedEventArgs e)
         {
+            // Запуск таймера после загрузки
             _repaintTimer?.Start();
+
+            // Обновление видимости панелей при загрузке
+            UpdatePanelsVisibility();
         }
 
         private void FrameTcPage_Unloaded(object sender, RoutedEventArgs e)
         {
-            _repaintTimer?.Stop();
+            Cleanup();
         }
 
         private void InitializeElements()
         {
             try
             {
-                // Инициализация датчиков
+                // ========== АНАЛОГОВЫЕ ДАТЧИКИ ==========
+                // PT205 - Датчик протока PT205
                 InitializeSensor(PT205, "PT205", "Датчик протока PT205", "PT205", "л/ч");
+
+                // PT206 - Датчик протока PT206
                 InitializeSensor(PT206, "PT206", "Датчик протока PT206", "PT206", "л/ч");
+
+                // PT201 - Датчик давления PT201
                 InitializeSensor(PT201, "PT201", "Датчик давления PT201", "PT201", "бар");
+
+                // LT253 - Датчик уровня LT253
                 InitializeSensor(LT253, "LT253", "Датчик уровня LT253", "LT253", "%");
+
+                // TT202 - Датчик температуры TT202
                 InitializeSensor(TT202, "TT202", "Датчик температуры TT202", "TT202", "°C");
+
+                // TT252 - Датчик температуры TT252
                 InitializeSensor(TT252, "TT252", "Датчик температуры TT252", "TT252", "°C");
+
+                // FM602 - Массовый расходомер FM602
                 InitializeSensor(FM602, "FM602", "Массовый расходомер FM602", "FM602", "кг/ч");
 
-                // Датчик веса WIT200
+                // WIT200 - Датчик веса WIT200
                 InitializeSensor(WIT200, "WIT200_Volume", "Датчик веса WIT200", "WIT200", "кг");
 
-                // Инициализация дискретных датчиков
+                // ========== ДИСКРЕТНЫЕ ДАТЧИКИ ==========
+                // LAHH201 - Датчик уровня LAHH201
                 InitializeDiscreteSensor(LAHH201, "LAHH201", "Датчик уровня LAHH201", "LAHH-201");
+
+                // LAHH251 - Датчик уровня LAHH251
                 InitializeDiscreteSensor(LAHH251, "LAHH251", "Датчик уровня LAHH251", "LAHH-251");
 
-                // Инициализация насосов
+                // ========== НАСОСЫ ==========
+                // P200 - Насос P-200
                 InitializePumpH(P200, "P200", "Насос P-200", "P-200");
+
+                // P201 - Насос P-201
                 InitializePumpH(P201, "P201", "Насос P-201", "P-201");
+
+                // P202 - Насос P-202
                 InitializePumpH(P202, "P202", "Насос P-202", "P-202");
+
+                // P602 - Насос P-602
                 InitializePumpUzUnderPanel(P602, "P602", "Насос P-602", "P-602");
 
-                // Инициализация клапанов
+                // ========== КЛАПАНЫ ==========
+                // VT602 - Клапан SV-602 (3-ходовой)
                 Initialize3Valve(VT602, "V602", "Клапан SV-602", "SV-602");
+
+                // VT801 - Клапан V-801 (горизонтальный)
                 InitializeValveH(VT801, "V801", "Клапан V-801", "V-801");
+
+                // VT803 - Клапан V-803 (горизонтальный)
                 InitializeValveH(VT803, "V803", "Клапан V-803", "V-803");
 
-                // Инициализация нагревателя
-                InitializeHeater(HE800, "HE800", "Нагреватель HE-800");
+                // ========== НАГРЕВАТЕЛИ ==========
+                // HE800 - Нагреватель HE-800
+                InitializeHeater(HE800, "HE800", "Нагреватель HE-800", "HE-800");
 
-                // Инициализация миксеров
-                M200MixerToggle.StateChanged += M200MixerToggle_StateChanged;
-                M250MixerToggle.StateChanged += M250MixerToggle_StateChanged;
+                // ========== ПЕРЕКЛЮЧАТЕЛИ МИКСЕРОВ ==========
+                // M200 Mixer Toggle
+                if (M200MixerToggle != null)
+                {
+                    M200MixerToggle.Tag = "M200";
+                    M200MixerToggle.StateChanged += M200MixerToggle_StateChanged;
+                }
 
-                // Инициализация переключателя нагревателя
-                HE800Toggle.StateChanged += HE800Toggle_StateChanged;
+                // M250 Mixer Toggle
+                if (M250MixerToggle != null)
+                {
+                    M250MixerToggle.Tag = "M250";
+                    M250MixerToggle.StateChanged += M250MixerToggle_StateChanged;
+                }
+
+                // ========== ПЕРЕКЛЮЧАТЕЛИ НАГРЕВАТЕЛЕЙ ==========
+                // HE800 Toggle
+                if (HE800Toggle != null)
+                {
+                    HE800Toggle.Tag = "HE800";
+                    HE800Toggle.StateChanged += HE800Toggle_StateChanged;
+                }
+
+                // ========== ИНИЦИАЛИЗАЦИЯ УСТАВОК ==========
+                // Инициализация уставки массы Т-200
+                var massTag = _global?.Variables?.GetByName("TC_AutoMassSp");
+                if (massTag != null && T200MassSetEdit != null)
+                {
+                    T200MassSetEdit.Text = massTag.ValueString;
+                }
+
+                // Инициализация уставки массы топлива
+                var fuelTag = _global?.Variables?.GetByName("TC_ManualDiselSp");
+                if (fuelTag != null && FuelMassEdit != null)
+                {
+                    FuelMassEdit.Text = fuelTag.ValueString;
+                }
 
                 // Инициализация обработчиков для панели режимов
                 InitializeModePanelHandlers();
+
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка инициализации элементов: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка инициализации элементов FrameTcPage: {ex.Message}");
             }
         }
 
-        private void InitializeTimer()
+        private void SubscribeToEvents()
         {
-            _repaintTimer = new DispatcherTimer();
-            _repaintTimer.Interval = TimeSpan.FromMilliseconds(100); // 10 Гц
-            _repaintTimer.Tick += RepaintTimer_Tick;
+            if (_global != null)
+            {
+                _global.OnVariablesUpdated += Global_OnVariablesUpdated;
+            }
+        }
+
+        private void Global_OnVariablesUpdated(object sender, EventArgs e)
+        {
+            // Обновляем все элементы при изменении переменных Modbus
+            UpdateAllElements();
         }
 
         private void RepaintTimer_Tick(object sender, EventArgs e)
         {
+            // Останавливаем таймер на время обновления (как в старом проекте)
             _repaintTimer.Stop();
 
             try
@@ -108,7 +188,7 @@ namespace ProtolScadaRemake
                 // 1. Обновление всех элементов
                 UpdateAllElements();
 
-                // 2. Сброс команд как в старом проекте
+                // 2. Сброс команд (как в старом проекте)
                 ResetCommands();
 
                 // 3. Обновление информации на панелях
@@ -120,11 +200,89 @@ namespace ProtolScadaRemake
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка обновления: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка в RepaintTimer_Tick: {ex.Message}");
             }
             finally
             {
+                // Запускаем таймер снова (как в старом проекте)
                 _repaintTimer.Start();
+            }
+        }
+
+        private void UpdateAllElements()
+        {
+            // Обновляем аналоговые датчики
+            PT205?.UpdateElement();
+            PT206?.UpdateElement();
+            PT201?.UpdateElement();
+            LT253?.UpdateElement();
+            TT202?.UpdateElement();
+            TT252?.UpdateElement();
+            FM602?.UpdateElement();
+            WIT200?.UpdateElement();
+
+            // Обновляем дискретные датчики
+            LAHH201?.UpdateElement();
+            LAHH251?.UpdateElement();
+
+            // Обновляем насосы
+            P200?.UpdateElement();
+            P201?.UpdateElement();
+            P202?.UpdateElement();
+            P602?.UpdateElement();
+
+            // Обновляем клапаны
+            VT602?.UpdateElement();
+            VT801?.UpdateElement();
+            VT803?.UpdateElement();
+
+            // Обновляем нагреватель
+            HE800?.UpdateElement();
+
+            // Обновление состояния переключателей из переменных
+            UpdateToggleSwitchesFromVariables();
+        }
+
+        private void UpdateToggleSwitchesFromVariables()
+        {
+            try
+            {
+                // Миксер M200
+                var m200Tag = _global?.Variables?.GetByName("M200_IsWork");
+                if (m200Tag != null && M200MixerToggle != null)
+                {
+                    bool isWorking = m200Tag.ValueReal > 0;
+                    if (M200MixerToggle.IsChecked != isWorking)
+                    {
+                        M200MixerToggle.IsChecked = isWorking;
+                    }
+                }
+
+                // Миксер M250
+                var m250Tag = _global?.Variables?.GetByName("M250_IsWork");
+                if (m250Tag != null && M250MixerToggle != null)
+                {
+                    bool isWorking = m250Tag.ValueReal > 0;
+                    if (M250MixerToggle.IsChecked != isWorking)
+                    {
+                        M250MixerToggle.IsChecked = isWorking;
+                    }
+                }
+
+                // Нагреватель HE800
+                var he800Tag = _global?.Variables?.GetByName("HE800_IsOn");
+                if (he800Tag != null && HE800Toggle != null)
+                {
+                    bool isOn = he800Tag.ValueReal > 0;
+                    if (HE800Toggle.IsChecked != isOn)
+                    {
+                        HE800Toggle.IsChecked = isOn;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка обновления переключателей: {ex.Message}");
             }
         }
 
@@ -134,8 +292,10 @@ namespace ProtolScadaRemake
             {
                 if (_global?.Commands == null) return;
 
+                TCommandTag command;
+
                 // Сброс команды включения миксера Т-200
-                var command = _global.Commands.GetByName("M200_StartMixer");
+                command = _global.Commands.GetByName("M200_StartMixer");
                 if (command != null && !command.NeedToWrite)
                     command.WriteValue = "false";
 
@@ -149,36 +309,63 @@ namespace ProtolScadaRemake
                 if (command != null && !command.NeedToWrite)
                     command.WriteValue = "false";
 
+                // Сброс команд набора топлива
+                command = _global.Commands.GetByName("TC_ManualStartDisel");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("TC_ManualStartEmulgator");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("TC_ManualStop");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("TC_ManualPause");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                // Сброс команд авторежима
+                command = _global.Commands.GetByName("TC_AutolStart");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("TC_AutoStop");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("TC_AutoPause");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                // Сброс команд перекачки
+                command = _global.Commands.GetByName("TC_TransportStart");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("TC_TransportStop");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                // Сброс команд режимов
+                command = _global.Commands.GetByName("TC_RejimToOff");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("TC_RejimToManual");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
+                command = _global.Commands.GetByName("TC_RejimToAuto");
+                if (command != null && !command.NeedToWrite)
+                    command.WriteValue = "false";
+
             }
-            catch { }
-        }
-
-        private void UpdateAllElements()
-        {
-            // Обновляем все элементы управления
-            PT205?.UpdateElement();
-            PT206?.UpdateElement();
-            PT201?.UpdateElement();
-            LT253?.UpdateElement();
-            TT202?.UpdateElement();
-            TT252?.UpdateElement();
-            FM602?.UpdateElement();
-            WIT200?.UpdateElement();
-
-            LAHH201?.UpdateElement();
-            LAHH251?.UpdateElement();
-
-            P200?.UpdateElement();
-            P201?.UpdateElement();
-            P202?.UpdateElement();
-            P602?.UpdateElement();
-
-            VT602?.UpdateElement();
-            VT801?.UpdateElement();
-            VT803?.UpdateElement();
-
-            // Обновляем нагреватель
-            HE800?.UpdateElement();
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка сброса команд: {ex.Message}");
+            }
         }
 
         private void UpdatePanelInfo()
@@ -187,7 +374,7 @@ namespace ProtolScadaRemake
             {
                 // Обновление текущей массы в Т-200
                 var massTag = _global?.Variables?.GetByName("WIT200_Volume");
-                if (massTag != null)
+                if (massTag != null && T200CurrentMassLabel != null)
                 {
                     T200CurrentMassLabel.Text = $"Текущая: {massTag.ValueString} кг";
                 }
@@ -195,31 +382,30 @@ namespace ProtolScadaRemake
                 // Обновление статуса набора топлива
                 UpdateFuelStatus();
 
-                // Обновление счетчиков как в старом проекте
+                // Обновление счетчиков в панели ручного режима
                 var manualDiselTag = _global?.Variables?.GetByName("TC_ManualDiselCurrent");
-                if (manualDiselTag != null)
+                if (manualDiselTag != null && TcModePanel != null)
                 {
-                    // Если есть поля для отображения в панели ручного режима
-                    var diselCounterEdit = TcModePanel?.FindName("TC_ManualDiselCounterEdit") as TextBox;
+                    var diselCounterEdit = TcModePanel.FindName("TC_ManualDiselCounterEdit") as TextBox;
                     if (diselCounterEdit != null)
                         diselCounterEdit.Text = manualDiselTag.ValueString;
                 }
 
                 var manualEmulgatorTag = _global?.Variables?.GetByName("TC_ManualEmulgatorCurrent");
-                if (manualEmulgatorTag != null)
+                if (manualEmulgatorTag != null && TcModePanel != null)
                 {
-                    var emulgatorCounterEdit = TcModePanel?.FindName("TC_ManualEmulgatorCounterEdit") as TextBox;
+                    var emulgatorCounterEdit = TcModePanel.FindName("TC_ManualEmulgatorCounterEdit") as TextBox;
                     if (emulgatorCounterEdit != null)
                         emulgatorCounterEdit.Text = manualEmulgatorTag.ValueString;
                 }
 
-                // Обновление статусов авторежима как в старом проекте
+                // Обновление статусов авторежима
                 var autoDiselSpTag = _global?.Variables?.GetByName("TC_AutoDiselSp");
                 var autoDiselCurrentTag = _global?.Variables?.GetByName("TC_AutoDiselCurrent");
 
-                if (autoDiselSpTag != null && autoDiselCurrentTag != null)
+                if (autoDiselSpTag != null && autoDiselCurrentTag != null && TcModePanel != null)
                 {
-                    var diselStatusLabel = TcModePanel?.FindName("DiselStatusLabel") as TextBlock;
+                    var diselStatusLabel = TcModePanel.FindName("DiselStatusLabel") as TextBlock;
                     if (diselStatusLabel != null)
                         diselStatusLabel.Text = "Диз.топливо: " + autoDiselCurrentTag.ValueString + " из " + autoDiselSpTag.ValueString;
                 }
@@ -227,9 +413,9 @@ namespace ProtolScadaRemake
                 var autoEmulgatorSpTag = _global?.Variables?.GetByName("TC_AutoEmulgatorSp");
                 var autoEmulgatorCurrentTag = _global?.Variables?.GetByName("TC_AutoEmulgatorCurrent");
 
-                if (autoEmulgatorSpTag != null && autoEmulgatorCurrentTag != null)
+                if (autoEmulgatorSpTag != null && autoEmulgatorCurrentTag != null && TcModePanel != null)
                 {
-                    var emulgatorStatusLabel = TcModePanel?.FindName("EmulgatorStatusLabel") as TextBlock;
+                    var emulgatorStatusLabel = TcModePanel.FindName("EmulgatorStatusLabel") as TextBlock;
                     if (emulgatorStatusLabel != null)
                         emulgatorStatusLabel.Text = "Эмульгатор: " + autoEmulgatorCurrentTag.ValueString + " из " + autoEmulgatorSpTag.ValueString;
                 }
@@ -245,6 +431,8 @@ namespace ProtolScadaRemake
         {
             try
             {
+                if (FuelStatusLabel == null) return;
+
                 string status = "";
 
                 // Проверяем текущий режим набора
@@ -309,9 +497,6 @@ namespace ProtolScadaRemake
                 {
                     double rejimValue = rejimTag.ValueReal;
 
-                    // Устанавливаем видимость по умолчанию
-                    Visibility defaultVisibility = Visibility.Visible;
-
                     // ВАЖНО: Явно устанавливаем видимость всех панелей в каждом случае
                     if (rejimValue == 0) // OFF
                     {
@@ -319,7 +504,6 @@ namespace ProtolScadaRemake
                         T200MassPanel.Visibility = Visibility.Collapsed;
                         T100toT150Panel.Visibility = Visibility.Collapsed;
 
-                        // Также установите IsEnabled если нужно
                         if (T100toT150Panel != null)
                             T100toT150Panel.IsEnabled = false;
                     }
@@ -341,7 +525,7 @@ namespace ProtolScadaRemake
                         if (T100toT150Panel != null)
                             T100toT150Panel.IsEnabled = true;
                     }
-                    else if (rejimValue == 3) // Полуавтомат - набор дизеля
+                    else if (rejimValue == 3 || rejimValue == 4) // Полуавтомат - набор дизеля
                     {
                         FuelPanel.Visibility = Visibility.Visible;
                         T200MassPanel.Visibility = Visibility.Collapsed;
@@ -350,25 +534,7 @@ namespace ProtolScadaRemake
                         if (T100toT150Panel != null)
                             T100toT150Panel.IsEnabled = false;
                     }
-                    else if (rejimValue == 4) // Полуавтомат - набор дизеля. Пауза
-                    {
-                        FuelPanel.Visibility = Visibility.Visible;
-                        T200MassPanel.Visibility = Visibility.Collapsed;
-                        T100toT150Panel.Visibility = Visibility.Collapsed;
-
-                        if (T100toT150Panel != null)
-                            T100toT150Panel.IsEnabled = false;
-                    }
-                    else if (rejimValue == 5) // Полуавтомат - набор эмульгатора
-                    {
-                        FuelPanel.Visibility = Visibility.Visible;
-                        T200MassPanel.Visibility = Visibility.Collapsed;
-                        T100toT150Panel.Visibility = Visibility.Collapsed;
-
-                        if (T100toT150Panel != null)
-                            T100toT150Panel.IsEnabled = false;
-                    }
-                    else if (rejimValue == 6) // Полуавтомат - набор эмульгатора. Пауза
+                    else if (rejimValue == 5 || rejimValue == 6) // Полуавтомат - набор эмульгатора
                     {
                         FuelPanel.Visibility = Visibility.Visible;
                         T200MassPanel.Visibility = Visibility.Collapsed;
@@ -387,16 +553,7 @@ namespace ProtolScadaRemake
                         if (T100toT150Panel != null)
                             T100toT150Panel.IsEnabled = false;
                     }
-                    else if (rejimValue == 11) // Полуавтомат - перекачка
-                    {
-                        FuelPanel.Visibility = Visibility.Collapsed;
-                        T200MassPanel.Visibility = Visibility.Visible;
-                        T100toT150Panel.Visibility = Visibility.Visible;
-
-                        if (T100toT150Panel != null)
-                            T100toT150Panel.IsEnabled = true;
-                    }
-                    else if (rejimValue == 12) // Автомат - перекачка
+                    else if (rejimValue == 11 || rejimValue == 12) // Перекачка
                     {
                         FuelPanel.Visibility = Visibility.Collapsed;
                         T200MassPanel.Visibility = Visibility.Visible;
@@ -406,8 +563,8 @@ namespace ProtolScadaRemake
                             T100toT150Panel.IsEnabled = true;
                     }
 
-                    // Для отладки добавьте логирование
-                    System.Diagnostics.Debug.WriteLine($"Режим: {rejimValue}, " +
+                    // Для отладки
+                    System.Diagnostics.Debug.WriteLine($"TC Режим: {rejimValue}, " +
                         $"FuelPanel: {FuelPanel.Visibility}, " +
                         $"T200MassPanel: {T200MassPanel.Visibility}, " +
                         $"T100toT150Panel: {T100toT150Panel.Visibility}");
@@ -419,60 +576,7 @@ namespace ProtolScadaRemake
             }
         }
 
-        // ========== ИНИЦИАЛИЗАЦИЯ ЭЛЕМЕНТОВ ==========
-        private void InitializePumpH(Element_PumpH pump, string varName, string description, string name)
-        {
-            if (pump != null && _global != null)
-            {
-                pump.Global = _global;
-                pump.VarName = varName;
-                pump.Description = description;
-                pump.Name = name;
-            }
-        }
-
-        private void InitializePumpUzUnderPanel(Element_PumpUzUnderPanel pump, string varName, string description, string name)
-        {
-            if (pump != null && _global != null)
-            {
-                pump.Global = _global;
-                pump.VarName = varName;
-                pump.Description = description;
-                pump.Name = name;
-            }
-        }
-
-        private void Initialize3Valve(Element_3ValveH valve, string varName, string description,string name)
-        {
-            if (valve != null && _global != null)
-            {
-                valve.Global = _global;
-                valve.VarName = varName;
-                valve.Description = description;
-                valve.Name = name;
-            }
-        }
-
-        private void InitializeValveH(Element_ValveH valve, string varName, string description, string name)
-        {
-            if (valve != null && _global != null)
-            {
-                valve.Global = _global;
-                valve.VarName = varName;
-                valve.Description = description;
-                valve.Name = name;
-            }
-        }
-
-        private void InitializeHeater(Element_Heater heater, string varName, string description)
-        {
-            if (heater != null && _global != null)
-            {
-                heater.Global = _global;
-                heater.VarName = varName;
-                heater.Description = description;
-            }
-        }
+        // ========== МЕТОДЫ ИНИЦИАЛИЗАЦИИ ЭЛЕМЕНТОВ ==========
 
         private void InitializeSensor(Element_AI sensor, string varName, string description, string name, string eu)
         {
@@ -483,6 +587,7 @@ namespace ProtolScadaRemake
                 sensor.Description = description;
                 sensor.Name = name;
                 sensor.EU = eu;
+                System.Diagnostics.Debug.WriteLine($"Инициализирован датчик: {name} ({varName})");
             }
         }
 
@@ -494,6 +599,69 @@ namespace ProtolScadaRemake
                 sensor.VarName = varName;
                 sensor.Description = description;
                 sensor.Name = name;
+                System.Diagnostics.Debug.WriteLine($"Инициализирован дискретный датчик: {name} ({varName})");
+            }
+        }
+
+        private void InitializePumpH(Element_PumpH pump, string varName, string description, string name)
+        {
+            if (pump != null && _global != null)
+            {
+                pump.Global = _global;
+                pump.VarName = varName;
+                pump.Description = description;
+                pump.Name = name;
+                pump.UpdateElement();
+                System.Diagnostics.Debug.WriteLine($"Инициализирован насос: {name} ({varName})");
+            }
+        }
+
+        private void InitializePumpUzUnderPanel(Element_PumpUzUnderPanel pump, string varName, string description, string name)
+        {
+            if (pump != null && _global != null)
+            {
+                pump.Global = _global;
+                pump.VarName = varName;
+                pump.Description = description;
+                pump.Name = name;
+                pump.UpdateElement();
+                System.Diagnostics.Debug.WriteLine($"Инициализирован насос: {name} ({varName})");
+            }
+        }
+
+        private void Initialize3Valve(Element_3ValveH valve, string varName, string description, string name)
+        {
+            if (valve != null && _global != null)
+            {
+                valve.Global = _global;
+                valve.VarName = varName;
+                valve.Description = description;
+                valve.Name = name;
+                System.Diagnostics.Debug.WriteLine($"Инициализирован 3-ходовой клапан: {name} ({varName})");
+            }
+        }
+
+        private void InitializeValveH(Element_ValveH valve, string varName, string description, string name)
+        {
+            if (valve != null && _global != null)
+            {
+                valve.Global = _global;
+                valve.VarName = varName;
+                valve.Description = description;
+                valve.Name = name;
+                System.Diagnostics.Debug.WriteLine($"Инициализирован клапан горизонтальный: {name} ({varName})");
+            }
+        }
+
+        private void InitializeHeater(Element_Heater heater, string varName, string description, string name)
+        {
+            if (heater != null && _global != null)
+            {
+                heater.Global = _global;
+                heater.VarName = varName;
+                heater.Description = description;
+                heater.Name = name;
+                System.Diagnostics.Debug.WriteLine($"Инициализирован нагреватель: {name} ({varName})");
             }
         }
 
@@ -548,12 +716,22 @@ namespace ProtolScadaRemake
             if (isChecked)
             {
                 _global.Log.Add("Пользователь", "Включение миксера M200", 1);
-                SendCommand("M200_StartMixer", "true");
+                TCommandTag command = _global.Commands.GetByName("M200_StartMixer");
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                }
             }
             else
             {
                 _global.Log.Add("Пользователь", "Отключение миксера M200", 1);
-                SendCommand("M200_StartMixer", "false");
+                TCommandTag command = _global.Commands.GetByName("M200_StartMixer");
+                if (command != null)
+                {
+                    command.WriteValue = "false";
+                    command.NeedToWrite = true;
+                }
             }
         }
 
@@ -564,12 +742,22 @@ namespace ProtolScadaRemake
             if (isChecked)
             {
                 _global.Log.Add("Пользователь", "Включение миксера M250", 1);
-                SendCommand("M250_StartMixer", "true");
+                TCommandTag command = _global.Commands.GetByName("M250_StartMixer");
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                }
             }
             else
             {
                 _global.Log.Add("Пользователь", "Отключение миксера M250", 1);
-                SendCommand("M250_StartMixer", "false");
+                TCommandTag command = _global.Commands.GetByName("M250_StartMixer");
+                if (command != null)
+                {
+                    command.WriteValue = "false";
+                    command.NeedToWrite = true;
+                }
             }
         }
 
@@ -580,12 +768,22 @@ namespace ProtolScadaRemake
             if (isChecked)
             {
                 _global.Log.Add("Пользователь", "Включение нагревателя HE800", 1);
-                SendCommand("HE800_StartHeater", "true");
+                TCommandTag command = _global.Commands.GetByName("HE800_StartHeater");
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                }
             }
             else
             {
                 _global.Log.Add("Пользователь", "Отключение нагревателя HE800", 1);
-                SendCommand("HE800_StartHeater", "false");
+                TCommandTag command = _global.Commands.GetByName("HE800_StartHeater");
+                if (command != null)
+                {
+                    command.WriteValue = "false";
+                    command.NeedToWrite = true;
+                }
             }
         }
 
@@ -601,8 +799,20 @@ namespace ProtolScadaRemake
                     // Набор дизеля
                     if (double.TryParse(FuelMassEdit.Text, out double mass))
                     {
-                        SendCommand("TC_ManualDiselSp", mass.ToString());
-                        SendCommand("TC_ManualStartDisel", "true");
+                        TCommandTag spCommand = _global.Commands.GetByName("TC_ManualDiselSp");
+                        if (spCommand != null)
+                        {
+                            spCommand.WriteValue = mass.ToString();
+                            spCommand.NeedToWrite = true;
+                        }
+
+                        TCommandTag startCommand = _global.Commands.GetByName("TC_ManualStartDisel");
+                        if (startCommand != null)
+                        {
+                            startCommand.WriteValue = "true";
+                            startCommand.NeedToWrite = true;
+                        }
+                        _global.Log.Add("Пользователь", "Запуск набора дизеля", 1);
                     }
                 }
                 else if (EmulgatorRadio.IsChecked == true)
@@ -610,8 +820,20 @@ namespace ProtolScadaRemake
                     // Набор эмульгатора
                     if (double.TryParse(FuelMassEdit.Text, out double mass))
                     {
-                        SendCommand("TC_ManualEmulgatorSp", mass.ToString());
-                        SendCommand("TC_ManualStartEmulgator", "true");
+                        TCommandTag spCommand = _global.Commands.GetByName("TC_ManualEmulgatorSp");
+                        if (spCommand != null)
+                        {
+                            spCommand.WriteValue = mass.ToString();
+                            spCommand.NeedToWrite = true;
+                        }
+
+                        TCommandTag startCommand = _global.Commands.GetByName("TC_ManualStartEmulgator");
+                        if (startCommand != null)
+                        {
+                            startCommand.WriteValue = "true";
+                            startCommand.NeedToWrite = true;
+                        }
+                        _global.Log.Add("Пользователь", "Запуск набора эмульгатора", 1);
                     }
                 }
             }
@@ -623,12 +845,24 @@ namespace ProtolScadaRemake
 
         private void FuelStopButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("TC_ManualStop", "true");
+            TCommandTag command = _global?.Commands?.GetByName("TC_ManualStop");
+            if (command != null)
+            {
+                command.WriteValue = "true";
+                command.NeedToWrite = true;
+                _global.Log.Add("Пользователь", "Остановка набора топлива", 1);
+            }
         }
 
         private void FuelPauseButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("TC_ManualPause", "true");
+            TCommandTag command = _global?.Commands?.GetByName("TC_ManualPause");
+            if (command != null)
+            {
+                command.WriteValue = "true";
+                command.NeedToWrite = true;
+                _global.Log.Add("Пользователь", "Пауза набора топлива", 1);
+            }
         }
 
         // Обработчики панели массы в Т-200
@@ -640,7 +874,13 @@ namespace ProtolScadaRemake
             {
                 if (double.TryParse(T200MassSetEdit.Text, out double mass))
                 {
-                    SendCommand("TC_AutoMassSp", mass.ToString());
+                    TCommandTag command = _global.Commands.GetByName("TC_AutoMassSp");
+                    if (command != null)
+                    {
+                        command.WriteValue = mass.ToString();
+                        command.NeedToWrite = true;
+                        _global.Log.Add("Пользователь", $"Задание массы Т200: {mass} кг", 1);
+                    }
                 }
             }
             catch (Exception ex)
@@ -652,59 +892,101 @@ namespace ProtolScadaRemake
         private void T200ResetButton_Click(object sender, RoutedEventArgs e)
         {
             T200MassSetEdit.Text = "0";
-            SendCommand("TC_AutoMassSp", "0");
+            TCommandTag command = _global?.Commands?.GetByName("TC_AutoMassSp");
+            if (command != null)
+            {
+                command.WriteValue = "0";
+                command.NeedToWrite = true;
+            }
         }
 
         // Обработчики панели перекачки
         private void TransferStartButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("TC_TransportStart", "true");
+            TCommandTag command = _global?.Commands?.GetByName("TC_TransportStart");
+            if (command != null)
+            {
+                command.WriteValue = "true";
+                command.NeedToWrite = true;
+                _global.Log.Add("Пользователь", "Пуск перекачки", 1);
+            }
         }
 
         private void TransferStopButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("TC_TransportStop", "true");
+            TCommandTag command = _global?.Commands?.GetByName("TC_TransportStop");
+            if (command != null)
+            {
+                command.WriteValue = "true";
+                command.NeedToWrite = true;
+                _global.Log.Add("Пользователь", "Остановка перекачки", 1);
+            }
         }
 
         // Обработчики для кнопок панели режимов
         private void RejimOffButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("TC_RejimToOff", "true");
+            TCommandTag command = _global?.Commands?.GetByName("TC_RejimToOff");
+            if (command != null)
+            {
+                command.WriteValue = "true";
+                command.NeedToWrite = true;
+                _global.Log.Add("Пользователь", "Перевод в режим OFF", 1);
+            }
         }
 
         private void RejimManualButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("TC_RejimToManual", "true");
+            TCommandTag command = _global?.Commands?.GetByName("TC_RejimToManual");
+            if (command != null)
+            {
+                command.WriteValue = "true";
+                command.NeedToWrite = true;
+                _global.Log.Add("Пользователь", "Перевод в ручной режим", 1);
+            }
         }
 
         private void RejimAutoButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("TC_RejimToAuto", "true");
+            TCommandTag command = _global?.Commands?.GetByName("TC_RejimToAuto");
+            if (command != null)
+            {
+                command.WriteValue = "true";
+                command.NeedToWrite = true;
+                _global.Log.Add("Пользователь", "Перевод в авторежим", 1);
+            }
         }
 
         private void ManualStartButton_Click(object sender, RoutedEventArgs e)
         {
-            // Этот метод уже есть для FuelStartButton, но нужен и для панели ModePanel
-            var manualStartButton = sender as Button;
-            if (manualStartButton != null)
-            {
-                FuelStartButton_Click(sender, e);
-            }
+            // Вызываем существующий обработчик
+            FuelStartButton_Click(sender, e);
         }
 
         private void ManualStopButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("TC_ManualStop", "true");
+            TCommandTag command = _global?.Commands?.GetByName("TC_ManualStop");
+            if (command != null)
+            {
+                command.WriteValue = "true";
+                command.NeedToWrite = true;
+                _global.Log.Add("Пользователь", "Остановка ручного режима", 1);
+            }
         }
 
         private void ManualPauseButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("TC_ManualPause", "true");
+            TCommandTag command = _global?.Commands?.GetByName("TC_ManualPause");
+            if (command != null)
+            {
+                command.WriteValue = "true";
+                command.NeedToWrite = true;
+                _global.Log.Add("Пользователь", "Пауза ручного режима", 1);
+            }
         }
 
         private void AutoStartButton_Click(object sender, RoutedEventArgs e)
         {
-            // Аналогично T200SetButton_Click
             if (_global == null) return;
 
             try
@@ -712,8 +994,20 @@ namespace ProtolScadaRemake
                 var autoMassSpEdit = TcModePanel?.FindName("TCAutoMassSpEdit") as TextBox;
                 if (autoMassSpEdit != null && double.TryParse(autoMassSpEdit.Text, out double mass))
                 {
-                    SendCommand("TC_AutoMassSp", mass.ToString());
-                    SendCommand("TC_AutolStart", "true");
+                    TCommandTag spCommand = _global.Commands.GetByName("TC_AutoMassSp");
+                    if (spCommand != null)
+                    {
+                        spCommand.WriteValue = mass.ToString();
+                        spCommand.NeedToWrite = true;
+                    }
+
+                    TCommandTag startCommand = _global.Commands.GetByName("TC_AutolStart");
+                    if (startCommand != null)
+                    {
+                        startCommand.WriteValue = "true";
+                        startCommand.NeedToWrite = true;
+                    }
+                    _global.Log.Add("Пользователь", $"Запуск авторежима с массой {mass} кг", 1);
                 }
             }
             catch (Exception ex)
@@ -724,27 +1018,34 @@ namespace ProtolScadaRemake
 
         private void AutoStopButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("TC_AutoStop", "true");
+            TCommandTag command = _global?.Commands?.GetByName("TC_AutoStop");
+            if (command != null)
+            {
+                command.WriteValue = "true";
+                command.NeedToWrite = true;
+                _global.Log.Add("Пользователь", "Остановка авторежима", 1);
+            }
         }
 
         private void AutoPauseButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("TC_AutoPause", "true");
+            TCommandTag command = _global?.Commands?.GetByName("TC_AutoPause");
+            if (command != null)
+            {
+                command.WriteValue = "true";
+                command.NeedToWrite = true;
+                _global.Log.Add("Пользователь", "Пауза авторежима", 1);
+            }
         }
 
-        private void SendCommand(string commandName, string value)
+        public void Cleanup()
         {
-            try
+            _repaintTimer?.Stop();
+
+            if (_global != null)
             {
-                var command = _global?.Commands?.GetByName(commandName);
-                if (command != null)
-                {
-                    command.WriteValue = value;
-                    command.NeedToWrite = true;
-                    command.SendToController();
-                }
+                _global.OnVariablesUpdated -= Global_OnVariablesUpdated;
             }
-            catch { }
         }
     }
 }
