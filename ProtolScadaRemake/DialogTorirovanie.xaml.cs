@@ -272,6 +272,13 @@ namespace ProtolScadaRemake
                 _repaintTimer.Tick -= RepaintTimer_Tick;
             }
         }
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed)
+            {
+                DragMove();
+            }
+        }
     }
 
     // Вспомогательный класс для работы с курсором (аналог Cursor.Position из WinForms)
