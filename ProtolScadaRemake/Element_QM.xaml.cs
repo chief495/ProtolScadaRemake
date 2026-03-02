@@ -14,7 +14,7 @@ namespace ProtolScadaRemake
         public TGlobal Global;
         public string VarName = "";
         public string TagName { get; set; } = "";
-        public string EU { get; set; } = "";
+        public string EU { get; set; } = "л";
         public string Designation { get; set; } = "";
 
         public Element_QM()
@@ -43,19 +43,21 @@ namespace ProtolScadaRemake
 
                 if (Global == null) return;
 
-                // Для счетчика используем _Total вместо _Value
+                // ОСНОВНОЕ ЗНАЧЕНИЕ СЧЕТЧИКА - Total
                 TVariableTag Tag = Global.Variables?.GetByName(VarName + "_Total");
                 if (Tag != null && ValueLabel != null)
+                {
                     ValueLabel.Text = Tag.ValueString;
+                }
 
-                // Ручной режим
+                // Ручной режим (если есть)
                 Tag = Global.Variables?.GetByName(VarName + "_Manual");
                 if (Tag != null)
                     HandImage.Visibility = Tag.ValueReal > 0 ? Visibility.Visible : Visibility.Hidden;
                 else
                     HandImage.Visibility = Visibility.Hidden;
 
-                // Подсветка аварий
+                // Подсветка аварий (если есть)
                 if (ValueRect != null)
                 {
                     ValueRect.Fill = Brushes.Transparent;

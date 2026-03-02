@@ -28,13 +28,13 @@
             CommandAddress = CommAddr;
             Group = VarGroup;
             // Переменные
-            StartValueVariable = Global.Variables.Add(Name + "_StartValue", Group, InputAddress, 1, "Float_32", "", "##0.##", " л.", "Начальное значение счетчика " + Name);
-            PulseSizeVariable = Global.Variables.Add(Name + "_PulseSize", Group, (ushort)(InputAddress + 0x02), 1, "Float_32", "", "##0.##", " л.", "Цена импульса " + Name);
+            StartValueVariable = Global.Variables.Add(Name + "_StartValue", Group, InputAddress, 1, "Float_32", "", "##0.##", "", "Начальное значение счетчика " + Name);
+            PulseSizeVariable = Global.Variables.Add(Name + "_PulseSize", Group, (ushort)(InputAddress + 0x02), 1, "Float_32", "", "##0.##", "", "Цена импульса " + Name);
             ResetVariable = Global.Variables.Add(Name + "_Reset", Group, (ushort)(InputAddress + 0x04), 1, "Bool", "", "Нет;Да", "", "Сброс счетчика " + Name);
-            TotalVariable = Global.Variables.Add(Name + "_Total", Group, (ushort)(OutputAddress + 0x00), 1, "Float_32", "", "##0.##", " л.", "Значение счетчика " + Name);
+            TotalVariable = Global.Variables.Add(Name + "_Total", Group, (ushort)(OutputAddress + 0x00), 1, "Float_32", "", "##0.##", "", "Значение счетчика " + Name);
             // Команды
-            StartValueCommand = Global.Commands.Add(Name + "_StartValue", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", CommandAddress, "Float_32", "##0.## л.", "Начальное значение счетчик " + Name);
-            PulseSizeCommand = Global.Commands.Add(Name + "_PulseSize", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x02), "Float_32", "##0.## л.", "Цена импульса " + Name);
+            StartValueCommand = Global.Commands.Add(Name + "_StartValue", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", CommandAddress, "Float_32", "##0.##", "Начальное значение счетчик " + Name);
+            PulseSizeCommand = Global.Commands.Add(Name + "_PulseSize", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x02), "Float_32", "##0.##", "Цена импульса " + Name);
             ResetCommand = Global.Commands.Add(Name + "_Reset", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x04), "Bool", "Нет;Да", "Сброс счетчика " + Name);
             // События
             // Тренды

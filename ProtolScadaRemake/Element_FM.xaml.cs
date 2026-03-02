@@ -14,7 +14,7 @@ namespace ProtolScadaRemake
         public TGlobal Global;
         public string VarName = "";
         public string TagName { get; set; } = "";
-        public string EU { get; set; } = "";
+        public string EU { get; set; } = "кг/ч";
         public string Designation { get; set; } = "";
 
         public Element_FM()
@@ -43,19 +43,30 @@ namespace ProtolScadaRemake
 
                 if (Global == null) return;
 
-                // Для расходомера используем _Value (мгновенный расход)
-                TVariableTag Tag = Global.Variables?.GetByName(VarName + "_Value");
+                // ОСНОВНОЕ ЗНАЧЕНИЕ - массовый расход (кг/мин)
+                TVariableTag Tag = Global.Variables?.GetByName(VarName + "_MassFlow");
                 if (Tag != null && ValueLabel != null)
+                {
                     ValueLabel.Text = Tag.ValueString;
+                }
+                else
+                {
+                    // Если нет массового, пробуем объемный расход
+                    Tag = Global.Variables?.GetByName(VarName + "_VolumeFlow");
+                    if (Tag != null && ValueLabel != null)
+                    {
+                        ValueLabel.Text = Tag.ValueString;
+                    }
+                }
 
-                // Ручной режим
+                // Ручной режим (если есть)
                 Tag = Global.Variables?.GetByName(VarName + "_Manual");
                 if (Tag != null)
                     HandImage.Visibility = Tag.ValueReal > 0 ? Visibility.Visible : Visibility.Hidden;
                 else
                     HandImage.Visibility = Visibility.Hidden;
 
-                // Подсветка аварий
+                // Подсветка аварий (если есть)
                 if (ValueRect != null)
                 {
                     ValueRect.Fill = Brushes.Transparent;

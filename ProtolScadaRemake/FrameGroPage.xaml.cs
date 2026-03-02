@@ -83,8 +83,8 @@ namespace ProtolScadaRemake
                 InitializeSensor(PT601, "PT601", "Датчик давления PT601", "PT-601", "атм");
 
                 // Расходомеры
-                InitializeFM(FM401, "FM401", "Расходомер FM401", "FM401", "кг/ч");
-                InitializeFM(FM601, "FM601", "Расходомер FM601", "FM601", "кг/ч");
+                InitializeFM(FM401, "FM401", "Расходомер FM401", "FM401", "кг/мин");
+                InitializeFM(FM601, "FM601", "Расходомер FM601", "FM601", "кг/мин");
 
                 // Счетчик QM400
                 InitializeQM(QM400, "QM400", "Счетчик QM-400", "QM-400", "л");
