@@ -47,16 +47,16 @@
             Group = VarGroup;
             // Переменные
             ManualVariable = Global.Variables.Add(Name + "_Manual", Group, InputAddress, 1, "Bool", "", "Автомат;Ручной", "", "Ручной режим датчика " + Name);
-            ManualValueVariable = Global.Variables.Add(Name + "_ManualValue", Group, (ushort)(InputAddress + 0x01), 1, "Float_32", "", "##0.#", " %", "Ручное значение датчика " + Name);
-            LowLevelVariable = Global.Variables.Add(Name + "_LowLevel", Group, (ushort)(InputAddress + 0x03), 1, "Float_32", "", "##0.#", " %", "Нижняя граница измеряемого уровня уровня датчика " + Name);
-            HiLevelVariable = Global.Variables.Add(Name + "_HiLevel", Group, (ushort)(InputAddress + 0x05), 1, "Float_32", "", "##0.#", " %", "Верхняя граница измеряемого уровня датчика " + Name);
+            ManualValueVariable = Global.Variables.Add(Name + "_ManualValue", Group, (ushort)(InputAddress + 0x01), 1, "Float_32", "", "##0.#", "", "Ручное значение датчика " + Name);
+            LowLevelVariable = Global.Variables.Add(Name + "_LowLevel", Group, (ushort)(InputAddress + 0x03), 1, "Float_32", "", "##0.#", "", "Нижняя граница измеряемого уровня уровня датчика " + Name);
+            HiLevelVariable = Global.Variables.Add(Name + "_HiLevel", Group, (ushort)(InputAddress + 0x05), 1, "Float_32", "", "##0.#", "", "Верхняя граница измеряемого уровня датчика " + Name);
             LowCurrVariable = Global.Variables.Add(Name + "_LowCurr", Group, (ushort)(InputAddress + 0x07), 1, "Float_32", "", "##0.##", " mА", "Нижняя граница токовой петли датчика " + Name);
             HiCurrVariable = Global.Variables.Add(Name + "_HiCurr", Group, (ushort)(InputAddress + 0x09), 1, "Float_32", "", "##0.##", " mА", "Верхняя граница токовой петли датчика " + Name);
             LWVariable = Global.Variables.Add(Name + "_LW", Group, (ushort)(InputAddress + 0x0B), 1, "Float_32", "", "##0.#", " %", "Нижнее предаварийное значение датчика " + Name);
             HWVariable = Global.Variables.Add(Name + "_HW", Group, (ushort)(InputAddress + 0x0D), 1, "Float_32", "", "##0.#", " %", "Верхнее предаварийное значение датчика " + Name);
             LFVariable = Global.Variables.Add(Name + "_LF", Group, (ushort)(InputAddress + 0x0F), 1, "Float_32", "", "##0.#", " %", "Нижнее аварийное значение датчика " + Name);
             HFVariable = Global.Variables.Add(Name + "_HF", Group, (ushort)(InputAddress + 0x11), 1, "Float_32", "", "##0.#", " %", "Верхнее аварийное значение датчика " + Name);
-            ValueVariable = Global.Variables.Add(Name + "_Value", Group, (ushort)(OutputAddress + 0x00), 1, "Float_32", "", "##0.#", " %", "Текущее значение датчика " + Name);
+            ValueVariable = Global.Variables.Add(Name + "_Value", Group, (ushort)(OutputAddress + 0x00), 1, "Float_32", "", "##0.#", "", "Текущее значение датчика " + Name);
             StatusVariable = Global.Variables.Add(Name + "_Status", Group, (ushort)(OutputAddress + 0x02), 1, "Int_16", "", "##0", "", "Статус работы датчика " + Name);
             FaultVariable = Global.Variables.Add(Name + "_Fault", Group, (ushort)(OutputAddress + 0x03), 1, "Bool", "", "Норма;Авария", "", "Ошибка датчика " + Name);
             Warning_LowVariable = Global.Variables.Add(Name + "_Warning_Low", Group, (ushort)(OutputAddress + 0x04), 1, "Bool", "", "Норма;Предупреждение", "", "Нижнее предаварийное значение датчика " + Name);
@@ -65,15 +65,15 @@
             Fault_HiVariable = Global.Variables.Add(Name + "_Fault_Hi", Group, (ushort)(OutputAddress + 0x07), 1, "Bool", "", "Норма;Авария", "", "Верхнее аварийное значение датчика " + Name);
             // Команды
             ManualCommand = Global.Commands.Add(Name + "_Manual", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", CommandAddress, "Bool", "Автомат;Ручной", "Ручной режим датчика " + Name);
-            ManualValueCommand = Global.Commands.Add(Name + "_ManualValue", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x01), "Float_32", "##0.## %", "Ручное значение датчика " + Name);
-            LowLevelCommand = Global.Commands.Add(Name + "_LowLevel", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x03), "Float_32", "##0.## %", "Нижняя граница измеряемого уровня датчика " + Name);
-            HiLevelCommand = Global.Commands.Add(Name + "_HiLevel", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x05), "Float_32", "##0.## %", "Верхняя граница измеряемого уровня датчика " + Name);
+            ManualValueCommand = Global.Commands.Add(Name + "_ManualValue", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x01), "Float_32", "##0.##", "Ручное значение датчика " + Name);
+            LowLevelCommand = Global.Commands.Add(Name + "_LowLevel", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x03), "Float_32", "##0.##", "Нижняя граница измеряемого уровня датчика " + Name);
+            HiLevelCommand = Global.Commands.Add(Name + "_HiLevel", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x05), "Float_32", "##0.##", "Верхняя граница измеряемого уровня датчика " + Name);
             LowCurrCommand = Global.Commands.Add(Name + "_LowCurr", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x07), "Float_32", "##0.## mА", "Нижняя граница токовой петли датчика " + Name);
             HiCurrCommand = Global.Commands.Add(Name + "_HiCurr", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x09), "Float_32", "##0.## mА", "Верхняя граница токовой петли датчика " + Name);
-            LWCommand = Global.Commands.Add(Name + "_LW", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x0B), "Float_32", "##0.## %", "Нижнее предаварийное значение датчика " + Name);
-            HWCommand = Global.Commands.Add(Name + "_HW", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x0D), "Float_32", "##0.## %", "Верхнее предаварийное значение датчика " + Name);
-            LFCommand = Global.Commands.Add(Name + "_LF", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x0F), "Float_32", "##0.## %", "Нижнее аварийное значение датчика " + Name);
-            HFCommand = Global.Commands.Add(Name + "_HF", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x11), "Float_32", "##0.## %", "Верхнее аварийное значение датчика " + Name);
+            LWCommand = Global.Commands.Add(Name + "_LW", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x0B), "Float_32", "##0.##", "Нижнее предаварийное значение датчика " + Name);
+            HWCommand = Global.Commands.Add(Name + "_HW", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x0D), "Float_32", "##0.##", "Верхнее предаварийное значение датчика " + Name);
+            LFCommand = Global.Commands.Add(Name + "_LF", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x0F), "Float_32", "##0.##", "Нижнее аварийное значение датчика " + Name);
+            HFCommand = Global.Commands.Add(Name + "_HF", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x11), "Float_32", "##0.##", "Верхнее аварийное значение датчика " + Name);
             // События
             Global.Faults.Add(Name + "_Manual", "Предупреждение", "Ручной режим датчика " + Name, "==", "Ручной", "Норма", "ручной режим", false, "", "", "", 0, false, false);
             Global.Faults.Add(Name + "_Fault", "Отказ", "Ошибка датчика " + Name, "==", "Авария", "Норма", "Отказ", true, "Получена ошибка датчика " + Name, "Пропала ошибка датчика " + Name, "Отказ", 3, true, true);

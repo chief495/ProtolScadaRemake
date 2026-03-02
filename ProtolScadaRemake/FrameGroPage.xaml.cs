@@ -76,11 +76,11 @@ namespace ProtolScadaRemake
                 InitializeSensor(TT602, "TT602", "Датчик температуры TT-602", "TT-602", "°C");
 
                 // Датчики давления
-                InitializeSensor(PT104, "PT104", "Датчик давления PT104", "PT-104", "бар");
-                InitializeSensor(PT105, "PT105", "Датчик давления PT105", "PT-105", "бар");
-                InitializeSensor(PT304, "PT304", "Датчик давления PT304", "PT-304", "бар");
-                InitializeSensor(PT404, "PT404", "Датчик давления PT404", "PT-404", "бар");
-                InitializeSensor(PT601, "PT601", "Датчик давления PT601", "PT-601", "бар");
+                InitializeSensor(PT104, "PT104", "Датчик давления PT104", "PT-104", "атм");
+                InitializeSensor(PT105, "PT105", "Датчик давления PT105", "PT-105", "атм");
+                InitializeSensor(PT304, "PT304", "Датчик давления PT304", "PT-304", "атм");
+                InitializeSensor(PT404, "PT404", "Датчик давления PT404", "PT-404", "атм");
+                InitializeSensor(PT601, "PT601", "Датчик давления PT601", "PT-601", "атм");
 
                 // Расходомеры
                 InitializeSensor(FM401, "FM401", "Массовый расходомер FM401", "FM401", "кг/ч");

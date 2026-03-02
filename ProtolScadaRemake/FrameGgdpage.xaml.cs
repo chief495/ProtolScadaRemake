@@ -53,12 +53,12 @@ namespace ProtolScadaRemake
                 // Аналоговые датчики T-400
                 InitializeSensor(TT402, "TT402", "Датчик температуры TT402", "TT-402", "°C");
                 InitializeSensor(LT403, "LT403", "Датчик уровня LT403", "LT-403", "%");
-                InitializeSensor(PT404, "PT404", "Датчик давления PT404", "PT-404", "бар");
+                InitializeSensor(PT404, "PT404", "Датчик давления PT404", "PT-404", "атм");
 
                 // Аналоговые датчики T-500
                 InitializeSensor(TT502, "TT502", "Датчик температуры TT502", "TT-502", "°C");
                 InitializeSensor(LT503, "LT503", "Датчик уровня LT503", "LT-503", "%");
-                InitializeSensor(PT504, "PT504", "Датчик давления PT504", "PT-504", "бар");
+                InitializeSensor(PT504, "PT504", "Датчик давления PT504", "PT-504", "атм");
 
                 // Расходомер
                 InitializeSensor(FM401, "FM401", "Массовый расходомер FM401", "FM401", "кг/ч");

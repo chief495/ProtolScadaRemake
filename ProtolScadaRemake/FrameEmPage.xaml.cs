@@ -58,15 +58,15 @@ namespace ProtolScadaRemake
                 InitializeSensor(TT152, "TT152", "Датчик температуры TT-152", "TT-152", "°C");
                 InitializeSensor(TT252, "TT252", "Датчик температуры TT-252", "TT-252", "°C");
                 InitializeSensor(TT602, "TT602", "Датчик температуры TT-602", "TT-602", "°C");
-                InitializeSensor(LT150, "LT150", "Датчик уровня LT150", "LT-150", "мм");
+                InitializeSensor(LT150, "LT150", "Датчик уровня LT150", "LT-150", "%");
                 InitializeSensor(FM601, "FM601", "Массовый расходомер FM601", "FM601", "кг/ч");
-                InitializeSensor(PT601, "PT601", "Датчик давления PT601", "PT-601", "бар");
-                InitializeSensor(PT606, "PT606", "Датчик давления PT606", "PT-606", "бар");
-                InitializeSensor(LT253, "LT253", "Датчик уровня LT253", "LT-253", "мм");
+                InitializeSensor(PT601, "PT601", "Датчик давления PT601", "PT-601", "атм");
+                InitializeSensor(PT606, "PT606", "Датчик давления PT606", "PT-606", "атм");
+                InitializeSensor(LT253, "LT253", "Датчик уровня LT253", "LT-253", "%");
                 InitializeSensor(FM602, "FM602", "Массовый расходомер FM602", "FM602", "кг/ч");
-                InitializeSensor(LT651, "LT651", "Датчик уровня LT651", "LT-651", "мм");
-                InitializeSensor(PT652, "PT652", "Давление PT652", "PT-652", "бар");
-                InitializeSensor(PT604, "PT604", "Давление PT604", "PT-604", "бар");
+                InitializeSensor(LT651, "LT651", "Датчик уровня LT651", "LT-651", "%");
+                InitializeSensor(PT652, "PT652", "Давление PT652", "PT-652", "атм");
+                InitializeSensor(PT604, "PT604", "Давление PT604", "PT-604", "атм");
 
                 // ========== ДИСКРЕТНЫЕ ДАТЧИКИ ==========
                 InitializeDiscreteSensor(LAHH151, "LAHH151", "Датчик уровня LAHH151", "LAHH-151");

@@ -37,7 +37,7 @@
             // Переменные
             ManualVariable = Global.Variables.Add(Name + "_Manual", Group, InputAddress, 1, "Bool", "", "Автомат;Ручной", "", "Ручной режим насоса " + Name);
             ManualStartVariable = Global.Variables.Add(Name + "_ManualStart", Group, (ushort)(InputAddress + 0x01), 1, "Bool", "", "Останов;Запуск", "", "Ручная команда насосу " + Name);
-            ManualSpeedVariable = Global.Variables.Add(Name + "_ManualSpeed", Group, (ushort)(InputAddress + 0x02), 1, "Float_32", "", "##0", " %", "Рученое задание скорости насоса " + Name);
+            ManualSpeedVariable = Global.Variables.Add(Name + "_ManualSpeed", Group, (ushort)(InputAddress + 0x02), 1, "Float_32", "", "##0", "", "Рученое задание скорости насоса " + Name);
             StartTimeVariable = Global.Variables.Add(Name + "_StartTime", Group, (ushort)(InputAddress + 0x04), 1, "Int_16", "", "##0", " сек.", "Время включения насоса " + Name);
             StopTimeVariable = Global.Variables.Add(Name + "_StopTime", Group, (ushort)(InputAddress + 0x05), 1, "Int_16", "", "##0", " сек.", "Время отключения насоса " + Name);
             IsWorkVariable = Global.Variables.Add(Name + "_IsWork", Group, (ushort)(OutputAddress + 0x00), 1, "Bool", "", "Нет;Да", "", "Насос " + Name + " включен");
@@ -45,7 +45,7 @@
             FeedbackOkVariable = Global.Variables.Add(Name + "_FeedbackOk", Group, (ushort)(OutputAddress + 0x02), 1, "Bool", "", "Нет;Да", "", "Состояние " + Name + " подтверждено");
             FaultVariable = Global.Variables.Add(Name + "_Fault", Group, (ushort)(OutputAddress + 0x03), 1, "Bool", "", "Норма;Авария", "", "Авария насоса " + Name);
             StatusVariable = Global.Variables.Add(Name + "_Status", Group, (ushort)(OutputAddress + 0x04), 1, "Int_16", "", "##0", "", "Статус работы насоса " + Name);
-            SpeedVariable = Global.Variables.Add(Name + "_Speed", Group, (ushort)(OutputAddress + 0x05), 1, "Float_32", "", "##0", " %", "Текущее задание скоторси насоса " + Name);
+            SpeedVariable = Global.Variables.Add(Name + "_Speed", Group, (ushort)(OutputAddress + 0x05), 1, "Float_32", "", "##0", "", "Текущее задание скоторси насоса " + Name);
             // Команды
             ManualCommand = Global.Commands.Add(Name + "_Manual", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", CommandAddress, "Bool", "Автомат;Ручной", "Ручной режим насоса " + Name);
             ManualStartCommand = Global.Commands.Add(Name + "_ManualStart", Global.Plc_IpAddress, Global.Plc_PortNum, Global.Plc_DeviceAddress, "Holding Registers", (ushort)(CommandAddress + 0x01), "Bool", "Останов;Запуск", "Ручная команда насосу " + Name);

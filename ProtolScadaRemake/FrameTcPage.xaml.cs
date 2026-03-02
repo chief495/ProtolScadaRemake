@@ -65,7 +65,7 @@ namespace ProtolScadaRemake
                 InitializeSensor(PT206, "PT206", "Датчик протока PT206", "PT206", "л/ч");
 
                 // PT201 - Датчик давления PT201
-                InitializeSensor(PT201, "PT201", "Датчик давления PT201", "PT201", "бар");
+                InitializeSensor(PT201, "PT201", "Датчик давления PT201", "PT201", "атм");
 
                 // LT253 - Датчик уровня LT253
                 InitializeSensor(LT253, "LT253", "Датчик уровня LT253", "LT253", "%");
@@ -586,6 +586,7 @@ namespace ProtolScadaRemake
                 sensor.VarName = varName;
                 sensor.Description = description;
                 sensor.TagName = tagName;
+                sensor.EU = eu;
             }
         }
 
@@ -1015,7 +1016,7 @@ namespace ProtolScadaRemake
             {
                 command.WriteValue = "true";
                 command.NeedToWrite = true;
-                _global.Log.Add("Пользователь", "Остановка авторежима", 1);
+                _global.Log.Add("Пользователь", "Остановка авторежима", 1);  
             }
         }
 

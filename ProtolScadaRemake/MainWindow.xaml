@@ -6,7 +6,7 @@
         Height="1080" Width="1920"
         Icon="Images/ProtolLogo.ico"
         WindowState="Maximized"
-        Closing="Window_Closing" WindowStyle="None">
+        Closing="MainWindow_Closed" WindowStyle="None">
 
     <Window.Resources>
         <!-- Стиль для текста счетчика аварий -->

@@ -29,13 +29,13 @@ namespace ProtolScadaRemake
         private bool _modbusInitialized = false;
         private Button _activeNavigationButton;
 
-        // Объявление потоков
-        private Thread ReadDeviceDataThread;
-        private Thread WriteDeviceDataThread;
-        private Thread FaultUpdatesThread;
-        private Thread TrendUpdatesThread;
-        private Thread DBUpdatesThread;
-        private Thread ReadVariablesThread;
+        // УДАЛЕНО: объявление потоков - они теперь в ModbusInitializer
+        // private Thread ReadDeviceDataThread;
+        // private Thread WriteDeviceDataThread;
+        // private Thread FaultUpdatesThread;
+        // private Thread TrendUpdatesThread;
+        // private Thread DBUpdatesThread;
+        // private Thread ReadVariablesThread;
 
         private FrameProductStatistics _productStatistics;
 
@@ -54,7 +54,8 @@ namespace ProtolScadaRemake
             _dbUtils = _global.GetDbUtils();
             Debug.WriteLine("DBUtils получен");
 
-            ModbusInitializer.InitializeAllVariables(_global);
+            // ИЗМЕНЕНО: инициализация Modbus теперь в Loaded событии
+            // ModbusInitializer.InitializeAllVariables(_global);
 
             StartUpdateTimer();
 
@@ -80,8 +81,46 @@ namespace ProtolScadaRemake
             // Инициализация кнопок
             InitializeButtons();
 
-            // Показываем главную страницу по умолчанию
-            ShowMainPage();
+            // Подписываемся на событие загрузки окна
+            this.Loaded += MainWindow_Loaded;
+            this.Closed += MainWindow_Closed;
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Инициализация Modbus только один раз при загрузке главного окна
+            if (!_modbusInitialized)
+            {
+                InitializeModbus();
+                _modbusInitialized = true;
+            }
+        }
+
+        private void InitializeModbus()
+        {
+            try
+            {
+                Debug.WriteLine("=== ИНИЦИАЛИЗАЦИЯ MODBUS ===");
+
+                // 1. Инициализация всех переменных Modbus
+                ModbusInitializer.InitializeAllVariables(_global);
+
+                // 2. Запуск потоков Modbus (чтение, запись, обновление переменных)
+                ModbusInitializer.StartModbusThreads(_global);
+
+                // 3. Показываем главную страницу по умолчанию
+                ShowMainPage();
+
+                // 4. Запись в журнал о запуске
+                _global.Log.Add("Система", "Программа запущена", 0);
+
+                Debug.WriteLine("=== MODBUS УСПЕШНО ИНИЦИАЛИЗИРОВАН ===");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка инициализации Modbus: {ex.Message}");
+                ShowError($"Ошибка инициализации Modbus: {ex.Message}");
+            }
         }
 
         private void StartUiUpdateTimer()
@@ -208,17 +247,26 @@ namespace ProtolScadaRemake
             }
         }
 
-        private void Window_Closing(object sender, CancelEventArgs e)
+        private void MainWindow_Closed(object sender, EventArgs e)
         {
             try
             {
+                Debug.WriteLine("=== ОСТАНОВКА ПРИЛОЖЕНИЯ ===");
+
+                // Остановка потоков Modbus
+                ModbusInitializer.StopModbusThreads();
+
                 _updateTimer?.Stop();
                 _logTestTimer?.Stop();
                 _logSyncTimer?.Stop();
                 _uiUpdateTimer?.Stop();
+                timer?.Stop();
 
                 // Остановить таймер панели статистики
                 _productStatistics?.StopTimer();
+
+                // Запись в журнал о закрытии
+                _global?.Log?.Add("Система", "Закрытие программы", 0);
 
                 Debug.WriteLine("Приложение закрывается...");
             }
