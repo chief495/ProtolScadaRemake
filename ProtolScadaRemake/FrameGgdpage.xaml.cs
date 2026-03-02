@@ -61,11 +61,11 @@ namespace ProtolScadaRemake
                 InitializeSensor(PT504, "PT504", "Датчик давления PT504", "PT-504", "атм");
 
                 // Расходомер
-                InitializeSensor(FM401, "FM401", "Массовый расходомер FM401", "FM401", "кг/ч");
+                InitializeFM(FM401, "FM401", "Расходомер FM401", "FM401", "кг/ч");
 
                 // Счетчики (как Element_AI)
-                InitializeSensor(QM400Counter, "QM400", "Счетчик воды QM-400", "QM-400", "л");
-                InitializeSensor(QM500Counter, "QM500", "Счетчик воды QM-500", "QM-500", "л");
+                InitializeQM(QM400Counter, "QM400", "Счетчик воды QM-400", "QM-400", "л");
+                InitializeQM(QM500Counter, "QM500", "Счетчик воды QM-500", "QM-500", "л");
 
                 // Дискретные датчики
                 InitializeDiscreteSensor(LAHH401, "LAHH401", "Датчик уровня LAHH401", "LAHH-401");
@@ -125,6 +125,31 @@ namespace ProtolScadaRemake
                 sensor.Description = description;
                 sensor.TagName = tagName;  // Добавлено: имя для отображения на мнемосхеме
                 sensor.EU = eu;
+            }
+        }
+        private void InitializeFM(Element_FM sensor, string varName, string description, string tagName, string eu)
+        {
+            if (sensor != null && _global != null)
+            {
+                sensor.Global = _global;
+                sensor.VarName = varName;
+                sensor.Description = description;
+                sensor.TagName = tagName;
+                sensor.EU = eu;
+                sensor.Designation = description;
+            }
+        }
+
+        private void InitializeQM(Element_QM sensor, string varName, string description, string tagName, string eu)
+        {
+            if (sensor != null && _global != null)
+            {
+                sensor.Global = _global;
+                sensor.VarName = varName;
+                sensor.Description = description;
+                sensor.TagName = tagName;
+                sensor.EU = eu;
+                sensor.Designation = description; // Если нужно заполнить Designation
             }
         }
 

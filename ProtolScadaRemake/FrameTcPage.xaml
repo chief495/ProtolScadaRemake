@@ -21,10 +21,10 @@
         <local:Element_AI x:Name="LT253" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1187,625,0,0"/>
         <local:Element_AI x:Name="TT202" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="517,536,0,0"/>
         <local:Element_AI x:Name="TT252" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1187,548,0,0"/>
-        <local:Element_AI x:Name="FM602" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1350,531,0,0"/>
+        <local:Element_FM x:Name="FM602" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1350,531,0,0"/>
 
         <!-- Датчик веса WIT200 -->
-        <local:Element_AI x:Name="WIT200" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="425,673,0,0"/>
+        <local:Element_WIT x:Name="WIT200" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="425,673,0,0"/>
 
         <!-- ========== ДИСКРЕТНЫЕ ДАТЧИКИ ========== -->
         <local:Element_DI x:Name="LAHH201" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="340,536,0,0"/>

@@ -29,6 +29,10 @@ namespace ProtolScadaRemake
 
                 if (Global == null) return;
 
+                // Устанавливаем иконку по умолчанию (выключено)
+                DIIcon.Source = FindResource("DIoffIcon") as ImageSource;
+
+                // Проверяем ручной режим
                 TVariableTag Tag = Global.Variables?.GetByName(VarName + "_Manual");
                 if (Tag != null)
                 {
@@ -39,12 +43,38 @@ namespace ProtolScadaRemake
                     HandImage.Visibility = Visibility.Hidden;
                 }
 
+                // Проверяем значение датчика (включен/выключен)
                 Tag = Global.Variables?.GetByName(VarName + "_Value");
-                if (Tag != null)
+                if (Tag != null && Tag.ValueReal > 0)
                 {
-                    DIIcon.Source = Tag.ValueReal > 0 ?
-                        FindResource("DIonIcon") as ImageSource :
-                        FindResource("DIoffIcon") as ImageSource;
+                    DIIcon.Source = FindResource("DIonIcon") as ImageSource;
+                }
+
+                // Проверяем ошибку датчика (Fault - имеет наивысший приоритет)
+                Tag = Global.Variables?.GetByName(VarName + "_Fault");
+                if (Tag != null && Tag.ValueReal > 0)
+                {
+                    DIIcon.Source = FindResource("DIfaultIcon") as ImageSource;
+                }
+
+                // Проверяем несоответствие (Changed - если команда не совпадает с состоянием)
+                // Для дискретных датчиков можно проверить, например, Feedback
+                Tag = Global.Variables?.GetByName(VarName + "_FeedbackOk");
+                if (Tag != null && Tag.ValueReal < 1)
+                {
+                    DIIcon.Source = FindResource("DIchangedIcon") as ImageSource;
+                }
+
+                // Альтернативно, можно проверить статус
+                Tag = Global.Variables?.GetByName(VarName + "_Status");
+                if (Tag != null && Tag.ValueReal != 0) // Если статус не 0 (не норма)
+                {
+                    // В зависимости от статуса можно выбрать иконку
+                    // Например, статус 1 = несоответствие, 2 = ошибка и т.д.
+                    if (Tag.ValueReal == 1)
+                        DIIcon.Source = FindResource("DIchangedIcon") as ImageSource;
+                    else if (Tag.ValueReal >= 2)
+                        DIIcon.Source = FindResource("DIfaultIcon") as ImageSource;
                 }
             }
             catch (Exception ex)

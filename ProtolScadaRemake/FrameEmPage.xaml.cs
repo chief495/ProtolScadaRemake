@@ -59,11 +59,11 @@ namespace ProtolScadaRemake
                 InitializeSensor(TT252, "TT252", "Датчик температуры TT-252", "TT-252", "°C");
                 InitializeSensor(TT602, "TT602", "Датчик температуры TT-602", "TT-602", "°C");
                 InitializeSensor(LT150, "LT150", "Датчик уровня LT150", "LT-150", "%");
-                InitializeSensor(FM601, "FM601", "Массовый расходомер FM601", "FM601", "кг/ч");
+                InitializeFM(FM601, "FM601", "Расходомер FM601", "FM601", "кг/ч");
                 InitializeSensor(PT601, "PT601", "Датчик давления PT601", "PT-601", "атм");
                 InitializeSensor(PT606, "PT606", "Датчик давления PT606", "PT-606", "атм");
                 InitializeSensor(LT253, "LT253", "Датчик уровня LT253", "LT-253", "%");
-                InitializeSensor(FM602, "FM602", "Массовый расходомер FM602", "FM602", "кг/ч");
+                InitializeFM(FM602, "FM602", "Расходомер FM602", "FM602", "кг/ч");
                 InitializeSensor(LT651, "LT651", "Датчик уровня LT651", "LT-651", "%");
                 InitializeSensor(PT652, "PT652", "Давление PT652", "PT-652", "атм");
                 InitializeSensor(PT604, "PT604", "Давление PT604", "PT-604", "атм");
@@ -527,6 +527,19 @@ namespace ProtolScadaRemake
                 sensor.Description = description;
                 sensor.TagName = tagName;
                 sensor.EU = eu;
+            }
+        }
+
+        private void InitializeFM(Element_FM sensor, string varName, string description, string tagName, string eu)
+        {
+            if (sensor != null && _global != null)
+            {
+                sensor.Global = _global;
+                sensor.VarName = varName;
+                sensor.Description = description;
+                sensor.TagName = tagName;
+                sensor.EU = eu;
+                sensor.Designation = description;
             }
         }
 

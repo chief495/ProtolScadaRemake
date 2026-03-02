@@ -295,9 +295,9 @@ namespace ProtolScadaRemake
             global.Variables.Add("T150_StartMixer", 0x13, 0x0031, 1, "Bool", "", "Нет;Да", "", "Включить миксер Т150");
             global.Commands.Add("T150_StartMixer", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x0721, "Bool", "Нет;Да", "Отключить миксер Т150");
             // Тензодатчики
-            global.Variables.Add("WIT100_Volume", 0x13, 0x0032, 1, "Float_32", "", "##0.#", " кг.", "Вес в ёскости Т100");
-            global.Variables.Add("WIT200_Volume", 0x13, 0x0034, 1, "Float_32", "", "##0.#", " кг.", "Вес в ёскости Т200");
-            global.Variables.Add("WIT700_Volume", 0x13, 0x0036, 1, "Float_32", "", "##0.#", " кг.", "Вес в ёскости Т700");
+            global.Variables.Add("WIT100_Volume", 0x13, 0x0032, 1, "Float_32", "", "##0.#", "", "Вес в ёскости Т100");
+            global.Variables.Add("WIT200_Volume", 0x13, 0x0034, 1, "Float_32", "", "##0.#", "", "Вес в ёскости Т200");
+            global.Variables.Add("WIT700_Volume", 0x13, 0x0036, 1, "Float_32", "", "##0.#", "", "Вес в ёскости Т700");
         }
 
         private static void InitializeA100Screw(TGlobal global)

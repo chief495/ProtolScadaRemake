@@ -83,14 +83,14 @@ namespace ProtolScadaRemake
                 InitializeSensor(PT601, "PT601", "Датчик давления PT601", "PT-601", "атм");
 
                 // Расходомеры
-                InitializeSensor(FM401, "FM401", "Массовый расходомер FM401", "FM401", "кг/ч");
-                InitializeSensor(FM601, "FM601", "Массовый расходомер FM601", "FM601", "кг/ч");
+                InitializeFM(FM401, "FM401", "Расходомер FM401", "FM401", "кг/ч");
+                InitializeFM(FM601, "FM601", "Расходомер FM601", "FM601", "кг/ч");
 
                 // Счетчик QM400
-                InitializeSensor(QM400, "QM400", "Счетчик QM-400", "QM-400", "л");
+                InitializeQM(QM400, "QM400", "Счетчик QM-400", "QM-400", "л");
 
                 // Весовой датчик WIT100
-                InitializeSensor(WIT100, "WIT100", "Вес Т-100", "WIT-100", "кг");
+                InitializeWIT(WIT100, "WIT100", "Вес Т-100", "WIT-100", "кг");
 
                 // Насосы обратные (P300, P400)
                 InitializePumpReverse(P300, "P300", "Насос P-300", "P-300");
@@ -560,6 +560,44 @@ namespace ProtolScadaRemake
                 sensor.Description = description;
                 sensor.TagName = tagName;
                 sensor.EU = eu;
+            }
+        }
+
+        private void InitializeQM(Element_QM sensor, string varName, string description, string tagName, string eu)
+        {
+            if (sensor != null && _global != null)
+            {
+                sensor.Global = _global;
+                sensor.VarName = varName;
+                sensor.Description = description;
+                sensor.TagName = tagName;
+                sensor.EU = eu;
+                sensor.Designation = description; // Если нужно заполнить Designation
+            }
+        }
+
+        private void InitializeWIT(Element_WIT sensor, string varName, string description, string tagName, string eu)
+        {
+            if (sensor != null && _global != null)
+            {
+                sensor.Global = _global;
+                sensor.VarName = varName;
+                sensor.Description = description;
+                sensor.TagName = tagName;
+                sensor.EU = eu;
+                sensor.Designation = description;
+            }
+        }
+        private void InitializeFM(Element_FM sensor, string varName, string description, string tagName, string eu)
+        {
+            if (sensor != null && _global != null)
+            {
+                sensor.Global = _global;
+                sensor.VarName = varName;
+                sensor.Description = description;
+                sensor.TagName = tagName;
+                sensor.EU = eu;
+                sensor.Designation = description;
             }
         }
 

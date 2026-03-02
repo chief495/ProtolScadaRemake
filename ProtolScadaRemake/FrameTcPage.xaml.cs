@@ -77,10 +77,10 @@ namespace ProtolScadaRemake
                 InitializeSensor(TT252, "TT252", "Датчик температуры TT252", "TT252", "°C");
 
                 // FM602 - Массовый расходомер FM602
-                InitializeSensor(FM602, "FM602", "Массовый расходомер FM602", "FM602", "кг/ч");
+                InitializeFM(FM602, "FM602", "Расходомер FM602", "FM602", "кг/ч");
 
                 // WIT200 - Датчик веса WIT200
-                InitializeSensor(WIT200, "WIT200_Volume", "Датчик веса WIT200", "WIT200", "кг");
+                InitializeWIT(WIT200, "WIT200_Volume", "Датчик веса WIT200", "WIT200", "кг");
 
                 // ========== ДИСКРЕТНЫЕ ДАТЧИКИ ==========
                 // LAHH201 - Датчик уровня LAHH201
@@ -589,7 +589,30 @@ namespace ProtolScadaRemake
                 sensor.EU = eu;
             }
         }
-
+        private void InitializeWIT(Element_WIT sensor, string varName, string description, string tagName, string eu)
+        {
+            if (sensor != null && _global != null)
+            {
+                sensor.Global = _global;
+                sensor.VarName = varName;
+                sensor.Description = description;
+                sensor.TagName = tagName;
+                sensor.EU = eu;
+                sensor.Designation = description;
+            }
+        }
+        private void InitializeFM(Element_FM sensor, string varName, string description, string tagName, string eu)
+        {
+            if (sensor != null && _global != null)
+            {
+                sensor.Global = _global;
+                sensor.VarName = varName;
+                sensor.Description = description;
+                sensor.TagName = tagName;
+                sensor.EU = eu;
+                sensor.Designation = description;
+            }
+        }
         private void InitializeDiscreteSensor(Element_DI sensor, string varName, string description, string tagName)
         {
             if (sensor != null && _global != null)

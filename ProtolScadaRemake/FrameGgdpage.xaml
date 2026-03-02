@@ -120,7 +120,7 @@
 
         <!-- ========== ДРУГИЕ ЭЛЕМЕНТЫ ========== -->
         <!-- FM401 - Расходомер -->
-        <local:Element_AI x:Name="FM401"
+        <local:Element_FM x:Name="FM401"
                           HorizontalAlignment="Left"
                           VerticalAlignment="Top" 
                           Margin="1427,596,0,0"/>
@@ -144,13 +144,13 @@
 
         <!-- ========== СЧЕТЧИКИ (как Element_AI) ========== -->
         <!-- QM-400 Счетчик -->
-        <local:Element_AI x:Name="QM400Counter"
+        <local:Element_QM x:Name="QM400Counter"
                           HorizontalAlignment="Left"
                           VerticalAlignment="Top" 
                           Margin="1139,210,0,0"/>
 
         <!-- QM-500 Счетчик -->
-        <local:Element_AI x:Name="QM500Counter"
+        <local:Element_QM x:Name="QM500Counter"
                           HorizontalAlignment="Right"
                           VerticalAlignment="Top" 
                           Margin="0,210,1001,0"/>

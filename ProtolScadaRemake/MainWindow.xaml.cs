@@ -29,14 +29,6 @@ namespace ProtolScadaRemake
         private bool _modbusInitialized = false;
         private Button _activeNavigationButton;
 
-        // УДАЛЕНО: объявление потоков - они теперь в ModbusInitializer
-        // private Thread ReadDeviceDataThread;
-        // private Thread WriteDeviceDataThread;
-        // private Thread FaultUpdatesThread;
-        // private Thread TrendUpdatesThread;
-        // private Thread DBUpdatesThread;
-        // private Thread ReadVariablesThread;
-
         private FrameProductStatistics _productStatistics;
 
         // Добавляем таймер для обновления UI

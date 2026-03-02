@@ -149,27 +149,27 @@
 
         <!-- ========== РАСХОДОМЕРЫ (AI) ========== -->
         <!-- FM401 - Расходомер FM401 -->
-        <local:Element_AI x:Name="FM401"
+        <local:Element_FM x:Name="FM401"
                           HorizontalAlignment="Left"
                           VerticalAlignment="Top" 
                           Margin="232,505,0,0"/>
 
         <!-- FM601 - Расходомер FM601 -->
-        <local:Element_AI x:Name="FM601"
+        <local:Element_FM x:Name="FM601"
                           HorizontalAlignment="Left"
                           VerticalAlignment="Top" 
                           Margin="1502,800,0,0"/>
 
         <!-- ========== СЧЕТЧИКИ (AI) ========== -->
         <!-- QM400 - Счетчик QM-400 -->
-        <local:Element_AI x:Name="QM400"
+        <local:Element_QM x:Name="QM400"
                           HorizontalAlignment="Left"
                           VerticalAlignment="Top" 
                           Margin="748,169,0,0"/>
 
         <!-- ========== ВЕСОВЫЕ ДАТЧИКИ (AI) ========== -->
         <!-- WIT100 - Вес T-100 -->
-        <local:Element_AI x:Name="WIT100"
+        <local:Element_WIT x:Name="WIT100"
                           HorizontalAlignment="Left"
                           VerticalAlignment="Top" 
                           Margin="331,922,0,0"/>
