@@ -54,7 +54,7 @@ namespace ProtolScadaRemake
 
                 Tag = Global.Variables?.GetByName(VarName + "_IsOpen");
                 if (Tag != null && Tag.ValueReal > 0)
-                    ValveIcon.Source = FindResource("ValveVCOpenIcon") as ImageSource;
+                    ValveIcon.Source = FindResource("ValveVOpenIcon") as ImageSource;
 
                 Tag = Global.Variables?.GetByName(VarName + "_IsMoving");
                 if (Tag != null && Tag.ValueReal > 0)
@@ -62,7 +62,7 @@ namespace ProtolScadaRemake
 
                 Tag = Global.Variables?.GetByName(VarName + "_Fault");
                 if (Tag != null && Tag.ValueReal > 0)
-                    ValveIcon.Source = FindResource("ValveVCFaultIcon") as ImageSource;
+                    ValveIcon.Source = FindResource("ValveVFaultIcon") as ImageSource;
             }
             catch (Exception ex)
             {

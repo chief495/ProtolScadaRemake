@@ -36,6 +36,7 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="261"/>
+                    <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="97"/>
                     <ColumnDefinition Width="150"/>
@@ -55,16 +56,77 @@
                     </StackPanel>
                 </StackPanel>
 
+                <!-- КНОПКА ДОСТУПА (слева от заголовка) -->
+                <Button x:Name="AccessButton" 
+                        Grid.Column="1"
+                        Width="90"
+                        Height="32"
+                        Margin="15,0,0,0"
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="AccessButton_Click"
+                        Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="AccessBorder" 
+                                    Background="#1E2A3A" 
+                                    CornerRadius="16" 
+                                    BorderBrush="#3A4F6E" 
+                                    BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="28"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Индикатор состояния (кружок) -->
+                                    <Border Grid.Column="0" 
+                                            x:Name="StatusIndicator" 
+                                            Width="10" 
+                                            Height="10" 
+                                            CornerRadius="5" 
+                                            Background="#888" 
+                                            HorizontalAlignment="Center"
+                                            Margin="9,0,0,0"/>
+
+                                    <!-- Текст -->
+                                    <TextBlock Grid.Column="1" 
+                                               x:Name="AccessText" 
+                                               Text="ДОСТУП" 
+                                               Foreground="#CCC" 
+                                               FontWeight="Bold" 
+                                               FontSize="9"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Left"
+                                               Margin="2,0,0,0"/>
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <!-- Состояние при наведении -->
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="AccessBorder" Property="Background" Value="#2A3A4A"/>
+                                    <Setter TargetName="AccessBorder" Property="BorderBrush" Value="#5A7F9F"/>
+                                </Trigger>
+                                <!-- Состояние при нажатии -->
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="AccessBorder" Property="Background" Value="#1A2A3A"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
                 <!-- Title -->
-                <TextBlock x:Name="TitleLabel" Grid.Column="1" 
+                <TextBlock x:Name="TitleLabel" Grid.Column="2" 
                            Text="ОСНОВНОЙ ЭКРАН" 
                            FontSize="20" FontWeight="Bold"
                            Foreground="White"
                            HorizontalAlignment="Left" 
-                           VerticalAlignment="Center" Margin="541,0,0,0"/>
+                           VerticalAlignment="Top" Margin="372,22,0,0"/>
 
                 <!-- Панель счетчика аварий -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Image Source="pack://application:,,,/ProtolScadaRemake;component/Images/TopNavigation/FaultsActive.png" 
                            Width="24" Height="24" Margin="0,0,5,0"/>
                     <Border Background="#FFFF0000" CornerRadius="10" Padding="8,2" Margin="5,0,0,0">
@@ -75,7 +137,7 @@
                 </StackPanel>
 
                 <!-- Time -->
-                <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                <StackPanel Grid.Column="4" VerticalAlignment="Center">
                     <TextBlock x:Name="DateLabel" Text="00.00.0000" 
                                FontWeight="Bold" 
                                Foreground="White"
@@ -429,11 +491,30 @@
 
         <!-- BOTTOM PANEL -->
         <Border Grid.Row="2" Grid.ColumnSpan="2" Background="#FFE3F2FD">
-            <TextBlock HorizontalAlignment="Right" Margin="10,0">
-                <Run Text="Связь с контроллером:" FontWeight="Bold"/>
-                <Run Text=" "/>
-                <Run x:Name="ControllerConnectionQualityLabel" Text="..." FontStyle="Italic"/>
-            </TextBlock>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Статус доступа (слева) -->
+                <TextBlock x:Name="AccessStatusText" 
+                           Grid.Column="0"
+                           Text="Доступ: отключен" 
+                           Foreground="#333"
+                           FontSize="11"
+                           VerticalAlignment="Center"
+                           Margin="10,0,0,0"/>
+
+                <!-- Качество связи (справа) -->
+                <TextBlock Grid.Column="1" 
+                           HorizontalAlignment="Right" 
+                           Margin="10,0">
+                    <Run Text="Связь с контроллером:" FontWeight="Bold"/>
+                    <Run Text=" "/>
+                    <Run x:Name="ControllerConnectionQualityLabel" Text="..." FontStyle="Italic"/>
+                </TextBlock>
+            </Grid>
         </Border>
     </Grid>
 </Window>

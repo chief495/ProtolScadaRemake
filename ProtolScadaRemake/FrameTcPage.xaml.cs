@@ -493,86 +493,92 @@ namespace ProtolScadaRemake
             try
             {
                 var rejimTag = _global?.Variables?.GetByName("TC_Rejim");
-                if (rejimTag != null)
+                if (rejimTag == null)
                 {
-                    double rejimValue = rejimTag.ValueReal;
+                    System.Diagnostics.Debug.WriteLine("ОШИБКА: Переменная TC_Rejim не найдена!");
+                    return;
+                }
 
-                    // ВАЖНО: Явно устанавливаем видимость всех панелей в каждом случае
-                    if (rejimValue == 0) // OFF
-                    {
-                        FuelPanel.Visibility = Visibility.Collapsed;
-                        T200MassPanel.Visibility = Visibility.Collapsed;
-                        T100toT150Panel.Visibility = Visibility.Collapsed;
+                double rejimValue = rejimTag.ValueReal;
 
-                        if (T100toT150Panel != null)
-                            T100toT150Panel.IsEnabled = false;
-                    }
-                    else if (rejimValue == 1) // Полуавтомат
-                    {
-                        FuelPanel.Visibility = Visibility.Visible;
-                        T200MassPanel.Visibility = Visibility.Visible;
-                        T100toT150Panel.Visibility = Visibility.Visible;
+                // Логика видимости панелей в зависимости от режима
+                switch ((int)rejimValue)
+                {
+                    case 0: // OFF - все панели скрыты
+                        SetPanelVisibility(Visibility.Collapsed, Visibility.Collapsed, Visibility.Collapsed, false);
+                        System.Diagnostics.Debug.WriteLine("Режим OFF: все панели скрыты");
+                        break;
 
-                        if (T100toT150Panel != null)
-                            T100toT150Panel.IsEnabled = true;
-                    }
-                    else if (rejimValue == 2) // Автомат
-                    {
-                        FuelPanel.Visibility = Visibility.Collapsed;
-                        T200MassPanel.Visibility = Visibility.Visible;
-                        T100toT150Panel.Visibility = Visibility.Visible;
+                    case 1: // Полуавтомат (ожидание) - все панели видны
+                        SetPanelVisibility(Visibility.Visible, Visibility.Visible, Visibility.Visible, true);
+                        System.Diagnostics.Debug.WriteLine("Режим ПОЛУАВТОМАТ: все панели видны");
+                        break;
 
-                        if (T100toT150Panel != null)
-                            T100toT150Panel.IsEnabled = true;
-                    }
-                    else if (rejimValue == 3 || rejimValue == 4) // Полуавтомат - набор дизеля
-                    {
-                        FuelPanel.Visibility = Visibility.Visible;
-                        T200MassPanel.Visibility = Visibility.Collapsed;
-                        T100toT150Panel.Visibility = Visibility.Collapsed;
+                    case 2: // Автомат (ожидание) - нет панели набора топлива
+                        SetPanelVisibility(Visibility.Collapsed, Visibility.Visible, Visibility.Visible, true);
+                        System.Diagnostics.Debug.WriteLine("Режим АВТОМАТ: скрыта панель набора топлива");
+                        break;
 
-                        if (T100toT150Panel != null)
-                            T100toT150Panel.IsEnabled = false;
-                    }
-                    else if (rejimValue == 5 || rejimValue == 6) // Полуавтомат - набор эмульгатора
-                    {
-                        FuelPanel.Visibility = Visibility.Visible;
-                        T200MassPanel.Visibility = Visibility.Collapsed;
-                        T100toT150Panel.Visibility = Visibility.Collapsed;
+                    case 3: // Полуавтомат - пауза набора дизеля
+                    case 4: // Полуавтомат - набор дизеля
+                        SetPanelVisibility(Visibility.Visible, Visibility.Collapsed, Visibility.Collapsed, false);
+                        System.Diagnostics.Debug.WriteLine($"Режим {rejimValue}: набор дизеля");
+                        break;
 
-                        if (T100toT150Panel != null)
-                            T100toT150Panel.IsEnabled = false;
-                    }
-                    else if (rejimValue == 7 || rejimValue == 8 ||
-                             rejimValue == 9 || rejimValue == 10) // Авто режимы
-                    {
-                        FuelPanel.Visibility = Visibility.Collapsed;
-                        T200MassPanel.Visibility = Visibility.Collapsed;
-                        T100toT150Panel.Visibility = Visibility.Collapsed;
+                    case 5: // Полуавтомат - пауза набора эмульгатора
+                    case 6: // Полуавтомат - набор эмульгатора
+                        SetPanelVisibility(Visibility.Visible, Visibility.Collapsed, Visibility.Collapsed, false);
+                        System.Diagnostics.Debug.WriteLine($"Режим {rejimValue}: набор эмульгатора");
+                        break;
 
-                        if (T100toT150Panel != null)
-                            T100toT150Panel.IsEnabled = false;
-                    }
-                    else if (rejimValue == 11 || rejimValue == 12) // Перекачка
-                    {
-                        FuelPanel.Visibility = Visibility.Collapsed;
-                        T200MassPanel.Visibility = Visibility.Visible;
-                        T100toT150Panel.Visibility = Visibility.Visible;
+                    case 7: // Автомат - пауза набора эмульгатора
+                    case 8: // Автомат - набор эмульгатора
+                    case 9: // Автомат - пауза набора дизеля
+                    case 10: // Автомат - набор дизеля
+                        SetPanelVisibility(Visibility.Collapsed, Visibility.Collapsed, Visibility.Collapsed, false);
+                        System.Diagnostics.Debug.WriteLine($"Режим {rejimValue}: авто набор");
+                        break;
 
-                        if (T100toT150Panel != null)
-                            T100toT150Panel.IsEnabled = true;
-                    }
+                    case 11: // Перекачка - пауза
+                    case 12: // Перекачка - работа
+                        SetPanelVisibility(Visibility.Collapsed, Visibility.Visible, Visibility.Visible, true);
+                        System.Diagnostics.Debug.WriteLine($"Режим {rejimValue}: перекачка");
+                        break;
 
-                    // Для отладки
-                    System.Diagnostics.Debug.WriteLine($"TC Режим: {rejimValue}, " +
-                        $"FuelPanel: {FuelPanel.Visibility}, " +
-                        $"T200MassPanel: {T200MassPanel.Visibility}, " +
-                        $"T100toT150Panel: {T100toT150Panel.Visibility}");
+                    default:
+                        System.Diagnostics.Debug.WriteLine($"НЕИЗВЕСТНЫЙ РЕЖИМ: {rejimValue}");
+                        break;
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка обновления видимости панелей: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"ОШИБКА в UpdatePanelsVisibility: {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        /// <summary>
+        /// Вспомогательный метод для установки видимости всех панелей
+        /// </summary>
+        /// <param name="fuelPanelVisibility">Видимость панели набора топлива</param>
+        /// <param name="t200PanelVisibility">Видимость панели массы Т-200</param>
+        /// <param name="transferPanelVisibility">Видимость панели перекачки</param>
+        /// <param name="transferPanelEnabled">Активность панели перекачки</param>
+        private void SetPanelVisibility(
+            Visibility fuelPanelVisibility,
+            Visibility t200PanelVisibility,
+            Visibility transferPanelVisibility,
+            bool transferPanelEnabled)
+        {
+            if (FuelPanel != null)
+                FuelPanel.Visibility = fuelPanelVisibility;
+
+            if (T200MassPanel != null)
+                T200MassPanel.Visibility = t200PanelVisibility;
+
+            if (T100toT150Panel != null)
+            {
+                T100toT150Panel.Visibility = transferPanelVisibility;
+                T100toT150Panel.IsEnabled = transferPanelEnabled;
             }
         }
 

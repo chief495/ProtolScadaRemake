@@ -1,16 +1,23 @@
 ﻿using MahApps.Metro.Controls;
+using System.Diagnostics;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace ProtolScadaRemake
 {
     public partial class DialogElementAI : Window
     {
-        private System.Windows.Media.Brush ButtonDeactiveColor = System.Windows.Media.Brushes.White;
-        private System.Windows.Media.Brush ButtonActiveColor = System.Windows.Media.Brushes.Green;
-        private System.Windows.Media.Brush NormalColor = System.Windows.Media.Brushes.White;
-        private System.Windows.Media.Brush EditColor = System.Windows.Media.Brushes.Yellow;
+        private Brush ButtonDeactiveColor = Brushes.White;
+        private Brush ButtonActiveColor = Brushes.Green;
+        private Brush NormalColor = Brushes.White;
+        private Brush EditColor = Brushes.Yellow;
+
         public TGlobal Global;
-        public string VarName = ""; // Основание для имен
+        public string VarName = "";
+
+        private bool _isInitializing = true;
+
         private string _eu;
         public string EU
         {
@@ -27,384 +34,229 @@ namespace ProtolScadaRemake
                 ManualValueUnits.Content = _eu;
             }
         }
+
         public DialogElementAI()
         {
             InitializeComponent();
         }
 
-
-        public void Initialize() // инициализация формы
+        public void Initialize()
         {
-            // режим работы
-            TVariableTag VariableTag = Global.Variables.GetByName(VarName + "_Manual");
-            if (VariableTag != null)
+            _isInitializing = true;
+
+            try
             {
-                if (VariableTag.ValueReal > 0)
+                // Режим работы
+                TVariableTag VariableTag = Global.Variables.GetByName(VarName + "_Manual");
+                if (VariableTag != null)
                 {
-                    RBAuto.IsChecked = false;
-                    RBManual.IsChecked = true;
-                    ManualValueTitle.Visibility = Visibility.Visible;
-                    ManualValueNumeric.Visibility = Visibility.Visible;
+                    if (VariableTag.ValueReal > 0)
+                    {
+                        RBAuto.IsChecked = false;
+                        RBManual.IsChecked = true;
+                        SetManualPanelVisibility(Visibility.Visible);
+                    }
+                    else
+                    {
+                        RBAuto.IsChecked = true;
+                        RBManual.IsChecked = false;
+                        SetManualPanelVisibility(Visibility.Hidden);
+                    }
                 }
-                else
-                {
-                    RBAuto.IsChecked = true;
-                    RBManual.IsChecked = false;
-                    ManualValueTitle.Visibility = Visibility.Hidden;
-                    ManualValueNumeric.Visibility = Visibility.Hidden;
-                }
+
+                // Ручное значение
+                VariableTag = Global.Variables.GetByName(VarName + "_ManualValue");
+                if (VariableTag != null)
+                    ManualValueNumeric.Value = VariableTag.ValueReal;
+
+                // Аварийные значения
+                LoadNumericValue(LWNumeric, VarName + "_LW");
+                LoadNumericValue(HWNumeric, VarName + "_HW");
+                LoadNumericValue(LFNumeric, VarName + "_LF");
+                LoadNumericValue(HFNumeric, VarName + "_HF");
+
+                // Настройки датчика
+                LoadNumericValue(LowLevelNumeric, VarName + "_LowLevel");
+                LoadNumericValue(HiLevelNumeric, VarName + "_HiLevel");
+                LoadNumericValue(LowCurrNumeric, VarName + "_LowCurr");
+                LoadNumericValue(HiCurrNumeric, VarName + "_HiCurr");
+
+                // Доступ
+                GroupBox2.IsEnabled = Global.Access;
+                GroupBox3.IsEnabled = Global.Access;
             }
-            // Ручное значение
-            VariableTag = Global.Variables.GetByName(VarName + "_ManualValue");
-            if (VariableTag != null)
-                ManualValueNumeric.Value = VariableTag.ValueReal;
-            // Аварийные и предаварийные значения
-            VariableTag = Global.Variables.GetByName(VarName + "_LW");
-            if (VariableTag != null) LWNumeric.Value = VariableTag.ValueReal;
-            VariableTag = Global.Variables.GetByName(VarName + "_HW");
-            if (VariableTag != null) HWNumeric.Value = VariableTag.ValueReal;
-            VariableTag = Global.Variables.GetByName(VarName + "_LF");
-            if (VariableTag != null) LFNumeric.Value = VariableTag.ValueReal;
-            VariableTag = Global.Variables.GetByName(VarName + "_HF");
-            if (VariableTag != null) HFNumeric.Value = VariableTag.ValueReal;
-            // Настройки датчика
-            VariableTag = Global.Variables.GetByName(VarName + "_LowLevel");
-            if (VariableTag != null) LowLevelNumeric.Value = VariableTag.ValueReal;
-            VariableTag = Global.Variables.GetByName(VarName + "_HiLevel");
-            if (VariableTag != null) HiLevelNumeric.Value = (VariableTag.ValueReal);
-            VariableTag = Global.Variables.GetByName(VarName + "_LowCurr");
-            if (VariableTag != null) LowCurrNumeric.Value = VariableTag.ValueReal;
-            VariableTag = Global.Variables.GetByName(VarName + "_HiCurr");
-            if (VariableTag != null) HiCurrNumeric.Value = VariableTag.ValueReal;
+            finally
+            {
+                _isInitializing = false;
+            }
+        }
 
-            // RepaintTimer.Enabled = true;
-            GroupBox1.IsEnabled = Global.Access;
-            GroupBox2.IsEnabled = Global.Access;
-            GroupBox3.IsEnabled = Global.Access;
+        private void LoadNumericValue(NumericUpDown numeric, string varName)
+        {
+            TVariableTag tag = Global.Variables.GetByName(varName);
+            if (tag != null)
+                numeric.Value = tag.ValueReal;
+        }
 
-            //private void Window_Loaded(object sender, RoutedEventArgs e)
-            //{
-            //    System.Windows.Threading.DispatcherTimer timer = new();
+        /// <summary>
+        /// Управление видимостью панели ручного значения (3 отдельных элемента)
+        /// </summary>
+        private void SetManualPanelVisibility(Visibility visibility)
+        {
+            ManualValueTitle.Visibility = visibility;
+            ManualValueNumeric.Visibility = visibility;
+            ManualValueUnits.Visibility = visibility;
+        }
 
-            //    timer.Tick += new EventHandler(timerTick);
-            //    timer.Interval = new TimeSpan(0, 0, 0, 100);
-            //    timer.Start();
-            //}
+        #region Отправка команд
 
-            //private void timerTick(object sender, EventArgs e)
+        private void SendCommand(string commandSuffix, string value, string logMessage)
+        {
+            if (_isInitializing) return;
+            if (Global == null || !Global.Access) return;
 
-            // Автоматический
+            string fullCommandName = VarName + commandSuffix;
+            TCommandTag command = Global.Commands.GetByName(fullCommandName);
+
+            if (command == null)
+            {
+                Debug.WriteLine($"Команда не найдена: {fullCommandName}");
+                return;
+            }
+
+            // Подписываемся на завершение
+            Action<string, bool, string> handler = null;
+            handler = (name, success, error) =>
+            {
+                command.OnCommandCompleted -= handler;
+
+                Dispatcher.BeginInvoke(() =>
+                {
+                    if (success)
+                    {
+                        Global.Log.Add("Пользователь", $"{Title}. {logMessage}", 1);
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Ошибка команды {fullCommandName}: {error}");
+                    }
+                });
+            };
+
+            command.OnCommandCompleted += handler;
+            command.WriteValue = value;
+            command.NeedToWrite = true;
+            command.SendToController();
+
+            Debug.WriteLine($"Команда отправлена: {fullCommandName} = {value}");
+        }
+
+        private void SendNumericCommand(NumericUpDown numeric, string suffix, string paramName, string units)
+        {
+            if (_isInitializing) return;
+            if (!numeric.Value.HasValue) return;
+
+            TVariableTag variable = Global.Variables.GetByName(VarName + suffix);
+
+            if (variable != null)
+            {
+                if (Math.Abs(variable.ValueReal - numeric.Value.Value) < 0.001)
+                    return;
+            }
+
+            string value = numeric.Value.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            string logMessage = $"{paramName} изменено на {value} {units}.";
+
+            SendCommand(suffix, value, logMessage);
+        }
+
+        #endregion
+
+        #region Обработчики режима
+
+        private void RBManual_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_isInitializing) return;
+            if (Global == null || !Global.Access) return;
+            if (RBManual.IsChecked != true) return;
+
+            // ПОКАЗЫВАЕМ панель ручного значения
+            SetManualPanelVisibility(Visibility.Visible);
+
             TVariableTag ManualVariable = Global.Variables.GetByName(VarName + "_Manual");
-            RBAuto.Background = this.Background;
-            if (ManualVariable != null)
-            {
-                if (ManualVariable.ValueReal < 1)
-                    if (!RBAuto.IsChecked == true)
-                        RBAuto.Background = EditColor;
-                if (ManualVariable.ValueReal > 0)
-                    if (RBAuto.IsChecked == true)
-                        RBAuto.Background = EditColor;
-            }
-            // Ручной режим
-            RBManual.Background = this.Background;
-            if (ManualVariable != null)
-            {
-                if (ManualVariable.ValueReal < 1)
-                    if (!RBAuto.IsChecked == true)
-                        RBManual.Background = EditColor;
-                if (ManualVariable.ValueReal > 0)
-                    if (RBAuto.IsChecked == true)
-                        RBManual.Background = EditColor;
-            }
-            // Значение ручного режима
-            TVariableTag ManualValueVariable = Global.Variables.GetByName(VarName + "_ManualValue");
-            if (ManualValueNumeric.IsFocused == false)
-            {
-                ManualValueNumeric.Background = NormalColor;
-                if (ManualValueVariable != null)
-                    if (Math.Abs(ManualValueVariable.ValueReal - Convert.ToDouble(ManualValueNumeric.Value)) >= 0.001)
-                        ManualValueNumeric.Background = EditColor;
-            }
-            // Нижнее аварийное значение
-            TVariableTag LFVariable = Global.Variables.GetByName(VarName + "_LF");
-            if (!LFNumeric.IsFocused)
-            {
-                LFNumeric.Background = NormalColor;
-                if (LFVariable != null)
-                    if (Math.Abs(LFVariable.ValueReal - Convert.ToDouble(LFNumeric.Value)) >= 0.001)
-                        LFNumeric.Background = EditColor;
-            }
-            // Нижнее предаварийное значение
-            TVariableTag LWVariable = Global.Variables.GetByName(VarName + "_LW");
-            if (!LWNumeric.IsFocused)
-            {
-                LWNumeric.Background = NormalColor;
-                if (LWVariable != null)
-                    if (Math.Abs(LWVariable.ValueReal - Convert.ToDouble(LWNumeric.Value)) >= 0.001)
-                        LWNumeric.Background = EditColor;
-            }
-            // Верхнее предаварийное значение
-            TVariableTag HWVariable = Global.Variables.GetByName(VarName + "_HW");
-            if (!HWNumeric.IsFocused)
-            {
-                HWNumeric.Background = NormalColor;
-                if (HWVariable != null)
-                    if (Math.Abs(HWVariable.ValueReal - Convert.ToDouble(HWNumeric.Value)) >= 0.001)
-                        HWNumeric.Background = EditColor;
-            }
-            // Верхнее аварийное значение
-            TVariableTag HFVariable = Global.Variables.GetByName(VarName + "_HF");
-            if (!HFNumeric.IsFocused)
-            {
-                HFNumeric.Background = NormalColor;
-                if (HFVariable != null)
-                    if (Math.Abs(HFVariable.ValueReal - Convert.ToDouble(HFNumeric.Value)) >= 0.001)
-                        HFNumeric.Background = EditColor;
-            }
-            // Режим работы и значение ручного режима
-            if (RBAuto.IsChecked == true)
-            {
-                ManualValueTitle.Visibility = Visibility.Hidden;
-                ManualValueUnits.Visibility = Visibility.Hidden;
-                ManualValueNumeric.Visibility = Visibility.Hidden;
-                RBManual.IsChecked = false;
-            }
-            if (RBManual.IsChecked == true)
-            {
-                ManualValueTitle.Visibility = Visibility.Visible;
-                ManualValueUnits.Visibility = Visibility.Visible;
-                ManualValueNumeric.Visibility = Visibility.Visible;
-                RBAuto.IsChecked = false;
-            }
-            // Нижняя граница измеряемого давления
-            TVariableTag LowLevelVariable = Global.Variables.GetByName(VarName + "_LowLevel");
-            if (!LowLevelNumeric.IsFocused)
-            {
-                LowLevelNumeric.Background = NormalColor;
-                if (LowLevelVariable != null)
-                    if (Math.Abs(LowLevelVariable.ValueReal - Convert.ToDouble(LowLevelNumeric.Value)) >= 0.001)
-                        LowLevelNumeric.Background = EditColor;
-            }
-            // Верхняя граница измеряемого давления
-            TVariableTag HiLevelVariable = Global.Variables.GetByName(VarName + "_HiLevel");
-            if (!HiLevelNumeric.IsFocused)
-            {
-                HiLevelNumeric.Background = NormalColor;
-                if (HiLevelVariable != null)
-                    if (Math.Abs(HiLevelVariable.ValueReal - Convert.ToDouble(HiLevelNumeric.Value)) >= 0.001)
-                        HiLevelNumeric.Background = EditColor;
-            }
-            // Нижняя граница токовой петли
-            TVariableTag LowCurrVariable = Global.Variables.GetByName(VarName + "_LowCurr");
-            if (!LowCurrNumeric.IsFocused)
-            {
-                LowCurrNumeric.Background = NormalColor;
-                if (LowCurrVariable != null)
-                    if (Math.Abs(LowCurrVariable.ValueReal - Convert.ToDouble(LowCurrNumeric.Value)) >= 0.001)
-                        LowCurrNumeric.Background = EditColor;
-            }
-            // Верхняя граница токовой петли
-            TVariableTag HiCurrVariable = Global.Variables.GetByName(VarName + "_HiCurr");
-            if (!HiCurrNumeric.IsFocused)
-            {
-                HiCurrNumeric.Background = NormalColor;
-                if (HiCurrVariable != null)
-                    if (Math.Abs(HiCurrVariable.ValueReal - Convert.ToDouble(HiCurrNumeric.Value)) >= 0.001)
-                        HiCurrNumeric.Background = EditColor;
-            }
 
+            if (ManualVariable != null && ManualVariable.ValueReal < 1)
+            {
+                SendCommand("_Manual", "true", "Переведен в ручной режим.");
+            }
         }
 
         private void RBAuto_Checked(object sender, RoutedEventArgs e)
         {
-            // Проверяем, что событие вызвано именно установкой флажка (а не снятием)
-            if (RBAuto.IsChecked == true)
-            {
-                TVariableTag ManualVariable = Global.Variables.GetByName(VarName + "_Manual");
-                TCommandTag ManualCommand = Global.Commands.GetByName(VarName + "_Manual");
+            if (_isInitializing) return;
+            if (Global == null || !Global.Access) return;
+            if (RBAuto.IsChecked != true) return;
 
-                if (ManualVariable != null && ManualCommand != null)
-                {
-                    // Если система в ручном режиме
-                    if (ManualVariable.ValueReal > 0)
-                    {
-                        ManualCommand.WriteValue = "false";
-                        ManualCommand.NeedToWrite = true;
-                        Global.Commands.SendToController();
-                        Global.Log.Add("Пользователь", Content?.ToString() + ".Переведен в автоматический режим.", 1);         //Не уверен в сontent?.ToString()
-                    }
-                }
-            }
-        }
+            // СКРЫВАЕМ панель ручного значения
+            SetManualPanelVisibility(Visibility.Hidden);
 
-        private void RBAuto_Unchecked(object sender, RoutedEventArgs e)
-        {
-            // Обработка снятия флажка (переход в ручной режим)
             TVariableTag ManualVariable = Global.Variables.GetByName(VarName + "_Manual");
-            TCommandTag ManualCommand = Global.Commands.GetByName(VarName + "_Manual");
 
-            if (ManualVariable != null && ManualCommand != null)
+            if (ManualVariable != null && ManualVariable.ValueReal > 0)
             {
-                // Если система в автоматическом режиме
-                if (ManualVariable.ValueReal < 1)
-                {
-                    ManualCommand.WriteValue = "true";
-                    ManualCommand.NeedToWrite = true;
-                    Global.Commands.SendToController();
-                    Global.Log.Add("Пользователь", Content?.ToString() + ". Переведен в ручной режим.", 1);
-                }
+                SendCommand("_Manual", "false", "Переведен в автоматический режим.");
             }
         }
+
+        #endregion
+
+        #region Обработчики числовых полей
 
         private void ManualValueNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
-            TVariableTag ManualValueVariable = Global.Variables.GetByName(VarName + "_ManualValue");
-            TCommandTag ManualValueCommand = Global.Commands.GetByName(VarName + "_ManualValue");
-            if (ManualValueVariable != null)
-                if (ManualValueCommand != null)
-                    if (ManualValueVariable.ValueReal != Convert.ToDouble(ManualValueNumeric.Value))
-                    {
-                        ManualValueCommand.WriteValue = ManualValueNumeric.Value.ToString();
-                        ManualValueCommand.NeedToWrite = true;
-                        Global.Commands.SendToController();
-                        Global.Log.Add("Пользователь", Content?.ToString() + ". Ручное значение изменено на " + ManualValueCommand.WriteValue + " %.", 1);
-                    }
+            SendNumericCommand(ManualValueNumeric, "_ManualValue", "Ручное значение", "%");
         }
 
         private void HFNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
-            TVariableTag Variable = Global.Variables.GetByName(VarName + "_HF");
-            TCommandTag Command = Global.Commands.GetByName(VarName + "_HF");
-            NumericUpDown Numeric = HFNumeric;
-
-            if (Variable != null)
-                if (Command != null)
-                    if (Variable.ValueReal != Convert.ToDouble(Numeric.Value))
-                    {
-                        Command.WriteValue = Numeric.Value.ToString();
-                        Command.NeedToWrite = true;
-                        Global.Commands.SendToController();
-                        Global.Log.Add("Пользователь", Content?.ToString() + ". Верзнее аварийное значение изменено на " + Command.WriteValue + " %.", 1);
-                    }
+            SendNumericCommand(HFNumeric, "_HF", "Верхнее аварийное значение", EU ?? "%");
         }
 
         private void HWNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
-            TVariableTag Variable = Global.Variables.GetByName(VarName + "_HW");
-            TCommandTag Command = Global.Commands.GetByName(VarName + "_HW");
-            NumericUpDown Numeric = HWNumeric;
-
-            if (Variable != null)
-                if (Command != null)
-                    if (Variable.ValueReal != Convert.ToDouble(Numeric.Value))
-                    {
-                        Command.WriteValue = Numeric.Value.ToString();
-                        Command.NeedToWrite = true;
-                        Global.Commands.SendToController();
-                        Global.Log.Add("Пользователь", Content?.ToString() + ". Верхнее предаварийное значение изменено на " + Command.WriteValue + " %.", 1);
-                    }
+            SendNumericCommand(HWNumeric, "_HW", "Верхнее предаварийное значение", EU ?? "%");
         }
 
         private void LWNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
-            TVariableTag Variable = Global.Variables.GetByName(VarName + "_LW");
-            TCommandTag Command = Global.Commands.GetByName(VarName + "_LW");
-            NumericUpDown Numeric = LWNumeric;
-
-            if (Variable != null)
-                if (Command != null)
-                    if (Variable.ValueReal != Convert.ToDouble(Numeric.Value))
-                    {
-                        Command.WriteValue = Numeric.Value.ToString();
-                        Command.NeedToWrite = true;
-                        Global.Commands.SendToController();
-                        Global.Log.Add("Пользователь", Content?.ToString() + ". Нижнее предаварийное значение изменено на " + Command.WriteValue + " %.", 1);
-                    }
+            SendNumericCommand(LWNumeric, "_LW", "Нижнее предаварийное значение", EU ?? "%");
         }
 
         private void LFNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
-            TVariableTag Variable = Global.Variables.GetByName(VarName + "_LF");
-            TCommandTag Command = Global.Commands.GetByName(VarName + "_LF");
-            NumericUpDown Numeric = LFNumeric;
-
-            if (Variable != null)
-                if (Command != null)
-                    if (Variable.ValueReal != Convert.ToDouble(Numeric.Value))
-                    {
-                        Command.WriteValue = Numeric.Value.ToString();
-                        Command.NeedToWrite = true;
-                        Global.Commands.SendToController();
-                        Global.Log.Add("Пользователь", Content?.ToString() + ". Верхнее предаварийное значение изменено на " + Command.WriteValue + " %.", 1);
-                    }
+            SendNumericCommand(LFNumeric, "_LF", "Нижнее аварийное значение", EU ?? "%");
         }
 
         private void LowLevelNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
-            TVariableTag Variable = Global.Variables.GetByName(VarName + "_LowLevel");
-            TCommandTag Command = Global.Commands.GetByName(VarName + "_LowLevel");
-            NumericUpDown Numeric = LowLevelNumeric;
-
-            if (Variable != null)
-                if (Command != null)
-                    if (Variable.ValueReal != Convert.ToDouble(Numeric.Value))
-                    {
-                        Command.WriteValue = Numeric.Value.ToString();
-                        Command.NeedToWrite = true;
-                        Global.Commands.SendToController();
-                        Global.Log.Add("Пользователь", Content?.ToString() + ". Значение нижней границы измеряемого уровня изменено на " + Command.WriteValue + " %.", 1);
-                    }
+            SendNumericCommand(LowLevelNumeric, "_LowLevel", "Нижняя граница измеряемого уровня", EU ?? "%");
         }
 
         private void HiLevelNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
-            TVariableTag Variable = Global.Variables.GetByName(VarName + "_HiLevel");
-            TCommandTag Command = Global.Commands.GetByName(VarName + "_HiLevel");
-            NumericUpDown Numeric = HiLevelNumeric;
-
-            if (Variable != null)
-                if (Command != null)
-                    if (Variable.ValueReal != Convert.ToDouble(Numeric.Value))
-                    {
-                        Command.WriteValue = Numeric.Value.ToString();
-                        Command.NeedToWrite = true;
-                        Global.Commands.SendToController();
-                        Global.Log.Add("Пользователь", Content?.ToString() + ". Значение верхней границы измеряемого уровня изменено на " + Command.WriteValue + " %.", 1);
-                    }
+            SendNumericCommand(HiLevelNumeric, "_HiLevel", "Верхняя граница измеряемого уровня", EU ?? "%");
         }
 
         private void LowCurrNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
-            TVariableTag Variable = Global.Variables.GetByName(VarName + "_LowCurr");
-            TCommandTag Command = Global.Commands.GetByName(VarName + "_LowCurr");
-            NumericUpDown Numeric = LowCurrNumeric;
-
-            if (Variable != null)
-                if (Command != null)
-                    if (Variable.ValueReal != Convert.ToDouble(Numeric.Value))
-                    {
-                        Command.WriteValue = Numeric.Value.ToString();
-                        Command.NeedToWrite = true;
-                        Global.Commands.SendToController();
-                        Global.Log.Add("Пользователь", Content?.ToString() + ".Значение нижней границы токовой петли изменено на " + Command.WriteValue + " mA.", 1);
-                    }
+            SendNumericCommand(LowCurrNumeric, "_LowCurr", "Нижняя граница токовой петли", "mA");
         }
 
         private void HiCurrNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
-            TVariableTag Variable = Global.Variables.GetByName(VarName + "_HiCurr");
-            TCommandTag Command = Global.Commands.GetByName(VarName + "_HiCurr");
-            NumericUpDown Numeric = HiCurrNumeric;
-
-            if (Variable != null)
-                if (Command != null)
-                    if (Variable.ValueReal != Convert.ToDouble(Numeric.Value))
-                    {
-                        Command.WriteValue = Numeric.Value.ToString();
-                        Command.NeedToWrite = true;
-                        Global.Commands.SendToController();
-                        Global.Log.Add("Пользователь", Content?.ToString() + ".Значение верхней границы токовой петли изменено на " + Command.WriteValue + " mA.", 1);
-                    }
+            SendNumericCommand(HiCurrNumeric, "_HiCurr", "Верхняя граница токовой петли", "mA");
         }
+
+        #endregion
     }
 }

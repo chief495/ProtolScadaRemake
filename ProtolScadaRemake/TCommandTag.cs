@@ -1,4 +1,5 @@
 ﻿using NModbus;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 
@@ -17,6 +18,12 @@ namespace ProtolScadaRemake
         public string Format = "";
         public bool NeedToWrite = false;
         public string WriteValue = "";
+
+        // Таймаут подключения
+        private const int CONNECTION_TIMEOUT_MS = 3000;
+
+        // Событие завершения команды (для UI)
+        public event Action<string, bool, string> OnCommandCompleted;
 
         public TCommandTag() { }
 
@@ -58,68 +65,144 @@ namespace ProtolScadaRemake
             return Result;
         }
 
-        public void SendToController()
+        /// <summary>
+        /// Отправка команды в ФОНОВОМ потоке (не блокирует UI)
+        /// </summary>
+        public void SendToControllerInBackground()
         {
-            TcpClient client;
-            bool[] BB = new bool[1];
-            if (NeedToWrite)
+            if (!NeedToWrite) return;
+
+            string type = Type;
+            string value = WriteValue;
+            string ip = Plc_IpAddress;
+            int port = Plc_PortNum;
+            int deviceAddr = Plc_DeviceAddress;
+            int address = Address;
+            string name = Name;
+
+            // ДИАГНОСТИКА: показываем что отправляем
+            Debug.WriteLine($"→→→ [{name}] Отправка: {value} (Type={type}, Addr={address}, IP={ip}:{port})");
+
+            Task.Run(() =>
             {
-                switch (Type)
+                bool success = false;
+                string errorMessage = "";
+
+                try
+                {
+                    success = SendToControllerInternal(type, value, ip, port, deviceAddr, address);
+
+                    if (success)
+                    {
+                        NeedToWrite = false;
+                        Debug.WriteLine($"✓ [{name}] УСПЕХ");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"✗ [{name}] НЕ УДАЛОСЬ (без исключения)");
+                    }
+                }
+                catch (IOException ioEx)
+                {
+                    errorMessage = $"IO: {ioEx.Message}";
+                    Debug.WriteLine($"✗ [{name}] IO EXCEPTION: Контроллер не отвечает!");
+                }
+                catch (SocketException sockEx)
+                {
+                    errorMessage = $"Socket: {sockEx.Message}";
+                    Debug.WriteLine($"✗ [{name}] SOCKET EXCEPTION: {sockEx.SocketErrorCode}");
+                }
+                catch (Exception ex)
+                {
+                    errorMessage = ex.Message;
+                    Debug.WriteLine($"✗ [{name}] EXCEPTION: {ex.Message}");
+                }
+
+                OnCommandCompleted?.Invoke(name, success, errorMessage);
+            });
+        }
+        /// <summary>
+        /// Синхронная отправка (для вызова из фонового потока)
+        /// </summary>
+        private bool SendToControllerInternal(
+            string type, string value, string ip, int port, int deviceAddr, int address)
+        {
+            TcpClient client = null;
+
+            try
+            {
+                client = new TcpClient();
+
+                // Подключение с таймаутом
+                var result = client.BeginConnect(ip, port, null, null);
+                bool connected = result.AsyncWaitHandle.WaitOne(CONNECTION_TIMEOUT_MS);
+
+                if (!connected)
+                {
+                    throw new TimeoutException($"Таймаут подключения к {ip}:{port}");
+                }
+
+                client.EndConnect(result);
+
+                var factory = new ModbusFactory();
+                IModbusMaster master = factory.CreateMaster(client);
+
+                switch (type)
                 {
                     case "Bool":
-                        try
-                        {
-                            ushort[] W = new ushort[1];
-                            W[0] = 0;
-                            if (WriteValue == "true") W[0] = 1;
-                            client = new TcpClient();
-                            client.Connect(Plc_IpAddress, Plc_PortNum);
-                            var factory = new ModbusFactory();
-                            IModbusMaster master = factory.CreateMaster(client);
-                            master.WriteMultipleRegisters(Convert.ToByte(Plc_DeviceAddress), Convert.ToUInt16(Address), W);
-                            client.Close();
-                            NeedToWrite = false;
-                        }
-                        catch { }
+                        ushort[] boolData = new ushort[1];
+                        boolData[0] = (ushort)(value.ToLower() == "true" || value == "1" ? 1 : 0);
+                        master.WriteMultipleRegisters(
+                            Convert.ToByte(deviceAddr),
+                            Convert.ToUInt16(address),
+                            boolData);
                         break;
+
                     case "Float_32":
-                        try
-                        {
-                            float D = Convert.ToSingle(WriteValue);
-                            byte[] HR = new byte[8];
-                            ushort[] HR2 = new ushort[2];
-                            BitConverter.GetBytes(D).CopyTo(HR, 0);
-                            HR2[0] = Convert.ToUInt16(HR[1] * 256 + HR[0]);
-                            HR2[1] = Convert.ToUInt16(HR[3] * 256 + HR[2]);
-                            client = new TcpClient();
-                            client.Connect(Plc_IpAddress, Plc_PortNum);
-                            var factory = new ModbusFactory();
-                            IModbusMaster master = factory.CreateMaster(client);
-                            master.WriteMultipleRegisters(Convert.ToByte(Plc_DeviceAddress), Convert.ToUInt16(Address), HR2);
-                            client.Close();
-                            NeedToWrite = false;
-                        }
-                        catch { }
+                        float floatValue = Convert.ToSingle(
+                            value.Replace(',', '.'),
+                            System.Globalization.CultureInfo.InvariantCulture);
+                        byte[] bytes = BitConverter.GetBytes(floatValue);
+                        ushort[] floatData = new ushort[2];
+                        floatData[0] = (ushort)(bytes[1] * 256 + bytes[0]);
+                        floatData[1] = (ushort)(bytes[3] * 256 + bytes[2]);
+                        master.WriteMultipleRegisters(
+                            Convert.ToByte(deviceAddr),
+                            Convert.ToUInt16(address),
+                            floatData);
                         break;
+
                     case "Int_16":
-                        try
-                        {
-                            Int16 I16 = Convert.ToInt16(WriteValue);
-                            client = new TcpClient();
-                            client.Connect(Plc_IpAddress, Plc_PortNum);
-                            var factory = new ModbusFactory();
-                            IModbusMaster master = factory.CreateMaster(client);
-                            master.WriteSingleRegister(Convert.ToByte(Plc_DeviceAddress), Convert.ToUInt16(Address), (ushort)I16);
-                            client.Close();
-                            NeedToWrite = false;
-                        }
-                        catch { }
+                        short intValue = Convert.ToInt16(value);
+                        master.WriteSingleRegister(
+                            Convert.ToByte(deviceAddr),
+                            Convert.ToUInt16(address),
+                            (ushort)intValue);
                         break;
 
-
-
+                    default:
+                        throw new NotSupportedException($"Неподдерживаемый тип: {type}");
                 }
+
+                return true;
             }
+            finally
+            {
+                try
+                {
+                    client?.Close();
+                    client?.Dispose();
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// СТАРЫЙ метод — теперь вызывает фоновую версию
+        /// </summary>
+        public void SendToController()
+        {
+            SendToControllerInBackground();
         }
     }
 }

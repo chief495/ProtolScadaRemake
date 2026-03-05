@@ -22,7 +22,7 @@ namespace ProtolScadaRemake
         public DateTime PassTime;
 
         // Настройки Modbus
-        public string Plc_IpAddress = "192.168.88.64";
+        public string Plc_IpAddress = "192.168.88.139";
         public int Plc_PortNum = 502;
         public int Plc_DeviceAddress = 1;
 

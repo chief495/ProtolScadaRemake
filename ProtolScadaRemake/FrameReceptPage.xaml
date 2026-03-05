@@ -230,7 +230,7 @@
                             </StackPanel>
 
                             <!-- Кнопка редактирования -->
-                            <Button x:Name="GroEditButton" Style="{StaticResource EditButtonStyle}" HorizontalAlignment="Center" Click="GroEditButton_Click_1"/>
+                            <Button x:Name="GroEditButton" Style="{StaticResource EditButtonStyle}" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Border>
 

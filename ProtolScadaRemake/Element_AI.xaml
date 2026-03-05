@@ -5,20 +5,86 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ProtolScadaRemake"
              mc:Ignorable="d" d:DesignWidth="136" 
-             Background="#FF0C2948" Height="47" MouseDown="ValueLabel_Click">
+             Background="Transparent" 
+             Height="47" 
+             MouseDown="ValueLabel_Click">
+
     <Grid Width="136" Height="46" HorizontalAlignment="Center" VerticalAlignment="Top">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="0*"/>
         </Grid.RowDefinitions>
-        <TextBlock x:Name="TextBlockDesignation" HorizontalAlignment="Left" Margin="60,0,0,0" TextWrapping="Wrap" Text="Уровень" VerticalAlignment="Top" Height="15" Width="76" FontFamily="Arial" Foreground="White" TextAlignment="Center" />
-        <TextBlock x:Name="TagNameTextBlock" HorizontalAlignment="Left" Text="###" VerticalAlignment="Top" Height="15" RenderTransformOrigin="0,0" Width="60" FontFamily="Arial" Foreground="White" TextAlignment="Center"/>
-        <Rectangle x:Name="ValueRect" HorizontalAlignment="Center" Height="30" Margin="0,15,0,0" Stroke="#FF267ABB" VerticalAlignment="Top" Width="130" Fill="#FF0D0C27" RadiusX="10" RadiusY="10"/>
-        <Rectangle HorizontalAlignment="Left" Height="30" Margin="79,15,0,0" Stroke="#FF267ABB"  VerticalAlignment="Top" Width="54" RadiusX="10" RadiusY="10"/>
 
-        <TextBlock x:Name="ValueLabel" HorizontalAlignment="Left" Margin="10,22,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="17" Width="65" Foreground="White" TextAlignment="Right" FontFamily="Arial" FontSize="14"/>
-        <TextBlock x:Name="TextBlockEU" HorizontalAlignment="Left" Margin="99,22,0,0" TextWrapping="Wrap" Text="EU" VerticalAlignment="Top" Foreground="White" FontFamily="Arial" Height="19"/>
-        <Image x:Name="HandImage" Margin="122,16,-11,0" Source="/Images/Hand.png" Stretch="Fill" Height="30" Width="25"/>
+        <TextBlock x:Name="TextBlockDesignation" 
+                   HorizontalAlignment="Left" 
+                   Margin="60,0,0,0" 
+                   TextWrapping="Wrap" 
+                   Text="Уровень" 
+                   VerticalAlignment="Top" 
+                   Height="15" 
+                   Width="76" 
+                   FontFamily="Arial" 
+                   Foreground="White" 
+                   TextAlignment="Center" />
+
+        <TextBlock x:Name="TagNameTextBlock" 
+                   HorizontalAlignment="Left" 
+                   Text="###" 
+                   VerticalAlignment="Top" 
+                   Height="15" 
+                   RenderTransformOrigin="0,0" 
+                   Width="60" 
+                   FontFamily="Arial" 
+                   Foreground="White" 
+                   TextAlignment="Center"/>
+
+        <Rectangle x:Name="ValueRect" 
+                   HorizontalAlignment="Center" 
+                   Height="30" 
+                   Margin="0,15,0,0" 
+                   Stroke="#FF267ABB" 
+                   VerticalAlignment="Top" 
+                   Width="130" 
+                   Fill="#FF0D0C27" 
+                   RadiusX="10" 
+                   RadiusY="10"/>
+
+        <Rectangle HorizontalAlignment="Left" 
+                   Height="30" 
+                   Margin="79,15,0,0" 
+                   Stroke="#FF267ABB"  
+                   VerticalAlignment="Top" 
+                   Width="54" 
+                   RadiusX="10" 
+                   RadiusY="10"/>
+
+        <TextBlock x:Name="ValueLabel" 
+                   HorizontalAlignment="Left" 
+                   Margin="10,22,0,0" 
+                   TextWrapping="Wrap" 
+                   VerticalAlignment="Top" 
+                   Height="17" 
+                   Width="65" 
+                   Foreground="White" 
+                   TextAlignment="Right" 
+                   FontFamily="Arial" 
+                   FontSize="14"/>
+
+        <TextBlock x:Name="TextBlockEU" 
+                   HorizontalAlignment="Left" 
+                   Margin="99,22,0,0" 
+                   TextWrapping="Wrap" 
+                   Text="EU" 
+                   VerticalAlignment="Top" 
+                   Foreground="White" 
+                   FontFamily="Arial" 
+                   Height="19"/>
+
+        <Image x:Name="HandImage" 
+               Margin="122,16,-11,0" 
+               Source="/Images/Hand.png" 
+               Stretch="Fill" 
+               Height="30" 
+               Width="25"/>
     </Grid>
-
 </UserControl>

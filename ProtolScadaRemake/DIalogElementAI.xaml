@@ -7,7 +7,7 @@
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
-        Title="DIalogElementAI" 
+        Title="DialogElementAI" 
         Height="360" 
         Width="650" 
         Background="#FFCCC9C9" 
@@ -38,14 +38,15 @@
                            Content="Автоматический" 
                            Margin="0,5,0,10" 
                            FontSize="11"
-                           Checked="RBAuto_Checked" 
-                           Unloaded="RBAuto_Unchecked"/>
+                           Checked="RBAuto_Checked"/>
 
                 <RadioButton x:Name="RBManual" 
                            Content="Ручной" 
                            Margin="0,0,0,15" 
-                           FontSize="11"/>
+                           FontSize="11"
+                           Checked="RBManual_Checked"/>
 
+                <!-- Панель ручного значения - БЕЗ Visibility, управляется из кода -->
                 <StackPanel Orientation="Horizontal" 
                           VerticalAlignment="Center"
                           Margin="0,5,0,0">
@@ -53,7 +54,8 @@
                          Content="Ручное значение:" 
                          FontSize="11"
                          Width="120"
-                         Padding="0"/>
+                         Padding="0"
+                         Visibility="Hidden"/>
 
                     <mah:NumericUpDown x:Name="ManualValueNumeric" 
                                      Background="White" 
@@ -62,6 +64,7 @@
                                      Width="80"
                                      FontSize="11"
                                      Margin="5,0,0,0"
+                                     Visibility="Hidden"
                                      ValueChanged="ManualValueNumeric_ValueChanged"/>
 
                     <Label x:Name="ManualValueUnits" 
@@ -69,7 +72,8 @@
                          FontSize="11"
                          Margin="5,0,0,0"
                          VerticalAlignment="Center"
-                         Padding="0"/>
+                         Padding="0"
+                         Visibility="Hidden"/>
                 </StackPanel>
             </StackPanel>
         </GroupBox>
@@ -89,97 +93,25 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Названия параметров -->
                 <StackPanel Grid.Column="0" Width="180">
-                    <Label Content="Верхнее аварийное значение:" 
-                         FontFamily="Arial" 
-                         FontSize="10" 
-                         Height="28"
-                         Padding="0,5"/>
-
-                    <Label Content="Верхнее предаварийное значение:" 
-                         FontFamily="Arial" 
-                         FontSize="10" 
-                         Height="28"
-                         Padding="0,5"/>
-
-                    <Label Content="Нижнее предаварийное значение:" 
-                         FontFamily="Arial" 
-                         FontSize="10" 
-                         Height="28"
-                         Padding="0,5"/>
-
-                    <Label Content="Нижнее аварийное значение:" 
-                         FontFamily="Arial" 
-                         FontSize="10" 
-                         Height="28"
-                         Padding="0,5"/>
+                    <Label Content="Верхнее аварийное значение:" FontFamily="Arial" FontSize="10" Height="28" Padding="0,5"/>
+                    <Label Content="Верхнее предаварийное значение:" FontFamily="Arial" FontSize="10" Height="28" Padding="0,5"/>
+                    <Label Content="Нижнее предаварийное значение:" FontFamily="Arial" FontSize="10" Height="28" Padding="0,5"/>
+                    <Label Content="Нижнее аварийное значение:" FontFamily="Arial" FontSize="10" Height="28" Padding="0,5"/>
                 </StackPanel>
 
-                <!-- Числовые поля ввода -->
                 <StackPanel Grid.Column="1" Width="100" Margin="5,0,0,0">
-
-                    <mah:NumericUpDown x:Name="HFNumeric" 
-                                     Height="28" 
-                                     FontFamily="Arial" 
-                                     FontSize="10" 
-                                     Width="100" 
-                                     Background="White" 
-                                     Maximum="100" 
-                                     Minimum="0" 
-                                     ValueChanged="HFNumeric_ValueChanged"/>
-
-                    <mah:NumericUpDown x:Name="HWNumeric" 
-                                     Height="28"
-                                     FontSize="10"
-                                     Background="White" 
-                                     Maximum="100" 
-                                     Minimum="0" 
-                                     ValueChanged="HWNumeric_ValueChanged"/>
-
-                    <mah:NumericUpDown x:Name="LWNumeric" 
-                                     Height="28"
-                                     FontSize="10"
-                                     Background="White" 
-                                     Maximum="100" 
-                                     Minimum="0" 
-                                     ValueChanged="LWNumeric_ValueChanged"/>
-
-                    <mah:NumericUpDown x:Name="LFNumeric" 
-                                     Height="28"
-                                     FontSize="10"
-                                     Background="White" 
-                                     Maximum="100" 
-                                     Minimum="0" 
-                                     FontFamily="Arial" 
-                                     ValueChanged="LFNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="HFNumeric" Height="28" FontFamily="Arial" FontSize="10" Width="100" Background="White" Maximum="100" Minimum="0" ValueChanged="HFNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="HWNumeric" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="HWNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="LWNumeric" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="LWNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="LFNumeric" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="LFNumeric_ValueChanged"/>
                 </StackPanel>
 
-                <!-- Единицы измерения -->
                 <StackPanel Grid.Column="2" Width="40" Margin="5,0,0,0">
-                    <Label x:Name="TextEU1" 
-                         FontFamily="Arial" 
-                         FontSize="10" 
-                         Height="28"
-                         Padding="0,5"/>
-
-                    <Label x:Name="TextEU2" 
-                         FontFamily="Arial" 
-                         FontSize="10" 
-                         Height="28"
-                         Padding="0,5"/>
-
-                    <Label x:Name="TextEU3" 
-                         FontFamily="Arial" 
-                         FontSize="10" 
-                         Height="28"
-                         Padding="0,5"/>
-
-                    <Label x:Name="TextEU4" 
-                         FontFamily="Arial" 
-                         FontSize="10" 
-                         Height="28"
-                         Padding="0,5"/>
+                    <Label x:Name="TextEU1" FontFamily="Arial" FontSize="10" Height="28" Padding="0,5"/>
+                    <Label x:Name="TextEU2" FontFamily="Arial" FontSize="10" Height="28" Padding="0,5"/>
+                    <Label x:Name="TextEU3" FontFamily="Arial" FontSize="10" Height="28" Padding="0,5"/>
+                    <Label x:Name="TextEU4" FontFamily="Arial" FontSize="10" Height="28" Padding="0,5"/>
                 </StackPanel>
             </Grid>
         </GroupBox>
@@ -200,93 +132,25 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Названия параметров -->
                 <StackPanel Grid.Column="0" Width="220">
-                    <TextBlock Text="Нижняя граница измеряемого уровня:" 
-                             FontSize="10" 
-                             Height="28"
-                             VerticalAlignment="Center"
-                             TextWrapping="Wrap"/>
-
-                    <TextBlock Text="Верхняя граница измеряемого уровня:" 
-                             FontSize="10" 
-                             Height="28"
-                             VerticalAlignment="Center"
-                             TextWrapping="Wrap"/>
-
-                    <TextBlock Text="Нижняя граница токовой петли:" 
-                             FontSize="10" 
-                             Height="28"
-                             VerticalAlignment="Center"
-                             TextWrapping="Wrap"/>
-
-                    <TextBlock Text="Верхняя граница токовой петли:" 
-                             FontSize="10" 
-                             Height="28"
-                             VerticalAlignment="Center"
-                             TextWrapping="Wrap"/>
+                    <TextBlock Text="Нижняя граница измеряемого уровня:" FontSize="10" Height="28" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                    <TextBlock Text="Верхняя граница измеряемого уровня:" FontSize="10" Height="28" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                    <TextBlock Text="Нижняя граница токовой петли:" FontSize="10" Height="28" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                    <TextBlock Text="Верхняя граница токовой петли:" FontSize="10" Height="28" VerticalAlignment="Center" TextWrapping="Wrap"/>
                 </StackPanel>
 
-                <!-- Числовые поля ввода -->
                 <StackPanel Grid.Column="1" Width="100" Margin="10,0,0,0">
-                    <mah:NumericUpDown x:Name="LowLevelNumeric" 
-                                     Height="28"
-                                     FontSize="10"
-                                     Background="White" 
-                                     Maximum="100" 
-                                     Minimum="0" 
-                                     ValueChanged="LowLevelNumeric_ValueChanged"/>
-
-                    <mah:NumericUpDown x:Name="HiLevelNumeric" 
-                                     Height="28"
-                                     FontSize="10"
-                                     Background="White" 
-                                     Maximum="100" 
-                                     Minimum="0" 
-                                     ValueChanged="HiLevelNumeric_ValueChanged"/>
-
-                    <mah:NumericUpDown x:Name="LowCurrNumeric" 
-                                     Height="28"
-                                     FontSize="10"
-                                     Background="White" 
-                                     Maximum="30" 
-                                     Minimum="0" 
-                                     ValueChanged="LowCurrNumeric_ValueChanged"/>
-
-                    <mah:NumericUpDown x:Name="HiCurrNumeric" 
-                                     Height="28"
-                                     FontSize="10"
-                                     Background="White" 
-                                     Maximum="30" 
-                                     Minimum="0" 
-                                     ValueChanged="HiCurrNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="LowLevelNumeric" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="LowLevelNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="HiLevelNumeric" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="HiLevelNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="LowCurrNumeric" Height="28" FontSize="10" Background="White" Maximum="30" Minimum="0" ValueChanged="LowCurrNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="HiCurrNumeric" Height="28" FontSize="10" Background="White" Maximum="30" Minimum="0" ValueChanged="HiCurrNumeric_ValueChanged"/>
                 </StackPanel>
 
-                <!-- Единицы измерения -->
                 <StackPanel Grid.Column="2" Width="50" Margin="10,0,0,0">
-                    <Label x:Name="TextEU5" 
-                         FontFamily="Arial" 
-                         FontSize="10" 
-                         Height="28"
-                         Padding="0,5"/>
-
-                    <Label x:Name="TextEU6" 
-                         FontFamily="Arial" 
-                         FontSize="10" 
-                         Height="28"
-                         Padding="0,5"/>
-
-                    <Label Content="мА" 
-                         FontFamily="Arial" 
-                         FontSize="10" 
-                         Height="28"
-                         Padding="0,5"/>
-
-                    <Label Content="мА" 
-                         FontFamily="Arial" 
-                         FontSize="10" 
-                         Height="28"
-                         Padding="0,5"/>
+                    <Label x:Name="TextEU5" FontFamily="Arial" FontSize="10" Height="28" Padding="0,5"/>
+                    <Label x:Name="TextEU6" FontFamily="Arial" FontSize="10" Height="28" Padding="0,5"/>
+                    <Label Content="мА" FontFamily="Arial" FontSize="10" Height="28" Padding="0,5"/>
+                    <Label Content="мА" FontFamily="Arial" FontSize="10" Height="28" Padding="0,5"/>
                 </StackPanel>
             </Grid>
         </GroupBox>

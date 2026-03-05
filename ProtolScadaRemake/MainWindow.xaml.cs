@@ -46,9 +46,6 @@ namespace ProtolScadaRemake
             _dbUtils = _global.GetDbUtils();
             Debug.WriteLine("DBUtils получен");
 
-            // ИЗМЕНЕНО: инициализация Modbus теперь в Loaded событии
-            // ModbusInitializer.InitializeAllVariables(_global);
-
             StartUpdateTimer();
 
             _logSyncTimer = new DispatcherTimer();
@@ -86,6 +83,9 @@ namespace ProtolScadaRemake
                 InitializeModbus();
                 _modbusInitialized = true;
             }
+
+            // Обновляем состояние кнопки доступа после загрузки
+            UpdateAccessButtonState();
         }
 
         private void InitializeModbus()
@@ -130,6 +130,9 @@ namespace ProtolScadaRemake
 
             // Обновляем качество связи с контроллером
             UpdateControllerConnectionQuality();
+
+            // Проверяем время доступа (как в старом проекте)
+            CheckAccessTimeout();
         }
 
         private void StartUpdateTimer()
@@ -149,27 +152,24 @@ namespace ProtolScadaRemake
                 if (areas == null || areas.Count == 0)
                     return;
 
-                // Суммируем FaultsCount всех областей 
-                float totalFaults = 0;
+                // Суммируем FaultsCount всех областей для расчета качества связи
+                float totalCommunicationFaults = 0;
                 int areaCount = 0;
 
                 foreach (var area in areas)
                 {
                     if (area != null)
                     {
-                        totalFaults += area.FaultsCount;
+                        totalCommunicationFaults += area.FaultsCount;
                         areaCount++;
                     }
                 }
 
-                // Формула: F = F / 23; F = (2 - F) * 50;
-                // В старом проекте было 23 области
+                // Формула для качества связи (используем ТОЛЬКО для связи)
                 if (areaCount > 0)
                 {
-                    float quality = totalFaults / areaCount; // Делим на реальное количество областей
+                    float quality = totalCommunicationFaults / areaCount;
                     quality = (2 - quality) * 50;
-
-                    // Ограничиваем значение от 0 до 100
                     quality = Math.Max(0, Math.Min(100, quality));
 
                     Dispatcher.Invoke(() =>
@@ -177,6 +177,14 @@ namespace ProtolScadaRemake
                         if (ControllerConnectionQualityLabel != null)
                         {
                             ControllerConnectionQualityLabel.Text = $"{quality:F0}%";
+
+                            // Меняем цвет в зависимости от качества
+                            if (quality > 80)
+                                ControllerConnectionQualityLabel.Foreground = new SolidColorBrush(Color.FromRgb(100, 255, 100));
+                            else if (quality > 50)
+                                ControllerConnectionQualityLabel.Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 100));
+                            else
+                                ControllerConnectionQualityLabel.Foreground = new SolidColorBrush(Color.FromRgb(255, 100, 100));
                         }
                     });
                 }
@@ -187,48 +195,40 @@ namespace ProtolScadaRemake
             }
         }
 
-        // Метод для обновления счетчика аварий
+        // Метод для обновления счетчика аварий (НЕЗАВИСИМЫЙ от качества связи)
         private void UpdateFaultCounter()
         {
             try
             {
-                // Получаем список областей из ModbusInitializer
-                var areas = ModbusInitializer.GetModbusAreas();
-
-                if (areas == null || areas.Count == 0)
+                // Получаем актуальные аварии из системы, а не из Modbus областей
+                if (_global?.Faults == null)
                     return;
 
-                // Суммируем FaultsCount всех областей
-                float totalFaults = 0;
+                // Считаем количество активных аварий
+                int activeFaults = 0;
 
-                foreach (var area in areas)
+                for (int i = 0; i < _global.Faults.GetCount(); i++)
                 {
-                    if (area != null)
+                    var fault = _global.Faults.Items[i];
+                    // Проверяем, активна ли авария (например, по свойству IsActive)
+                    if (fault.IsActive) // Или другое свойство, указывающее на активность
                     {
-                        totalFaults += area.FaultsCount;
+                        activeFaults++;
                     }
                 }
 
-                // Обновляем текст счетчика в UI
                 Dispatcher.Invoke(() =>
                 {
                     if (FaultCounterLabel != null)
                     {
-                        FaultCounterLabel.Text = totalFaults.ToString();
+                        FaultCounterLabel.Text = activeFaults.ToString();
 
-                        // Опционально: меняем цвет в зависимости от количества аварий
                         if (FaultCounterLabel.Parent is Border border)
                         {
-                            if (totalFaults > 0)
-                            {
-                                // Если есть аварии - красный фон
-                                border.Background = new SolidColorBrush(Colors.Red);
-                            }
+                            if (activeFaults > 0)
+                                border.Background = new SolidColorBrush(Color.FromRgb(220, 50, 50));
                             else
-                            {
-                                // Если аварий нет - зеленый фон
-                                border.Background = new SolidColorBrush(Colors.Green);
-                            }
+                                border.Background = new SolidColorBrush(Color.FromRgb(50, 150, 50));
                         }
                     }
                 });
@@ -239,13 +239,124 @@ namespace ProtolScadaRemake
             }
         }
 
+        // Проверка таймаута доступа
+        private void CheckAccessTimeout()
+        {
+            if (_global != null && _global.Access)
+            {
+                if (DateTime.Now - _global.PassTime > TimeSpan.FromMinutes(10))
+                {
+                    _global.Access = false;
+                    UpdateAccessButtonState();
+                    Debug.WriteLine("Доступ автоматически отключен по таймауту (10 минут)");
+                    _global.Log.Add("Система", "Доступ автоматически отключен по истечении 10 минут", 0);
+                }
+            }
+        }
+
+        // Обновление состояния кнопки доступа
+        private void UpdateAccessButtonState()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (AccessButton != null && _global != null)
+                {
+                    var template = AccessButton.Template;
+
+                    if (template != null)
+                    {
+                        var statusIndicator = template.FindName("StatusIndicator", AccessButton) as Border;
+                        var accessText = template.FindName("AccessText", AccessButton) as TextBlock;
+                        var accessBorder = template.FindName("AccessBorder", AccessButton) as Border;
+
+                        if (_global.Access)
+                        {
+                            // Доступ активен
+                            if (statusIndicator != null)
+                                statusIndicator.Background = new SolidColorBrush(Color.FromRgb(50, 200, 50));
+
+                            if (accessText != null)
+                            {
+                                accessText.Text = "ON";
+                                accessText.Foreground = new SolidColorBrush(Color.FromRgb(150, 255, 150));
+                            }
+
+                            if (accessBorder != null)
+                                accessBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(50, 200, 50));
+
+                            // Обновляем текстовый статус внизу
+                            if (AccessStatusText != null)
+                            {
+                                AccessStatusText.Text = "Доступ: активен";
+                                AccessStatusText.Foreground = new SolidColorBrush(Color.FromRgb(150, 255, 150));
+                            }
+                        }
+                        else
+                        {
+                            // Доступ неактивен
+                            if (statusIndicator != null)
+                                statusIndicator.Background = new SolidColorBrush(Color.FromRgb(100, 100, 100));
+
+                            if (accessText != null)
+                            {
+                                accessText.Text = "ДОСТУП";
+                                accessText.Foreground = new SolidColorBrush(Color.FromRgb(160, 176, 192));
+                            }
+
+                            if (accessBorder != null)
+                                accessBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(58, 79, 110));
+
+                            // Обновляем текстовый статус внизу
+                            if (AccessStatusText != null)
+                            {
+                                AccessStatusText.Text = "Доступ: отключен";
+                                AccessStatusText.Foreground = new SolidColorBrush(Color.FromRgb(160, 176, 192));
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Обработчик кнопки доступа
+        private void AccessButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_global == null) return;
+
+            if (_global.Access)
+            {
+                // Если доступ уже есть - отключаем
+                _global.Access = false;
+                _global.Log.Add("Пользователь", "Доступ отключен", 1);
+                UpdateAccessButtonState();
+            }
+            else
+            {
+                // Если доступа нет - показываем диалог ввода пароля
+                var dialog = new DialogPassword
+                {
+                    Global = _global,
+                    Owner = this
+                };
+
+                dialog.ShowDialog();
+
+                // После закрытия диалога обновляем состояние кнопки
+                UpdateAccessButtonState();
+
+                if (_global.Access)
+                {
+                    _global.Log.Add("Пользователь", "Доступ получен", 1);
+                }
+            }
+        }
+
         private void MainWindow_Closed(object sender, EventArgs e)
         {
             try
             {
                 Debug.WriteLine("=== ОСТАНОВКА ПРИЛОЖЕНИЯ ===");
 
-                // Остановка потоков Modbus
                 ModbusInitializer.StopModbusThreads();
 
                 _updateTimer?.Stop();
@@ -254,10 +365,8 @@ namespace ProtolScadaRemake
                 _uiUpdateTimer?.Stop();
                 timer?.Stop();
 
-                // Остановить таймер панели статистики
                 _productStatistics?.StopTimer();
 
-                // Запись в журнал о закрытии
                 _global?.Log?.Add("Система", "Закрытие программы", 0);
 
                 Debug.WriteLine("Приложение закрывается...");
@@ -337,6 +446,7 @@ namespace ProtolScadaRemake
             ReceptPageButton.Click += (s, e) => ShowReceptPage();
             LogPageButton.Click += (s, e) => ShowLogPage();
             TrendsButton.Click += (s, e) => TrendsButton_Click(s, e);
+            // AccessButton уже подписан в XAML
         }
 
         private void ShowReceptPage()
@@ -500,7 +610,6 @@ namespace ProtolScadaRemake
             TitleLabel.Text = "ОСНОВНОЙ ЭКРАН";
             SetActiveButton(MainPageButton);
 
-            // Создаем панель статистики если еще не создана
             if (_productStatistics == null)
             {
                 _productStatistics = new FrameProductStatistics(_global);

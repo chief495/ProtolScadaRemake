@@ -20,28 +20,73 @@
             <ColumnDefinition Width="145*"/>
             <ColumnDefinition Width="157*"/>
         </Grid.ColumnDefinitions>
-        <GroupBox Header="Режим работы&#xD;&#xA;" Margin="10,0,10,38">
+        <GroupBox x:Name="GroupBox1" Header="Режим работы" Margin="10,0,10,38">
             <StackPanel Margin="0,0,-2,0">
                 <StackPanel Height="43" Width="128" HorizontalAlignment="Left">
-                    <RadioButton x:Name="RBAuto" Content="Автоматический" Margin="0,5,0,0" FontFamily="Arial"/>
-                    <RadioButton x:Name="RBManual" Content="Ручной" Margin="0,5,0,0" FontSize="10" FontFamily="Arial"/>
+                    <!-- ДОБАВЛЕНЫ обработчики Checked -->
+                    <RadioButton x:Name="RBAuto" 
+                               Content="Автоматический" 
+                               Margin="0,5,0,0" 
+                               FontFamily="Arial"
+                               Checked="RBAuto_CheckedChanged"/>
+                    <RadioButton x:Name="RBManual" 
+                               Content="Ручной" 
+                               Margin="0,5,0,0" 
+                               FontSize="10" 
+                               FontFamily="Arial"
+                               Checked="RBManual_CheckedChanged"/>
                 </StackPanel>
+                <!-- Кнопки с обработчиками Click и начальной скрытостью -->
                 <StackPanel Height="23" Width="138" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0,0,2,0">
-                    <Button x:Name="NormButton" Content="Норма" Width="59" Margin="0,0,10,0" FontFamily="Arial" FontSize="10"/>
-                    <Button x:Name="AlarmButton" Content="Сработка" Width="59" FontFamily="Arial" FontSize="10"/>
+                    <Button x:Name="NormButton" 
+                          Content="Норма" 
+                          Width="59" 
+                          Margin="0,0,10,0" 
+                          FontFamily="Arial" 
+                          FontSize="10"
+                          Visibility="Hidden"
+                          Click="NormButton_Click"/>
+                    <Button x:Name="AlarmButton" 
+                          Content="Сработка" 
+                          Width="59" 
+                          FontFamily="Arial" 
+                          FontSize="10"
+                          Visibility="Hidden"
+                          Click="AlarmButton_Click"/>
                 </StackPanel>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="Параметры обработки значений" Grid.ColumnSpan="3" Margin="207,0,-37,28">
+        <GroupBox x:Name="GroupBox2" Header="Параметры обработки значений" Grid.ColumnSpan="3" Margin="207,0,-37,28">
             <StackPanel Orientation="Horizontal" Margin="0,0,8,0" Height="109">
                 <StackPanel Width="132">
-                    <CheckBox x:Name="ReverseCheckBox" Content="Инверсия сигнала" Width="125" Margin="0,12,0,0" FontFamily="Arial" FontSize="10"/>
+                    <!-- ДОБАВЛЕН обработчик Checked/Unchecked -->
+                    <CheckBox x:Name="ReverseCheckBox" 
+                            Content="Инверсия сигнала" 
+                            Width="125" 
+                            Margin="0,12,0,0" 
+                            FontFamily="Arial" 
+                            FontSize="10"
+                            Checked="ReverseCheckBox_CheckedChanged"
+                            Unchecked="ReverseCheckBox_CheckedChanged"/>
                     <Label x:Name="label4" Content="Задержка включения:" Width="138" Margin="0,9,0,0" FontFamily="Arial" FontSize="10"/>
                     <Label x:Name="label2" Content="Задержка отключения:" Width="139" FontFamily="Arial" FontSize="10" Margin="0,6,0,0"/>
                 </StackPanel>
                 <StackPanel Width="105" Height="59" Margin="-7,13,-1,0">
-                    <mah:NumericUpDown x:Name="OnDelayNumeric" Margin="0,2,-7,0" Width="96" Background="White" FontFamily="Arial" FontSize="10"/>
-                    <mah:NumericUpDown x:Name="OffDelayNumeric" Margin="7,2,0,0" Width="95"  Background="White" FontFamily="Arial" FontSize="10"/>
+                    <!-- ДОБАВЛЕНЫ обработчики ValueChanged -->
+                    <mah:NumericUpDown x:Name="OnDelayNumeric" 
+                                     Margin="0,2,-7,0" 
+                                     Width="96" 
+                                     Background="White" 
+                                     FontFamily="Arial" 
+                                     FontSize="10"
+                                     ValueChanged="OnDelayNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="OffDelayNumeric" 
+                                     Margin="7,2,0,0" 
+                                     Width="95"  
+                                     Background="White" 
+                                     FontFamily="Arial" 
+                                     FontSize="10"
+                                     ValueChanged="OffDelayNumeric_ValueChanged"/>
                 </StackPanel>
                 <StackPanel Width="34" Height="65" Margin="9,0,0,0">
                     <TextBlock x:Name="label3" TextWrapping="Wrap" Text="сек." Margin="2,18,0,0" FontFamily="Arial" FontSize="10"/>

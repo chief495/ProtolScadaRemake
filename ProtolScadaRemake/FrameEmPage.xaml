@@ -133,8 +133,8 @@
         <!-- PT652 - Давление -->
         <local:Element_AI x:Name="PT652" 
                          HorizontalAlignment="Left" 
-                         Margin="1222,0,0,0" 
-                         VerticalAlignment="Center"/>
+                         Margin="1218,516,0,0" 
+                         VerticalAlignment="Top"/>
 
         <!-- PT604 - Давление -->
         <local:Element_AI x:Name="PT604" 
@@ -209,7 +209,7 @@
         <!-- P651 -->
         <local:Element_PumpUzUnderPanel x:Name="P651" 
                             HorizontalAlignment="Left" 
-                            Margin="1078,465,0,0" 
+                            Margin="1068,465,0,0" 
                             VerticalAlignment="Top"/>
 
         <!-- P700 -->

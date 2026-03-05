@@ -45,7 +45,7 @@ namespace ProtolScadaRemake
             {
                 Debug.WriteLine("=== ИНИЦИАЛИЗАЦИЯ MODBUS ДЛЯ WPF ЭЛЕМЕНТОВ ===");
 
-                global.Plc_IpAddress = "192.168.88.64";
+                global.Plc_IpAddress = "192.168.88.139";
                 global.Plc_PortNum = 502;
                 global.Plc_DeviceAddress = 1;
 

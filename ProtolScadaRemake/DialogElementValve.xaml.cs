@@ -1,87 +1,93 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Media;
 
 namespace ProtolScadaRemake
 {
     public partial class DialogElementValve : Window
     {
+        public TGlobal Global;
+        public string VarName = "";
+
         private Brush ButtonDeactiveColor = Brushes.White;
         private Brush ButtonActiveColor = Brushes.Green;
         private Brush NormalColor = Brushes.White;
         private Brush EditColor = Brushes.Yellow;
-        public TGlobal Global;
-        public string VarName = ""; // Основание для имен
+
+        private bool _isInitializing = true;
+
         public DialogElementValve()
         {
             InitializeComponent();
         }
-        public void Initialize() // Инициализация формы
+
+        public void Initialize()
         {
+            _isInitializing = true;
 
-            // Режим работы
-            TVariableTag VariableTag = Global.Variables.GetByName(VarName + "_Manual");
-            if (VariableTag != null)
+            try
             {
-                if (VariableTag.ValueReal > 0)
+                // Режим работы
+                TVariableTag VariableTag = Global.Variables.GetByName(VarName + "_Manual");
+                if (VariableTag != null)
                 {
+                    if (VariableTag.ValueReal > 0)
+                    {
+                        RBAuto.IsChecked = false;
+                        RBManual.IsChecked = true;
+                        SetButtonsVisibility(Visibility.Visible);
+                    }
+                    else
+                    {
+                        RBAuto.IsChecked = true;
+                        RBManual.IsChecked = false;
+                        SetButtonsVisibility(Visibility.Hidden);
+                    }
+                }
 
-                    RBAuto.IsChecked = false;
-                    RBManual.IsChecked = true;
-                }
-                else
-                {
-                    RBAuto.IsChecked = true;
-                    RBManual.IsChecked = false;
-                }
+                // Время открытия
+                VariableTag = Global.Variables.GetByName(VarName + "_OpenTime");
+                if (VariableTag != null)
+                    OpenTimeNumeric.Value = VariableTag.ValueReal;
+
+                // Время закрытия
+                VariableTag = Global.Variables.GetByName(VarName + "_CloseTime");
+                if (VariableTag != null)
+                    CloseTimeNumeric.Value = VariableTag.ValueReal;
+
+                // Блокировка на основе пароля
+                GroupBox2.IsEnabled = Global.Access;
+
+                // Обновляем цвета кнопок
+                UpdateButtonColors();
+                UpdateVisualStates();
             }
-            // Время открытия
-            VariableTag = Global.Variables.GetByName(VarName + "_OpenTime");
-            if (VariableTag != null) OpenTimeNumeric.Value = VariableTag.ValueReal;
-            // Время закрытия
-            VariableTag = Global.Variables.GetByName(VarName + "_CloseTime");
-            if (VariableTag != null) CloseTimeNumeric.Value = VariableTag.ValueReal;
-            // Включение таймера
-            GroupBox2.IsEnabled = Global.Access;
-
-            bool ActivateOkButton = true;
-            // Режим работы и значение ручного режима
-            if (RBAuto.IsChecked == true)
+            finally
             {
-                OpenButton.Visibility = Visibility.Hidden;
-                CloseButton.Visibility = Visibility.Hidden;
-                RBManual.IsChecked = false;
+                _isInitializing = false;
             }
+        }
+
+        /// <summary>
+        /// Показать/скрыть кнопки Открыть/Закрыть
+        /// </summary>
+        private void SetButtonsVisibility(Visibility visibility)
+        {
+            OpenButton.Visibility = visibility;
+            CloseButton.Visibility = visibility;
+        }
+
+        /// <summary>
+        /// Обновить цвета кнопок
+        /// </summary>
+        private void UpdateButtonColors()
+        {
             if (RBManual.IsChecked == true)
             {
-                OpenButton.Visibility = Visibility.Visible;
-                CloseButton.Visibility = Visibility.Visible;
-                RBAuto.IsChecked = false;
-            }
-            // Автоматический режим
-            TVariableTag ManualVariable = Global.Variables.GetByName(VarName + "_Manual");
-            RBAuto.Background = this.Background;
-            if (ManualVariable != null)
-            {
-                if (ManualVariable.ValueReal < 1)
-                    if (!RBAuto.IsChecked == true)
-                        RBAuto.Background = EditColor;
-                if (ManualVariable.ValueReal > 0)
-                    if (RBAuto.IsChecked == true)
-                        RBAuto.Background = EditColor;
-            }
-            // Ручной режим
-            RBManual.Background = this.Background;
-            if (ManualVariable != null)
-            {
-                if (ManualVariable.ValueReal < 1)
-                    if (!RBAuto.IsChecked == true)
-                        RBManual.Background = EditColor;
-                if (ManualVariable.ValueReal > 0)
-                    if (RBAuto.IsChecked == true)
-                        RBManual.Background = EditColor;
-                TVariableTag VariableTag2 = Global.Variables.GetByName(VarName + "_ManualOpen");
-                if (VariableTag2 != null)
-                    if (VariableTag2.ValueReal > 0)
+                TVariableTag VariableTag = Global.Variables.GetByName(VarName + "_ManualOpen");
+                if (VariableTag != null)
+                {
+                    if (VariableTag.ValueReal > 0)
                     {
                         OpenButton.Background = ButtonActiveColor;
                         CloseButton.Background = ButtonDeactiveColor;
@@ -91,132 +97,257 @@ namespace ProtolScadaRemake
                         OpenButton.Background = ButtonDeactiveColor;
                         CloseButton.Background = ButtonActiveColor;
                     }
+                }
             }
-            // Время открытия
-            TVariableTag OpenTimeVariable = Global.Variables.GetByName(VarName + "_OpenTime");
-            if (OpenTimeNumeric.IsFocused == false)
-            {
-                OpenTimeNumeric.Background = NormalColor;
-                if (OpenTimeVariable != null)
-                    if (OpenTimeVariable.ValueReal != Convert.ToDouble(OpenTimeNumeric.Value))
-                        OpenTimeNumeric.Background = EditColor;
-            }
-            // Время закрытия
-            TVariableTag CloseTimeVariable = Global.Variables.GetByName(VarName + "_CloseTime");
-            if (CloseTimeNumeric.IsFocused == false)
-            {
-                CloseTimeNumeric.Background = NormalColor;
-                if (CloseTimeVariable != null)
-                    if (CloseTimeVariable.ValueReal != Convert.ToDouble(CloseTimeNumeric.Value))
-                        CloseTimeNumeric.Background = EditColor;
-            }
-
-
         }
-        private async void RBAuto_CheckedChanged(object sender, RoutedEventArgs e)
+
+        private void UpdateVisualStates()
         {
             TVariableTag ManualVariable = Global.Variables.GetByName(VarName + "_Manual");
-            TCommandTag ManualCommand = Global.Commands.GetByName(VarName + "_Manual");
-            if (RBAuto.IsChecked == true)
-                if (ManualVariable != null)
-                    if (ManualCommand != null)
-                        if (ManualVariable.ValueReal > 0)
-                        {
-                            ManualCommand.WriteValue = "false";
-                            ManualCommand.NeedToWrite = true;
-                            Global.Commands.SendToController();
-                            await Global.Log.Add("Пользователь", Content?.ToString() + ". Переведен в автоматический режим.", 1);
-                            CloseButton_Click(sender, e);
-                        }
+
+            RBAuto.Background = this.Background;
+            RBManual.Background = this.Background;
+
+            if (ManualVariable != null)
+            {
+                bool isManualInController = ManualVariable.ValueReal > 0;
+                bool isManualInUI = RBManual.IsChecked == true;
+
+                if (isManualInController != isManualInUI)
+                {
+                    RBAuto.Background = EditColor;
+                    RBManual.Background = EditColor;
+                }
+            }
+
+            UpdateNumericBackground(OpenTimeNumeric, VarName + "_OpenTime");
+            UpdateNumericBackground(CloseTimeNumeric, VarName + "_CloseTime");
         }
 
-        private async void RBManual_CheckedChanged(object sender, RoutedEventArgs e)
+        private void UpdateNumericBackground(MahApps.Metro.Controls.NumericUpDown numeric, string variableName)
         {
+            if (numeric.IsFocused) return;
+
+            TVariableTag variable = Global.Variables.GetByName(variableName);
+            numeric.Background = NormalColor;
+
+            if (variable != null && numeric.Value.HasValue)
+            {
+                if (Math.Abs(variable.ValueReal - numeric.Value.Value) >= 0.001)
+                {
+                    numeric.Background = EditColor;
+                }
+            }
+        }
+
+        #region Отправка команд
+
+        private void SendCommand(string commandSuffix, string value, string logMessage)
+        {
+            if (_isInitializing) return;
+            if (Global == null || !Global.Access) return;
+
+            string fullCommandName = VarName + commandSuffix;
+            TCommandTag command = Global.Commands.GetByName(fullCommandName);
+
+            if (command == null)
+            {
+                Debug.WriteLine($"Команда не найдена: {fullCommandName}");
+                return;
+            }
+
+            Action<string, bool, string> handler = null;
+            handler = (name, success, error) =>
+            {
+                command.OnCommandCompleted -= handler;
+
+                Dispatcher.BeginInvoke(() =>
+                {
+                    if (success)
+                    {
+                        Global.Log.Add("Пользователь", $"{Title}. {logMessage}", 1);
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Ошибка команды {fullCommandName}: {error}");
+                    }
+                });
+            };
+
+            command.OnCommandCompleted += handler;
+            command.WriteValue = value;
+            command.NeedToWrite = true;
+            command.SendToController();
+
+            Debug.WriteLine($"Команда отправлена: {fullCommandName} = {value}");
+        }
+
+        /// <summary>
+        /// Отправка двух команд одновременно (для клапана: Open и Close)
+        /// </summary>
+        private void SendValveCommands(string openValue, string closeValue, string logMessage)
+        {
+            if (_isInitializing) return;
+            if (Global == null || !Global.Access) return;
+
+            TCommandTag openCommand = Global.Commands.GetByName(VarName + "_ManualOpen");
+            TCommandTag closeCommand = Global.Commands.GetByName(VarName + "_ManualClose");
+
+            if (openCommand == null || closeCommand == null)
+            {
+                Debug.WriteLine($"Команды клапана не найдены: {VarName}");
+                return;
+            }
+
+            // Отправляем обе команды
+            openCommand.WriteValue = openValue;
+            openCommand.NeedToWrite = true;
+
+            closeCommand.WriteValue = closeValue;
+            closeCommand.NeedToWrite = true;
+
+            // Подписываемся на завершение одной из команд для логирования
+            Action<string, bool, string> handler = null;
+            handler = (name, success, error) =>
+            {
+                openCommand.OnCommandCompleted -= handler;
+
+                Dispatcher.BeginInvoke(() =>
+                {
+                    if (success)
+                    {
+                        Global.Log.Add("Пользователь", $"{Title}. {logMessage}", 1);
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Ошибка команды клапана: {error}");
+                    }
+                });
+            };
+
+            openCommand.OnCommandCompleted += handler;
+
+            // Отправляем команды
+            openCommand.SendToController();
+            closeCommand.SendToController();
+
+            Debug.WriteLine($"Команды клапана отправлены: Open={openValue}, Close={closeValue}");
+        }
+
+        #endregion
+
+        #region Обработчики режима
+
+        private void RBAuto_CheckedChanged(object sender, RoutedEventArgs e)
+        {
+            if (_isInitializing) return;
+            if (Global == null || !Global.Access) return;
+            if (RBAuto.IsChecked != true) return;
+
+            SetButtonsVisibility(Visibility.Hidden);
+
             TVariableTag ManualVariable = Global.Variables.GetByName(VarName + "_Manual");
-            TCommandTag ManualCommand = Global.Commands.GetByName(VarName + "_Manual");
-            if (RBManual.IsChecked == true)
-                if (ManualVariable != null)
-                    if (ManualCommand != null)
-                        if (ManualVariable.ValueReal < 1)
-                        {
-                            ManualCommand.WriteValue = "true";
-                            ManualCommand.NeedToWrite = true;
-                            Global.Commands.SendToController();
-                            await Global.Log.Add("Пользователь", Content?.ToString() + ". Переведен в ручной режим.", 1);
-                            CloseButton_Click(sender, e);
-                        }
+
+            if (ManualVariable != null && ManualVariable.ValueReal > 0)
+            {
+                SendCommand("_Manual", "false", "Переведен в автоматический режим.");
+                CloseButton_Click(sender, e);
+            }
         }
 
-        private async void OpenButton_Click(object sender, RoutedEventArgs e)
+        private void RBManual_CheckedChanged(object sender, RoutedEventArgs e)
         {
+            if (_isInitializing) return;
+            if (Global == null || !Global.Access) return;
+            if (RBManual.IsChecked != true) return;
+
+            SetButtonsVisibility(Visibility.Visible);
+            UpdateButtonColors();
+
+            TVariableTag ManualVariable = Global.Variables.GetByName(VarName + "_Manual");
+
+            if (ManualVariable != null && ManualVariable.ValueReal < 1)
+            {
+                SendCommand("_Manual", "true", "Переведен в ручной режим.");
+            }
+        }
+
+        #endregion
+
+        #region Кнопки Открыть/Закрыть
+
+        private void OpenButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isInitializing) return;
+            if (Global == null || !Global.Access) return;
+
             TVariableTag ManualOpenVariable = Global.Variables.GetByName(VarName + "_ManualOpen");
-            TCommandTag ManualOpenCommand = Global.Commands.GetByName(VarName + "_ManualOpen");
-            TVariableTag ManualCloseVariable = Global.Variables.GetByName(VarName + "_ManualClose");
-            TCommandTag ManualCloseCommand = Global.Commands.GetByName(VarName + "_ManualClose");
-            if (ManualOpenVariable != null)
-                if (ManualOpenCommand != null)
-                    if (ManualCloseVariable != null)
-                        if (ManualCloseCommand != null)
-                            if (ManualOpenVariable.ValueReal < 1)
-                            {
-                                ManualOpenCommand.WriteValue = "true";
-                                ManualOpenCommand.NeedToWrite = true;
-                                ManualCloseCommand.WriteValue = "false";
-                                ManualCloseCommand.NeedToWrite = true;
-                                Global.Commands.SendToController();
-                                await Global.Log.Add("Пользователь", Content?.ToString() + ". Значение ручного режима изменено на 'Открыть'.", 1);
-                            }
+
+            if (ManualOpenVariable != null && ManualOpenVariable.ValueReal < 1)
+            {
+                SendValveCommands("true", "false", "Значение ручного режима изменено на 'Открыть'.");
+
+                OpenButton.Background = ButtonActiveColor;
+                CloseButton.Background = ButtonDeactiveColor;
+            }
         }
 
-        private async void CloseButton_Click(object sender, RoutedEventArgs e)
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            TVariableTag ManualOpenVariable = Global.Variables.GetByName(VarName + "_ManualOpen");
-            TCommandTag ManualOpenCommand = Global.Commands.GetByName(VarName + "_ManualOpen");
+            if (_isInitializing) return;
+            if (Global == null || !Global.Access) return;
+
             TVariableTag ManualCloseVariable = Global.Variables.GetByName(VarName + "_ManualClose");
-            TCommandTag ManualCloseCommand = Global.Commands.GetByName(VarName + "_ManualClose");
-            if (ManualOpenVariable != null)
-                if (ManualOpenCommand != null)
-                    if (ManualCloseVariable != null)
-                        if (ManualCloseCommand != null)
-                            if (ManualCloseVariable.ValueReal < 1)
-                            {
-                                ManualOpenCommand.WriteValue = "false";
-                                ManualOpenCommand.NeedToWrite = true;
-                                ManualCloseCommand.WriteValue = "true";
-                                ManualCloseCommand.NeedToWrite = true;
-                                Global.Commands.SendToController();
-                                await Global.Log.Add("Пользователь", Content?.ToString() + ". Значение ручного режима изменено на 'Закрыть'.", 1);
-                            }
+
+            if (ManualCloseVariable != null && ManualCloseVariable.ValueReal < 1)
+            {
+                SendValveCommands("false", "true", "Значение ручного режима изменено на 'Закрыть'.");
+
+                OpenButton.Background = ButtonDeactiveColor;
+                CloseButton.Background = ButtonActiveColor;
+            }
         }
 
-        private async void OpenTimeNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
+        #endregion
+
+        #region Обработчики времени
+
+        private void OpenTimeNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
+            if (_isInitializing) return;
+            if (Global == null || !Global.Access) return;
+            if (!OpenTimeNumeric.Value.HasValue) return;
+
             TVariableTag OpenTimeVariable = Global.Variables.GetByName(VarName + "_OpenTime");
-            TCommandTag OpenTimeCommand = Global.Commands.GetByName(VarName + "_OpenTime");
+
             if (OpenTimeVariable != null)
-                if (OpenTimeCommand != null)
-                    if (OpenTimeVariable.ValueReal != Convert.ToDouble(OpenTimeNumeric.Value))
-                    {
-                        OpenTimeCommand.WriteValue = OpenTimeNumeric.Value.ToString();
-                        OpenTimeCommand.NeedToWrite = true;
-                        Global.Commands.SendToController();
-                        await Global.Log.Add("Пользователь", Content?.ToString() + ". Время открытия изменено на " + OpenTimeCommand.WriteValue + " сек.", 1);
-                    }
+            {
+                if (Math.Abs(OpenTimeVariable.ValueReal - OpenTimeNumeric.Value.Value) >= 0.001)
+                {
+                    string value = OpenTimeNumeric.Value.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    SendCommand("_OpenTime", value, $"Время открытия изменено на {value} сек.");
+                }
+            }
         }
 
-        private async void CloseTimeNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
+        private void CloseTimeNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
+            if (_isInitializing) return;
+            if (Global == null || !Global.Access) return;
+            if (!CloseTimeNumeric.Value.HasValue) return;
+
             TVariableTag CloseTimeVariable = Global.Variables.GetByName(VarName + "_CloseTime");
-            TCommandTag CloseTimeCommand = Global.Commands.GetByName(VarName + "_CloseTime");
+
             if (CloseTimeVariable != null)
-                if (CloseTimeCommand != null)
-                    if (CloseTimeVariable.ValueReal != Convert.ToDouble(CloseTimeNumeric.Value))
-                    {
-                        CloseTimeCommand.WriteValue = CloseTimeNumeric.Value.ToString();
-                        CloseTimeCommand.NeedToWrite = true;
-                        Global.Commands.SendToController();
-                        await Global.Log.Add("Пользователь", Content?.ToString() + ". Время закрытия изменено на " + CloseTimeCommand.WriteValue + " сек.", 1);
-                    }
+            {
+                if (Math.Abs(CloseTimeVariable.ValueReal - CloseTimeNumeric.Value.Value) >= 0.001)
+                {
+                    string value = CloseTimeNumeric.Value.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    SendCommand("_CloseTime", value, $"Время закрытия изменено на {value} сек.");
+                }
+            }
         }
+
+        #endregion
     }
 }
