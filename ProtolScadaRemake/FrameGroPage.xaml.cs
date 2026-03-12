@@ -11,6 +11,8 @@ namespace ProtolScadaRemake
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
         private DateTime _lastModeChangeRequest = DateTime.MinValue;
+        private DateTime _lastModeRetrySent = DateTime.MinValue;
+        private OperationMode? _pendingModeRequest;
 
         public FrameGroPage()
         {
@@ -472,6 +474,16 @@ namespace ProtolScadaRemake
 
             int mode = (int)tag.ValueReal;
 
+            // Если ПЛК надолго завис в служебном режиме, повторяем последнюю команду режима
+            if ((mode == 15 || mode == 16)
+                && _pendingModeRequest.HasValue
+                && DateTime.UtcNow - _lastModeChangeRequest > TimeSpan.FromSeconds(2)
+                && DateTime.UtcNow - _lastModeRetrySent > TimeSpan.FromSeconds(1))
+            {
+                SendGroModeCommand(_pendingModeRequest.Value, logUserAction: false);
+                _lastModeRetrySent = DateTime.UtcNow;
+            }
+
             // Синхронизируем панель режимов с текущим режимом
             if (GroModePanel != null)
             {
@@ -487,6 +499,11 @@ namespace ProtolScadaRemake
                 {
                     GroModePanel.SetMode(currentOperationMode);
                 }
+            }
+
+            if (mode != 15 && mode != 16)
+            {
+                _pendingModeRequest = null;
             }
         }
 
@@ -507,6 +524,15 @@ namespace ProtolScadaRemake
                     if (TransportPanel != null)
                         TransportPanel.Visibility = Visibility.Collapsed;
 
+                    if (A100SpeedPanel != null)
+                        A100SpeedPanel.Visibility = Visibility.Collapsed;
+
+                    if (HE700Panel != null)
+                        HE700Panel.Visibility = Visibility.Collapsed;
+
+                    if (T100MassPanel != null)
+                        T100MassPanel.Visibility = Visibility.Collapsed;
+
                     return;
                 }
 
@@ -523,17 +549,15 @@ namespace ProtolScadaRemake
                 if (TransportPanel != null)
                     TransportPanel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
 
-                // Панель скорости A100 - всегда видна
+                // Эти панели также скрываем в режиме OFF
                 if (A100SpeedPanel != null)
-                    A100SpeedPanel.Visibility = Visibility.Visible;
+                    A100SpeedPanel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
 
-                // Панель HE-700 - всегда видна
                 if (HE700Panel != null)
-                    HE700Panel.Visibility = Visibility.Visible;
+                    HE700Panel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
 
-                // Панель массы Т-100 - всегда видна
                 if (T100MassPanel != null)
-                    T100MassPanel.Visibility = Visibility.Visible;
+                    T100MassPanel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
 
                 System.Diagnostics.Debug.WriteLine($"GRO режим: {mode}, панели видимы: {!isOff}");
             }
@@ -837,6 +861,11 @@ namespace ProtolScadaRemake
 
         private void GroModePanel_ModeChanged(object sender, OperationMode mode)
         {
+            SendGroModeCommand(mode, logUserAction: true);
+        }
+
+        private void SendGroModeCommand(OperationMode mode, bool logUserAction)
+        {
             if (_global == null) return;
 
             try
@@ -854,8 +883,11 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
-                    _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
+                    _pendingModeRequest = mode;
                     _lastModeChangeRequest = DateTime.UtcNow;
+
+                    if (logUserAction)
+                        _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
                 }
             }
             catch (Exception ex)
