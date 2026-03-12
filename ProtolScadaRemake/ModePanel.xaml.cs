@@ -12,6 +12,7 @@ namespace ProtolScadaRemake
         public event EventHandler<ModbusCommandEventArgs> ModbusCommandRequested;
 
         private OperationMode _currentMode = OperationMode.Off;
+        private bool _isInternalUpdate;
 
         // Регистр Modbus для записи режима
         public ushort ModbusRegisterAddress { get; set; } = 0;
@@ -37,17 +38,15 @@ namespace ProtolScadaRemake
         {
             InitializeComponent();
 
-            // Подписываемся на события
-            OffToggle.StateChanged += ToggleSwitch_StateChanged;
-            SemiAutoToggle.StateChanged += ToggleSwitch_StateChanged;
-            AutoToggle.StateChanged += ToggleSwitch_StateChanged;
-
             // Устанавливаем начальный режим
             OffToggle.IsChecked = true;
         }
 
         private void ToggleSwitch_StateChanged(object sender, bool isChecked)
         {
+            if (_isInternalUpdate)
+                return;
+
             var toggle = sender as ToggleSwitch;
             if (toggle == null) return;
 
@@ -115,26 +114,34 @@ namespace ProtolScadaRemake
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                // Сначала сбрасываем все
-                OffToggle.IsChecked = false;
-                SemiAutoToggle.IsChecked = false;
-                AutoToggle.IsChecked = false;
-
-                // Устанавливаем нужный режим
-                switch (mode)
+                _isInternalUpdate = true;
+                try
                 {
-                    case OperationMode.Off:
-                        OffToggle.IsChecked = true;
-                        break;
-                    case OperationMode.SemiAuto:
-                        SemiAutoToggle.IsChecked = true;
-                        break;
-                    case OperationMode.Auto:
-                        AutoToggle.IsChecked = true;
-                        break;
-                }
+                    // Сначала сбрасываем все
+                    OffToggle.IsChecked = false;
+                    SemiAutoToggle.IsChecked = false;
+                    AutoToggle.IsChecked = false;
 
-                _currentMode = mode;
+                    // Устанавливаем нужный режим
+                    switch (mode)
+                    {
+                        case OperationMode.Off:
+                            OffToggle.IsChecked = true;
+                            break;
+                        case OperationMode.SemiAuto:
+                            SemiAutoToggle.IsChecked = true;
+                            break;
+                        case OperationMode.Auto:
+                            AutoToggle.IsChecked = true;
+                            break;
+                    }
+
+                    _currentMode = mode;
+                }
+                finally
+                {
+                    _isInternalUpdate = false;
+                }
             }), DispatcherPriority.Background);
         }
     }
