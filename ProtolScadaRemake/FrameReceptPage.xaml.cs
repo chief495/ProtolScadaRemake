@@ -268,6 +268,46 @@ namespace ProtolScadaRemake.Controls
         /// – секция в режиме редактирования,
         /// – поле в фокусе.
         /// </summary>
+
+        private IEnumerable<string> GetAliasCandidates(string tagName)
+        {
+            yield return tagName;
+
+            if (TagAliases.TryGetValue(tagName, out var aliases))
+            {
+                foreach (var alias in aliases)
+                    yield return alias;
+            }
+        }
+
+        private TVariableTag FindVariableCaseInsensitive(string tagName)
+        {
+            if (_global?.Variables?.Items == null)
+                return null;
+
+            foreach (var item in _global.Variables.Items)
+            {
+                if (string.Equals(item.Name, tagName, StringComparison.OrdinalIgnoreCase))
+                    return item;
+            }
+
+            return null;
+        }
+
+        private TCommandTag FindCommandCaseInsensitive(string tagName)
+        {
+            if (_global?.Commands?.Items == null)
+                return null;
+
+            foreach (var item in _global.Commands.Items)
+            {
+                if (string.Equals(item.Name, tagName, StringComparison.OrdinalIgnoreCase))
+                    return item;
+            }
+
+            return null;
+        }
+
         private void UpdateTextBox(TextBox textBox, string tagName, string sectionName)
         {
             if (_editingSections.Contains(sectionName) || textBox.IsFocused) return;
@@ -470,7 +510,7 @@ namespace ProtolScadaRemake.Controls
                 }
                 else
                 {
-                    Debug.WriteLine($"Команда не найдена: {tagName}");
+                    Debug.WriteLine($"Команда не найдена: {tagName}. Проверьте имя команды в ModbusInitializer/конфиге.");
                     errorCount++;
                 }
             }
