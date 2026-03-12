@@ -10,8 +10,9 @@ namespace ProtolScadaRemake
     {
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
-        private OperationMode? _pendingRequestedMode;
-        private DateTime _pendingRequestedModeAt = DateTime.MinValue;
+        private DateTime _lastModeChangeRequest = DateTime.MinValue;
+        private DateTime _lastModeRetrySent = DateTime.MinValue;
+        private OperationMode? _pendingModeRequest;
 
         public FrameGroPage()
         {
@@ -473,6 +474,16 @@ namespace ProtolScadaRemake
 
             int mode = (int)tag.ValueReal;
 
+            // Если ПЛК надолго завис в служебном режиме, повторяем последнюю команду режима
+            if ((mode == 15 || mode == 16)
+                && _pendingModeRequest.HasValue
+                && DateTime.UtcNow - _lastModeChangeRequest > TimeSpan.FromSeconds(2)
+                && DateTime.UtcNow - _lastModeRetrySent > TimeSpan.FromSeconds(1))
+            {
+                SendGroModeCommand(_pendingModeRequest.Value, logUserAction: false);
+                _lastModeRetrySent = DateTime.UtcNow;
+            }
+
             // Синхронизируем панель режимов с текущим режимом
             if (GroModePanel != null)
             {
@@ -501,17 +512,20 @@ namespace ProtolScadaRemake
                 OperationMode currentOperationMode = mode switch
                 {
                     0 => OperationMode.Off,
-                    1 or 3 or 4 or 5 or 6 or 7 or 8 => OperationMode.SemiAuto,
-                    2 or 9 or 10 or 11 or 12 or 13 or 14 => OperationMode.Auto,
-                    _ => OperationMode.Off
+                    1 or 3 or 4 or 5 or 6 or 7 or 8 or 15 => OperationMode.SemiAuto,
+                    2 or 9 or 10 or 11 or 12 or 13 or 14 or 16 => OperationMode.Auto,
+                    _ => GroModePanel.CurrentMode
                 };
 
                 if (GroModePanel.CurrentMode != currentOperationMode)
                 {
                     GroModePanel.SetMode(currentOperationMode);
                 }
+            }
 
-                _pendingRequestedMode = null;
+            if (mode != 15 && mode != 16)
+            {
+                _pendingModeRequest = null;
             }
         }
 
@@ -532,13 +546,22 @@ namespace ProtolScadaRemake
                     if (TransportPanel != null)
                         TransportPanel.Visibility = Visibility.Collapsed;
 
+                    if (A100SpeedPanel != null)
+                        A100SpeedPanel.Visibility = Visibility.Collapsed;
+
+                    if (HE700Panel != null)
+                        HE700Panel.Visibility = Visibility.Collapsed;
+
+                    if (T100MassPanel != null)
+                        T100MassPanel.Visibility = Visibility.Collapsed;
+
                     return;
                 }
 
                 int mode = (int)rejimTag.ValueReal;
 
                 // Управление видимостью панелей
-                bool isOff = mode == 0 || mode == 15 || mode == 16;
+                bool isOff = mode == 0;
 
                 // Панель вещества - скрываем в режиме OFF
                 if (SubstancePanel != null)
@@ -548,7 +571,7 @@ namespace ProtolScadaRemake
                 if (TransportPanel != null)
                     TransportPanel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
 
-                // Дополнительные панели в OFF скрыты
+                // Эти панели также скрываем в режиме OFF
                 if (A100SpeedPanel != null)
                     A100SpeedPanel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
 
@@ -860,6 +883,11 @@ namespace ProtolScadaRemake
 
         private void GroModePanel_ModeChanged(object sender, OperationMode mode)
         {
+            SendGroModeCommand(mode, logUserAction: true);
+        }
+
+        private void SendGroModeCommand(OperationMode mode, bool logUserAction)
+        {
             if (_global == null) return;
 
             try
@@ -877,9 +905,11 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
-                    _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
-                    _pendingRequestedMode = mode;
-                    _pendingRequestedModeAt = DateTime.UtcNow;
+                    _pendingModeRequest = mode;
+                    _lastModeChangeRequest = DateTime.UtcNow;
+
+                    if (logUserAction)
+                        _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
                 }
             }
             catch (Exception ex)
