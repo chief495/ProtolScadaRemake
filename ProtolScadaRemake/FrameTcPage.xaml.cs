@@ -10,6 +10,7 @@ namespace ProtolScadaRemake
     {
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
+        private DateTime _lastModeChangeRequest = DateTime.MinValue;
 
         public FrameTcPage()
         {
@@ -709,7 +710,11 @@ namespace ProtolScadaRemake
                 _ => OperationMode.Off
             };
 
-            TcModePanel.SetMode(currentOperationMode);
+            if (DateTime.UtcNow - _lastModeChangeRequest > TimeSpan.FromSeconds(1.5) &&
+                TcModePanel.CurrentMode != currentOperationMode)
+            {
+                TcModePanel.SetMode(currentOperationMode);
+            }
         }
 
         private void TcModePanel_ModeChanged(object sender, OperationMode mode)
@@ -732,6 +737,7 @@ namespace ProtolScadaRemake
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
                     _global.Log.Add("Пользователь", $"Перевод TC в режим {mode}", 1);
+                    _lastModeChangeRequest = DateTime.UtcNow;
                 }
             }
             catch (Exception ex)

@@ -109,40 +109,36 @@ namespace ProtolScadaRemake
             ModbusCommandRequested?.Invoke(this, args);
         }
 
+
+        private void ApplyModeToToggles(OperationMode mode)
+        {
+            _isInternalUpdate = true;
+            try
+            {
+                OffToggle.IsChecked = mode == OperationMode.Off;
+                SemiAutoToggle.IsChecked = mode == OperationMode.SemiAuto;
+                AutoToggle.IsChecked = mode == OperationMode.Auto;
+                _currentMode = mode;
+            }
+            finally
+            {
+                _isInternalUpdate = false;
+            }
+        }
+
         // Метод для внешнего обновления режима
         public void SetMode(OperationMode mode)
         {
-            Dispatcher.BeginInvoke(new Action(() =>
+            if (_currentMode == mode)
+                return;
+
+            if (Dispatcher.CheckAccess())
             {
-                _isInternalUpdate = true;
-                try
-                {
-                    // Сначала сбрасываем все
-                    OffToggle.IsChecked = false;
-                    SemiAutoToggle.IsChecked = false;
-                    AutoToggle.IsChecked = false;
+                ApplyModeToToggles(mode);
+                return;
+            }
 
-                    // Устанавливаем нужный режим
-                    switch (mode)
-                    {
-                        case OperationMode.Off:
-                            OffToggle.IsChecked = true;
-                            break;
-                        case OperationMode.SemiAuto:
-                            SemiAutoToggle.IsChecked = true;
-                            break;
-                        case OperationMode.Auto:
-                            AutoToggle.IsChecked = true;
-                            break;
-                    }
-
-                    _currentMode = mode;
-                }
-                finally
-                {
-                    _isInternalUpdate = false;
-                }
-            }), DispatcherPriority.Background);
+            Dispatcher.Invoke(() => ApplyModeToToggles(mode));
         }
     }
 

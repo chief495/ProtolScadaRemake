@@ -9,6 +9,7 @@ namespace ProtolScadaRemake
     {
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
+        private DateTime _lastModeChangeRequest = DateTime.MinValue;
 
         public FrameGroPage()
         {
@@ -471,7 +472,11 @@ namespace ProtolScadaRemake
                     _ => OperationMode.Off
                 };
 
-                GroModePanel.SetMode(currentOperationMode);
+                if (DateTime.UtcNow - _lastModeChangeRequest > TimeSpan.FromSeconds(1.5) &&
+                    GroModePanel.CurrentMode != currentOperationMode)
+                {
+                    GroModePanel.SetMode(currentOperationMode);
+                }
             }
         }
 
@@ -498,7 +503,7 @@ namespace ProtolScadaRemake
                 int mode = (int)rejimTag.ValueReal;
 
                 // Управление видимостью панелей
-                bool isOff = mode == 0;
+                bool isOff = mode == 0 || mode == 15 || mode == 16;
 
                 // Панель вещества - скрываем в режиме OFF
                 if (SubstancePanel != null)
@@ -840,6 +845,7 @@ namespace ProtolScadaRemake
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
                     _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
+                    _lastModeChangeRequest = DateTime.UtcNow;
                 }
             }
             catch (Exception ex)
