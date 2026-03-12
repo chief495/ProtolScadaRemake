@@ -9,6 +9,7 @@ namespace ProtolScadaRemake
     {
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
+        private DateTime _lastModeChangeRequest = DateTime.MinValue;
 
         public FrameGroPage()
         {
@@ -843,6 +844,7 @@ namespace ProtolScadaRemake
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
                     _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
+                    _lastModeChangeRequest = DateTime.UtcNow;
                 }
             }
             catch (Exception ex)

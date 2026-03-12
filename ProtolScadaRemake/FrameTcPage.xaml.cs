@@ -10,6 +10,7 @@ namespace ProtolScadaRemake
     {
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
+        private DateTime _lastModeChangeRequest = DateTime.MinValue;
 
         public FrameTcPage()
         {
