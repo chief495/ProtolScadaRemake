@@ -333,6 +333,7 @@
 
         <!-- Панель задания массы в Т-100 -->
         <Border x:Name="T100MassPanel"
+               Visibility="Collapsed"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Margin="10,767,0,0"
@@ -385,6 +386,7 @@
 
         <!-- Панель выбора вещества с уставками и счетчиками -->
         <Border x:Name="SubstancePanel" 
+               Visibility="Collapsed"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Margin="10,216,0,0" 
@@ -622,6 +624,7 @@
 
         <!-- Панель перекачки Т100-Т150 -->
         <Border x:Name="TransportPanel" 
+               Visibility="Collapsed"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Margin="982,528,0,0" 
@@ -631,8 +634,7 @@
                BorderThickness="1"
                Background="Transparent"
                CornerRadius="8"
-               Padding="15"
-               Visibility="Visible">
+               Padding="15">
             <StackPanel>
                 <TextBlock Text="ПЕРЕКАЧКА Т200 → Т250"
                            FontWeight="Heavy"
@@ -680,6 +682,7 @@
 
         <!-- Панель скорости A100 -->
         <Border x:Name="A100SpeedPanel" 
+               Visibility="Collapsed"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Margin="10,645,0,0" 
@@ -727,6 +730,7 @@
 
         <!-- Панель режима HE-700 -->
         <Border x:Name="HE700Panel" 
+               Visibility="Collapsed"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Margin="762,527,0,0" 
