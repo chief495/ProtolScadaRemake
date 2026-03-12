@@ -694,6 +694,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
+                    command.SendToController();
                 }
             }
             else
@@ -704,6 +705,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "false";
                     command.NeedToWrite = true;
+                    command.SendToController();
                 }
             }
         }
@@ -720,6 +722,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
+                    command.SendToController();
                 }
             }
             else
@@ -730,6 +733,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "false";
                     command.NeedToWrite = true;
+                    command.SendToController();
                 }
             }
         }
@@ -746,6 +750,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
+                    command.SendToController();
                 }
             }
             else
@@ -756,6 +761,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "false";
                     command.NeedToWrite = true;
+                    command.SendToController();
                 }
             }
         }
@@ -772,6 +778,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
+                    command.SendToController();
                 }
             }
             else
@@ -782,6 +789,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "false";
                     command.NeedToWrite = true;
+                    command.SendToController();
                 }
             }
         }
@@ -798,6 +806,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
+                    command.SendToController();
                 }
             }
             else
@@ -808,6 +817,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "false";
                     command.NeedToWrite = true;
+                    command.SendToController();
                 }
             }
         }
@@ -831,6 +841,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
+                    command.SendToController();
                     _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
                 }
             }
@@ -853,6 +864,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = T100MassSpEdit.Text;
                     command.NeedToWrite = true;
+                    command.SendToController();
                     _global.Log.Add("Пользователь", "Задание массы в Т-100", 1);
                 }
             }
@@ -874,6 +886,7 @@ namespace ProtolScadaRemake
                     {
                         command.WriteValue = A100SpeedSpEdit.Text;
                         command.NeedToWrite = true;
+                        command.SendToController();
                     }
                 }
                 catch (Exception ex)
@@ -897,6 +910,7 @@ namespace ProtolScadaRemake
                     {
                         spCommand.WriteValue = SelitraSpEdit.Text;
                         spCommand.NeedToWrite = true;
+                        spCommand.SendToController();
                     }
 
                     TCommandTag startCommand = _global.Commands.GetByName("GRO_Manual_Selitra_Start");
@@ -904,6 +918,7 @@ namespace ProtolScadaRemake
                     {
                         startCommand.WriteValue = "true";
                         startCommand.NeedToWrite = true;
+                        startCommand.SendToController();
                     }
                     _global.Log.Add("Пользователь", "Пуск селитры", 1);
                 }
@@ -914,6 +929,7 @@ namespace ProtolScadaRemake
                     {
                         spCommand.WriteValue = WaterSpEdit.Text;
                         spCommand.NeedToWrite = true;
+                        spCommand.SendToController();
                     }
 
                     TCommandTag startCommand = _global.Commands.GetByName("GRO_Manual_Water_Start");
@@ -921,6 +937,7 @@ namespace ProtolScadaRemake
                     {
                         startCommand.WriteValue = "true";
                         startCommand.NeedToWrite = true;
+                        startCommand.SendToController();
                     }
                     _global.Log.Add("Пользователь", "Пуск воды", 1);
                 }
@@ -931,6 +948,7 @@ namespace ProtolScadaRemake
                     {
                         spCommand.WriteValue = KislotaSpEdit.Text;
                         spCommand.NeedToWrite = true;
+                        spCommand.SendToController();
                     }
 
                     TCommandTag startCommand = _global.Commands.GetByName("GRO_Manual_Kislota_Start");
@@ -938,6 +956,7 @@ namespace ProtolScadaRemake
                     {
                         startCommand.WriteValue = "true";
                         startCommand.NeedToWrite = true;
+                        startCommand.SendToController();
                     }
                     _global.Log.Add("Пользователь", "Пуск кислоты", 1);
                 }
@@ -959,6 +978,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
+                    command.SendToController();
                     _global.Log.Add("Пользователь", "Остановка подачи вещества", 1);
                 }
             }
@@ -979,6 +999,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
+                    command.SendToController();
                     _global.Log.Add("Пользователь", "Пауза подачи вещества", 1);
                 }
             }
@@ -999,6 +1020,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
+                    command.SendToController();
                     _global.Log.Add("Пользователь", "Пуск транспортировки", 1);
                 }
             }
@@ -1019,6 +1041,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
+                    command.SendToController();
                     _global.Log.Add("Пользователь", "Остановка транспортировки", 1);
                 }
             }
@@ -1041,6 +1064,7 @@ namespace ProtolScadaRemake
                     {
                         command.WriteValue = HE700ComboBox.SelectedIndex.ToString();
                         command.NeedToWrite = true;
+                        command.SendToController();
                         _global.Log.Add("Пользователь", "Смена режима HE-700", 1);
                     }
                 }
