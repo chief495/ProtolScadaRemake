@@ -9,6 +9,7 @@ namespace ProtolScadaRemake
     {
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
+        private DateTime _lastModeChangeRequest = DateTime.MinValue;
 
         public FrameGroPage()
         {
@@ -471,7 +472,11 @@ namespace ProtolScadaRemake
                     _ => OperationMode.Off
                 };
 
-                GroModePanel.SetMode(currentOperationMode);
+                if (DateTime.UtcNow - _lastModeChangeRequest > TimeSpan.FromSeconds(1.5) &&
+                    GroModePanel.CurrentMode != currentOperationMode)
+                {
+                    GroModePanel.SetMode(currentOperationMode);
+                }
             }
         }
 
@@ -480,39 +485,47 @@ namespace ProtolScadaRemake
             try
             {
                 var rejimTag = _global?.Variables?.GetByName("GRO_Rejim");
-                if (rejimTag != null)
+                // ModePanel всегда виден
+                if (GroModePanel != null)
+                    GroModePanel.Visibility = Visibility.Visible;
+
+                if (rejimTag == null)
                 {
-                    int mode = (int)rejimTag.ValueReal;
-
-                    // Управление видимостью панелей
-                    bool isOff = mode == 0;
-
-                    // ModePanel всегда виден
-                    if (GroModePanel != null)
-                        GroModePanel.Visibility = Visibility.Visible;
-
-                    // Панель вещества - скрываем в режиме OFF
                     if (SubstancePanel != null)
-                        SubstancePanel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
+                        SubstancePanel.Visibility = Visibility.Collapsed;
 
-                    // Панель транспортировки - скрываем в режиме OFF
                     if (TransportPanel != null)
-                        TransportPanel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
+                        TransportPanel.Visibility = Visibility.Collapsed;
 
-                    // Панель скорости A100 - всегда видна
-                    if (A100SpeedPanel != null)
-                        A100SpeedPanel.Visibility = Visibility.Visible;
-
-                    // Панель HE-700 - всегда видна
-                    if (HE700Panel != null)
-                        HE700Panel.Visibility = Visibility.Visible;
-
-                    // Панель массы Т-100 - всегда видна
-                    if (T100MassPanel != null)
-                        T100MassPanel.Visibility = Visibility.Visible;
-
-                    System.Diagnostics.Debug.WriteLine($"GRO режим: {mode}, панели видимы: {!isOff}");
+                    return;
                 }
+
+                int mode = (int)rejimTag.ValueReal;
+
+                // Управление видимостью панелей
+                bool isOff = mode == 0 || mode == 15 || mode == 16;
+
+                // Панель вещества - скрываем в режиме OFF
+                if (SubstancePanel != null)
+                    SubstancePanel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
+
+                // Панель транспортировки - скрываем в режиме OFF
+                if (TransportPanel != null)
+                    TransportPanel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
+
+                // Панель скорости A100 - всегда видна
+                if (A100SpeedPanel != null)
+                    A100SpeedPanel.Visibility = Visibility.Visible;
+
+                // Панель HE-700 - всегда видна
+                if (HE700Panel != null)
+                    HE700Panel.Visibility = Visibility.Visible;
+
+                // Панель массы Т-100 - всегда видна
+                if (T100MassPanel != null)
+                    T100MassPanel.Visibility = Visibility.Visible;
+
+                System.Diagnostics.Debug.WriteLine($"GRO режим: {mode}, панели видимы: {!isOff}");
             }
             catch (Exception ex)
             {
@@ -832,6 +845,7 @@ namespace ProtolScadaRemake
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
                     _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
+                    _lastModeChangeRequest = DateTime.UtcNow;
                 }
             }
             catch (Exception ex)

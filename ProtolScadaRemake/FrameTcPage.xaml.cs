@@ -10,6 +10,7 @@ namespace ProtolScadaRemake
     {
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
+        private DateTime _lastModeChangeRequest = DateTime.MinValue;
 
         public FrameTcPage()
         {
@@ -155,7 +156,10 @@ namespace ProtolScadaRemake
                 }
 
                 // Инициализация обработчиков для панели режимов
-                InitializeModePanelHandlers();
+                if (TcModePanel != null)
+                {
+                    TcModePanel.ModeChanged += TcModePanel_ModeChanged;
+                }
 
             }
             catch (Exception ex)
@@ -194,7 +198,10 @@ namespace ProtolScadaRemake
                 // 3. Обновление информации на панелях
                 UpdatePanelInfo();
 
-                // 4. Обновление видимости панелей по режиму
+                // 4. Синхронизация панели режима с текущим режимом
+                UpdateOperationMode();
+
+                // 5. Обновление видимости панелей по режиму
                 UpdatePanelsVisibility();
 
             }
@@ -495,6 +502,7 @@ namespace ProtolScadaRemake
                 var rejimTag = _global?.Variables?.GetByName("TC_Rejim");
                 if (rejimTag == null)
                 {
+                    SetPanelVisibility(Visibility.Collapsed, Visibility.Collapsed, Visibility.Collapsed, false);
                     System.Diagnostics.Debug.WriteLine("ОШИБКА: Переменная TC_Rejim не найдена!");
                     return;
                 }
@@ -687,45 +695,54 @@ namespace ProtolScadaRemake
             }
         }
 
-        private void InitializeModePanelHandlers()
+        private void UpdateOperationMode()
         {
-            if (TcModePanel != null)
+            var tag = _global?.Variables?.GetByName("TC_Rejim");
+            if (tag == null || TcModePanel == null) return;
+
+            int mode = (int)tag.ValueReal;
+
+            OperationMode currentOperationMode = mode switch
             {
-                var rejimOffButton = TcModePanel.FindName("RejimOffButton") as Button;
-                if (rejimOffButton != null)
-                    rejimOffButton.Click += RejimOffButton_Click;
+                0 => OperationMode.Off,
+                1 or 3 or 4 or 5 or 6 => OperationMode.SemiAuto,
+                2 or 7 or 8 or 9 or 10 or 11 or 12 => OperationMode.Auto,
+                _ => OperationMode.Off
+            };
 
-                var rejimManualButton = TcModePanel.FindName("RejimManualButton") as Button;
-                if (rejimManualButton != null)
-                    rejimManualButton.Click += RejimManualButton_Click;
+            if (DateTime.UtcNow - _lastModeChangeRequest > TimeSpan.FromSeconds(1.5) &&
+                TcModePanel.CurrentMode != currentOperationMode)
+            {
+                TcModePanel.SetMode(currentOperationMode);
+            }
+        }
 
-                var rejimAutoButton = TcModePanel.FindName("RejimAutoButton") as Button;
-                if (rejimAutoButton != null)
-                    rejimAutoButton.Click += RejimAutoButton_Click;
+        private void TcModePanel_ModeChanged(object sender, OperationMode mode)
+        {
+            if (_global == null) return;
 
-                var manualStartButton = TcModePanel.FindName("ManualStartButton") as Button;
-                if (manualStartButton != null)
-                    manualStartButton.Click += ManualStartButton_Click;
+            try
+            {
+                string commandName = mode switch
+                {
+                    OperationMode.Off => "TC_RejimToOff",
+                    OperationMode.SemiAuto => "TC_RejimToManual",
+                    OperationMode.Auto => "TC_RejimToAuto",
+                    _ => "TC_RejimToOff"
+                };
 
-                var manualStopButton = TcModePanel.FindName("ManualStopButton") as Button;
-                if (manualStopButton != null)
-                    manualStopButton.Click += ManualStopButton_Click;
-
-                var manualPauseButton = TcModePanel.FindName("ManualPauseButton") as Button;
-                if (manualPauseButton != null)
-                    manualPauseButton.Click += ManualPauseButton_Click;
-
-                var autoStartButton = TcModePanel.FindName("AutoStartButton") as Button;
-                if (autoStartButton != null)
-                    autoStartButton.Click += AutoStartButton_Click;
-
-                var autoStopButton = TcModePanel.FindName("AutoStopButton") as Button;
-                if (autoStopButton != null)
-                    autoStopButton.Click += AutoStopButton_Click;
-
-                var autoPauseButton = TcModePanel.FindName("AutoPauseButton") as Button;
-                if (autoPauseButton != null)
-                    autoPauseButton.Click += AutoPauseButton_Click;
+                TCommandTag command = _global.Commands.GetByName(commandName);
+                if (command != null)
+                {
+                    command.WriteValue = "true";
+                    command.NeedToWrite = true;
+                    _global.Log.Add("Пользователь", $"Перевод TC в режим {mode}", 1);
+                    _lastModeChangeRequest = DateTime.UtcNow;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка изменения режима TC: {ex.Message}");
             }
         }
 
