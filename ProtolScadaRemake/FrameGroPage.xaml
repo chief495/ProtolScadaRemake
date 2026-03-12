@@ -385,6 +385,7 @@
 
         <!-- Панель выбора вещества с уставками и счетчиками -->
         <Border x:Name="SubstancePanel" 
+               Visibility="Collapsed"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Margin="10,216,0,0" 
@@ -622,6 +623,7 @@
 
         <!-- Панель перекачки Т100-Т150 -->
         <Border x:Name="TransportPanel" 
+               Visibility="Collapsed"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Margin="982,528,0,0" 

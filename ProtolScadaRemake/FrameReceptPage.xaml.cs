@@ -44,6 +44,32 @@ namespace ProtolScadaRemake.Controls
             ["M600_PID_T"] = new[] { "P651_PID_T" },
         };
 
+        private static readonly Dictionary<string, string> TagUnits = new()
+        {
+            ["GRO_Recept_Selitra"] = "кг",
+            ["GRO_Recept_Water"] = "кг",
+            ["GRO_Recept_Kislota"] = "кг",
+            ["GRO_Recept_Tmax"] = "°C",
+            ["GRO_Recept_Tmin"] = "°C",
+            ["GRO_Recept_TmaxDelta"] = "°C",
+            ["GRO_Recept_A100BlockTemp"] = "°C",
+            ["GRO_Recept_A100BlockWeith"] = "кг",
+            ["P100_SpeedHi"] = "%",
+            ["P100_SpeedLow"] = "%",
+            ["P100_MinMass"] = "кг",
+            ["TC_Recept_Disel"] = "кг",
+            ["TC_Recept_Emulgator"] = "кг",
+            ["TC_Recept_Temperature_T200"] = "°C",
+            ["TC_Recept_Temperature_T250"] = "°C",
+            ["EM_Recept_GRO"] = "кг",
+            ["EM_Recept_Disel"] = "кг",
+            ["EM_ReceptDiaeslLast"] = "кг",
+            ["EM_ReceptZatravkaMass"] = "кг",
+            ["EM_ReceptZatravkaTime"] = "с",
+            ["EM_ReceptWorkLevel"] = "%",
+            ["EM_Recept_ReverseTime"] = "с"
+        };
+
         public TGlobal Global
         {
             get => _global;
@@ -269,45 +295,6 @@ namespace ProtolScadaRemake.Controls
         /// – поле в фокусе.
         /// </summary>
 
-        private IEnumerable<string> GetAliasCandidates(string tagName)
-        {
-            yield return tagName;
-
-            if (TagAliases.TryGetValue(tagName, out var aliases))
-            {
-                foreach (var alias in aliases)
-                    yield return alias;
-            }
-        }
-
-        private TVariableTag FindVariableCaseInsensitive(string tagName)
-        {
-            if (_global?.Variables?.Items == null)
-                return null;
-
-            foreach (var item in _global.Variables.Items)
-            {
-                if (string.Equals(item.Name, tagName, StringComparison.OrdinalIgnoreCase))
-                    return item;
-            }
-
-            return null;
-        }
-
-        private TCommandTag FindCommandCaseInsensitive(string tagName)
-        {
-            if (_global?.Commands?.Items == null)
-                return null;
-
-            foreach (var item in _global.Commands.Items)
-            {
-                if (string.Equals(item.Name, tagName, StringComparison.OrdinalIgnoreCase))
-                    return item;
-            }
-
-            return null;
-        }
-
         private void UpdateTextBox(TextBox textBox, string tagName, string sectionName)
         {
             if (_editingSections.Contains(sectionName) || textBox.IsFocused) return;
@@ -316,8 +303,12 @@ namespace ProtolScadaRemake.Controls
             if (tag != null)
             {
                 var normalized = NormalizeNumericValue(tag.ValueString);
-                if (textBox.Text != normalized)
-                    textBox.Text = normalized;
+                var displayValue = TagUnits.TryGetValue(tagName, out var unit) && !string.IsNullOrWhiteSpace(normalized)
+                    ? $"{normalized} {unit}"
+                    : normalized;
+
+                if (textBox.Text != displayValue)
+                    textBox.Text = displayValue;
             }
             // ← убран `return null;` – метод возвращает void
         }
@@ -329,6 +320,7 @@ namespace ProtolScadaRemake.Controls
 
             // Убираем любые символы, кроме цифр, точки, запятой, знаков +/-
             var cleaned = Regex.Replace(value, @"[^0-9\.,\+\-]", "").Trim();
+            cleaned = cleaned.TrimEnd('.', ',');
             return string.IsNullOrWhiteSpace(cleaned) ? value : cleaned;
         }
 
@@ -481,7 +473,7 @@ namespace ProtolScadaRemake.Controls
                 }
 
                 // Парсим введённый текст
-                var txt = tb.Text.Trim();
+                var txt = NormalizeNumericValue(tb.Text.Trim());
                 if (!double.TryParse(txt, NumberStyles.Any, CultureInfo.InvariantCulture, out double newValue))
                 {
                     // Попробуем заменить запятую на точку (если пользователь так ввёл)

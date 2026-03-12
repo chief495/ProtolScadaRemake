@@ -209,6 +209,7 @@ namespace ProtolScadaRemake
 
             // Убираем дублирующиеся единицы измерения, если они приходят вместе со значением
             var normalized = Regex.Replace(value, @"[^0-9,.+-]", "").Trim();
+            normalized = normalized.TrimEnd('.', ',');
             return string.IsNullOrWhiteSpace(normalized) ? value : normalized;
         }
 
@@ -474,16 +475,12 @@ namespace ProtolScadaRemake
             // Синхронизируем панель режимов с текущим режимом
             if (GroModePanel != null)
             {
-                // 15/16 - служебные состояния ПЛК, не перезаписываем выбор пользователя
-                if (mode == 15 || mode == 16)
-                    return;
-
                 OperationMode currentOperationMode = mode switch
                 {
                     0 => OperationMode.Off,
-                    1 or 3 or 4 or 5 or 6 or 7 or 8 => OperationMode.SemiAuto,
-                    2 or 9 or 10 or 11 or 12 or 13 or 14 => OperationMode.Auto,
-                    _ => OperationMode.Off
+                    1 or 3 or 4 or 5 or 6 or 7 or 8 or 15 => OperationMode.SemiAuto,
+                    2 or 9 or 10 or 11 or 12 or 13 or 14 or 16 => OperationMode.Auto,
+                    _ => GroModePanel.CurrentMode
                 };
 
                 if (GroModePanel.CurrentMode != currentOperationMode)
