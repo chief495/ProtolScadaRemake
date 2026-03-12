@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -159,33 +160,33 @@ namespace ProtolScadaRemake
                 var tag = _global.Variables.GetByName("T100_MassSp");
                 if (tag != null)
                 {
-                    T100MassSpEdit.Text = tag.ValueString;
+                    T100MassSpEdit.Text = NormalizeNumericValue(tag.ValueString);
                 }
 
                 // Инициализация уставок вещества
                 tag = _global.Variables.GetByName("GRO_ManualSelitraCounterSp");
                 if (tag != null)
                 {
-                    SelitraSpEdit.Text = tag.ValueString;
+                    SelitraSpEdit.Text = NormalizeNumericValue(tag.ValueString);
                 }
 
                 tag = _global.Variables.GetByName("GRO_ManualWaterCounterSp");
                 if (tag != null)
                 {
-                    WaterSpEdit.Text = tag.ValueString;
+                    WaterSpEdit.Text = NormalizeNumericValue(tag.ValueString);
                 }
 
                 tag = _global.Variables.GetByName("GRO_ManualKislotaCounterSp");
                 if (tag != null)
                 {
-                    KislotaSpEdit.Text = tag.ValueString;
+                    KislotaSpEdit.Text = NormalizeNumericValue(tag.ValueString);
                 }
 
                 // Инициализация скорости A100
                 tag = _global.Variables.GetByName("A100_Speed");
                 if (tag != null)
                 {
-                    A100SpeedSpEdit.Text = tag.ValueString;
+                    A100SpeedSpEdit.Text = NormalizeNumericValue(tag.ValueString);
                 }
 
                 // Инициализация режима HE-700
@@ -199,6 +200,16 @@ namespace ProtolScadaRemake
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка инициализации элементов FrameGroPage: {ex.Message}");
             }
+        }
+
+        private static string NormalizeNumericValue(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return value;
+
+            // Убираем дублирующиеся единицы измерения, если они приходят вместе со значением
+            var normalized = Regex.Replace(value, @"[^0-9,.+-]", "").Trim();
+            return string.IsNullOrWhiteSpace(normalized) ? value : normalized;
         }
 
         private void SubscribeToEvents()
@@ -463,12 +474,15 @@ namespace ProtolScadaRemake
             // Синхронизируем панель режимов с текущим режимом
             if (GroModePanel != null)
             {
+                // 15/16 - служебные состояния ПЛК, не перезаписываем выбор пользователя
+                if (mode == 15 || mode == 16)
+                    return;
+
                 OperationMode currentOperationMode = mode switch
                 {
                     0 => OperationMode.Off,
                     1 or 3 or 4 or 5 or 6 or 7 or 8 => OperationMode.SemiAuto,
                     2 or 9 or 10 or 11 or 12 or 13 or 14 => OperationMode.Auto,
-                    15 or 16 => OperationMode.Off,
                     _ => OperationMode.Off
                 };
 
@@ -502,7 +516,7 @@ namespace ProtolScadaRemake
                 int mode = (int)rejimTag.ValueReal;
 
                 // Управление видимостью панелей
-                bool isOff = mode == 0 || mode == 15 || mode == 16;
+                bool isOff = mode == 0;
 
                 // Панель вещества - скрываем в режиме OFF
                 if (SubstancePanel != null)
@@ -540,19 +554,19 @@ namespace ProtolScadaRemake
                 var tag = _global.Variables.GetByName("GRO_ManualSelitraCounter");
                 if (tag != null && GRO_ManualSelitraCounterEdit != null)
                 {
-                    GRO_ManualSelitraCounterEdit.Text = tag.ValueString;
+                    GRO_ManualSelitraCounterEdit.Text = NormalizeNumericValue(tag.ValueString);
                 }
 
                 tag = _global.Variables.GetByName("GRO_ManualWaterCounter");
                 if (tag != null && GRO_ManualWaterCounterEdit != null)
                 {
-                    GRO_ManualWaterCounterEdit.Text = tag.ValueString;
+                    GRO_ManualWaterCounterEdit.Text = NormalizeNumericValue(tag.ValueString);
                 }
 
                 tag = _global.Variables.GetByName("GRO_ManualKislotaCounter");
                 if (tag != null && GRO_ManualKislotaCounterEdit != null)
                 {
-                    GRO_ManualKislotaCounterEdit.Text = tag.ValueString;
+                    GRO_ManualKislotaCounterEdit.Text = NormalizeNumericValue(tag.ValueString);
                 }
             }
             catch (Exception ex)

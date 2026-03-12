@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -281,6 +282,16 @@ namespace ProtolScadaRemake.Controls
         /// - секция в режиме редактирования
         /// - поле в фокусе
         /// </summary>
+        private static string NormalizeNumericValue(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return value;
+
+            // Убираем дублирующиеся единицы измерения, если они приходят вместе со значением
+            var normalized = Regex.Replace(value, @"[^0-9,.+-]", "").Trim();
+            return string.IsNullOrWhiteSpace(normalized) ? value : normalized;
+        }
+
         private void UpdateTextBox(TextBox textBox, string tagName, string sectionName)
         {
             // Не обновляем если секция редактируется
@@ -290,10 +301,50 @@ namespace ProtolScadaRemake.Controls
             if (textBox.IsFocused) return;
 
             var tag = FindVariableByNameOrAlias(tagName);
-            if (tag != null && textBox.Text != tag.ValueString)
+            if (tag != null)
             {
-                textBox.Text = tag.ValueString;
+                var normalized = NormalizeNumericValue(tag.ValueString);
+                if (textBox.Text != normalized)
+                    textBox.Text = normalized;
             }
+        }
+
+        private TVariableTag FindVariableByNameOrAlias(string tagName)
+        {
+            var tag = _global?.Variables?.GetByName(tagName);
+            if (tag != null)
+                return tag;
+
+            if (TagAliases.TryGetValue(tagName, out var aliases))
+            {
+                foreach (var alias in aliases)
+                {
+                    tag = _global?.Variables?.GetByName(alias);
+                    if (tag != null)
+                        return tag;
+                }
+            }
+
+            return null;
+        }
+
+        private TCommandTag FindCommandByNameOrAlias(string tagName)
+        {
+            var command = _global?.Commands?.GetByName(tagName);
+            if (command != null)
+                return command;
+
+            if (TagAliases.TryGetValue(tagName, out var aliases))
+            {
+                foreach (var alias in aliases)
+                {
+                    command = _global?.Commands?.GetByName(alias);
+                    if (command != null)
+                        return command;
+                }
+            }
+
+            return null;
         }
 
         private TVariableTag FindVariableByNameOrAlias(string tagName)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -145,14 +146,14 @@ namespace ProtolScadaRemake
                 var massTag = _global?.Variables?.GetByName("TC_AutoMassSp");
                 if (massTag != null && T200MassSetEdit != null)
                 {
-                    T200MassSetEdit.Text = massTag.ValueString;
+                    T200MassSetEdit.Text = NormalizeNumericValue(massTag.ValueString);
                 }
 
                 // Инициализация уставки массы топлива
                 var fuelTag = _global?.Variables?.GetByName("TC_ManualDiselSp");
                 if (fuelTag != null && FuelMassEdit != null)
                 {
-                    FuelMassEdit.Text = fuelTag.ValueString;
+                    FuelMassEdit.Text = NormalizeNumericValue(fuelTag.ValueString);
                 }
 
                 // Инициализация обработчиков для панели режимов
@@ -166,6 +167,16 @@ namespace ProtolScadaRemake
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка инициализации элементов FrameTcPage: {ex.Message}");
             }
+        }
+
+        private static string NormalizeNumericValue(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return value;
+
+            // Убираем дублирующиеся единицы измерения, если они приходят вместе со значением
+            var normalized = Regex.Replace(value, @"[^0-9,.+-]", "").Trim();
+            return string.IsNullOrWhiteSpace(normalized) ? value : normalized;
         }
 
         private void SubscribeToEvents()
@@ -383,7 +394,7 @@ namespace ProtolScadaRemake
                 var massTag = _global?.Variables?.GetByName("WIT200_Volume");
                 if (massTag != null && T200CurrentMassLabel != null)
                 {
-                    T200CurrentMassLabel.Text = $"Текущая: {massTag.ValueString} кг";
+                    T200CurrentMassLabel.Text = $"Текущая: {NormalizeNumericValue(massTag.ValueString)} кг";
                 }
 
                 // Обновление статуса набора топлива
@@ -395,7 +406,7 @@ namespace ProtolScadaRemake
                 {
                     var diselCounterEdit = TcModePanel.FindName("TC_ManualDiselCounterEdit") as TextBox;
                     if (diselCounterEdit != null)
-                        diselCounterEdit.Text = manualDiselTag.ValueString;
+                        diselCounterEdit.Text = NormalizeNumericValue(manualDiselTag.ValueString);
                 }
 
                 var manualEmulgatorTag = _global?.Variables?.GetByName("TC_ManualEmulgatorCurrent");
@@ -403,7 +414,7 @@ namespace ProtolScadaRemake
                 {
                     var emulgatorCounterEdit = TcModePanel.FindName("TC_ManualEmulgatorCounterEdit") as TextBox;
                     if (emulgatorCounterEdit != null)
-                        emulgatorCounterEdit.Text = manualEmulgatorTag.ValueString;
+                        emulgatorCounterEdit.Text = NormalizeNumericValue(manualEmulgatorTag.ValueString);
                 }
 
                 // Обновление статусов авторежима
@@ -414,7 +425,7 @@ namespace ProtolScadaRemake
                 {
                     var diselStatusLabel = TcModePanel.FindName("DiselStatusLabel") as TextBlock;
                     if (diselStatusLabel != null)
-                        diselStatusLabel.Text = "Диз.топливо: " + autoDiselCurrentTag.ValueString + " из " + autoDiselSpTag.ValueString;
+                        diselStatusLabel.Text = "Диз.топливо: " + NormalizeNumericValue(autoDiselCurrentTag.ValueString) + " из " + NormalizeNumericValue(autoDiselSpTag.ValueString);
                 }
 
                 var autoEmulgatorSpTag = _global?.Variables?.GetByName("TC_AutoEmulgatorSp");
@@ -424,7 +435,7 @@ namespace ProtolScadaRemake
                 {
                     var emulgatorStatusLabel = TcModePanel.FindName("EmulgatorStatusLabel") as TextBlock;
                     if (emulgatorStatusLabel != null)
-                        emulgatorStatusLabel.Text = "Эмульгатор: " + autoEmulgatorCurrentTag.ValueString + " из " + autoEmulgatorSpTag.ValueString;
+                        emulgatorStatusLabel.Text = "Эмульгатор: " + NormalizeNumericValue(autoEmulgatorCurrentTag.ValueString) + " из " + NormalizeNumericValue(autoEmulgatorSpTag.ValueString);
                 }
 
             }
