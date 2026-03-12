@@ -710,8 +710,7 @@ namespace ProtolScadaRemake
                 _ => OperationMode.Off
             };
 
-            if (DateTime.UtcNow - _lastModeChangeRequest > TimeSpan.FromSeconds(1.5) &&
-                TcModePanel.CurrentMode != currentOperationMode)
+            if (TcModePanel.CurrentMode != currentOperationMode)
             {
                 TcModePanel.SetMode(currentOperationMode);
             }
@@ -737,7 +736,6 @@ namespace ProtolScadaRemake
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
                     _global.Log.Add("Пользователь", $"Перевод TC в режим {mode}", 1);
-                    _lastModeChangeRequest = DateTime.UtcNow;
                 }
             }
             catch (Exception ex)

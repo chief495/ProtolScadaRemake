@@ -472,8 +472,7 @@ namespace ProtolScadaRemake
                     _ => OperationMode.Off
                 };
 
-                if (DateTime.UtcNow - _lastModeChangeRequest > TimeSpan.FromSeconds(1.5) &&
-                    GroModePanel.CurrentMode != currentOperationMode)
+                if (GroModePanel.CurrentMode != currentOperationMode)
                 {
                     GroModePanel.SetMode(currentOperationMode);
                 }

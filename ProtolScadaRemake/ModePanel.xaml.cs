@@ -20,19 +20,7 @@ namespace ProtolScadaRemake
         // Unit ID для Modbus
         public byte UnitId { get; set; } = 1;
 
-        public OperationMode CurrentMode
-        {
-            get { return _currentMode; }
-            private set
-            {
-                if (_currentMode != value)
-                {
-                    _currentMode = value;
-                    ModeChanged?.Invoke(this, _currentMode);
-                    SendModbusCommand();
-                }
-            }
-        }
+        public OperationMode CurrentMode => _currentMode;
 
         public ModePanel()
         {
@@ -50,51 +38,38 @@ namespace ProtolScadaRemake
             var toggle = sender as ToggleSwitch;
             if (toggle == null) return;
 
-            // Если переключатель включился
-            if (isChecked)
+            if (!isChecked)
             {
-                // Определяем какой режим был выбран
-                if (toggle == OffToggle)
-                {
-                    CurrentMode = OperationMode.Off;
-                    // Отключаем другие переключатели
-                    SemiAutoToggle.IsChecked = false;
-                    AutoToggle.IsChecked = false;
-                }
-                else if (toggle == SemiAutoToggle)
-                {
-                    CurrentMode = OperationMode.SemiAuto;
-                    // Отключаем другие переключатели
-                    OffToggle.IsChecked = false;
-                    AutoToggle.IsChecked = false;
-                }
-                else if (toggle == AutoToggle)
-                {
-                    CurrentMode = OperationMode.Auto;
-                    // Отключаем другие переключатели
-                    OffToggle.IsChecked = false;
-                    SemiAutoToggle.IsChecked = false;
-                }
+                // Не даем пользователю "снять" текущий активный режим
+                Dispatcher.BeginInvoke(new Action(() => ApplyModeToToggles(_currentMode)), DispatcherPriority.Background);
+                return;
             }
-            else
+
+            OperationMode requestedMode = toggle == OffToggle
+                ? OperationMode.Off
+                : toggle == SemiAutoToggle
+                    ? OperationMode.SemiAuto
+                    : OperationMode.Auto;
+
+            // Если уже в этом режиме, просто нормализуем UI
+            if (requestedMode == _currentMode)
             {
-                // Если выключили текущий активный режим
-                Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    if ((toggle == OffToggle && CurrentMode == OperationMode.Off) ||
-                        (toggle == SemiAutoToggle && CurrentMode == OperationMode.SemiAuto) ||
-                        (toggle == AutoToggle && CurrentMode == OperationMode.Auto))
-                    {
-                        // Включаем обратно
-                        toggle.IsChecked = true;
-                    }
-                }), DispatcherPriority.Background);
+                ApplyModeToToggles(_currentMode);
+                return;
             }
+
+            // 1) Отправляем только запрос на смену режима
+            ModeChanged?.Invoke(this, requestedMode);
+            SendModbusCommand(requestedMode);
+
+            // 2) Визуально оставляем подтвержденный текущий режим
+            // Переключение UI произойдет только после внешнего SetMode(...) по факту от ПЛК
+            ApplyModeToToggles(_currentMode);
         }
 
-        private void SendModbusCommand()
+        private void SendModbusCommand(OperationMode mode)
         {
-            ushort modeValue = (ushort)_currentMode;
+            ushort modeValue = (ushort)mode;
 
             // Создаем аргументы события
             var args = new ModbusCommandEventArgs
@@ -102,7 +77,7 @@ namespace ProtolScadaRemake
                 UnitId = UnitId,
                 RegisterAddress = ModbusRegisterAddress,
                 Value = modeValue,
-                Description = $"Установлен режим: {_currentMode}"
+                Description = $"Запрошен режим: {mode}"
             };
 
             // Вызываем событие
