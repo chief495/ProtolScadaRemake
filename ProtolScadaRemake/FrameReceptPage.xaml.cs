@@ -28,6 +28,21 @@ namespace ProtolScadaRemake.Controls
         private static readonly Brush EditableBorder = new SolidColorBrush(Color.FromRgb(0, 120, 215));
         private static readonly Brush ChangedBackground = Brushes.LightYellow;
 
+
+        // Алиасы тегов для совместимости со старым WinForms-проектом
+        // (в старой версии PID секция использовала M600_PID_*, в новой может быть P651_PID_*)
+        private static readonly Dictionary<string, string[]> TagAliases = new()
+        {
+            ["P651_PID_P"] = new[] { "M600_PID_P" },
+            ["P651_PID_I"] = new[] { "M600_PID_I" },
+            ["P651_PID_D"] = new[] { "M600_PID_D" },
+            ["P651_PID_T"] = new[] { "M600_PID_T" },
+            ["M600_PID_P"] = new[] { "P651_PID_P" },
+            ["M600_PID_I"] = new[] { "P651_PID_I" },
+            ["M600_PID_D"] = new[] { "P651_PID_D" },
+            ["M600_PID_T"] = new[] { "P651_PID_T" },
+        };
+
         public TGlobal Global
         {
             get => _global;
@@ -266,6 +281,46 @@ namespace ProtolScadaRemake.Controls
         /// - секция в режиме редактирования
         /// - поле в фокусе
         /// </summary>
+
+        private IEnumerable<string> GetAliasCandidates(string tagName)
+        {
+            yield return tagName;
+
+            if (TagAliases.TryGetValue(tagName, out var aliases))
+            {
+                foreach (var alias in aliases)
+                    yield return alias;
+            }
+        }
+
+        private TVariableTag FindVariableCaseInsensitive(string tagName)
+        {
+            if (_global?.Variables?.Items == null)
+                return null;
+
+            foreach (var item in _global.Variables.Items)
+            {
+                if (string.Equals(item.Name, tagName, StringComparison.OrdinalIgnoreCase))
+                    return item;
+            }
+
+            return null;
+        }
+
+        private TCommandTag FindCommandCaseInsensitive(string tagName)
+        {
+            if (_global?.Commands?.Items == null)
+                return null;
+
+            foreach (var item in _global.Commands.Items)
+            {
+                if (string.Equals(item.Name, tagName, StringComparison.OrdinalIgnoreCase))
+                    return item;
+            }
+
+            return null;
+        }
+
         private void UpdateTextBox(TextBox textBox, string tagName, string sectionName)
         {
             // Не обновляем если секция редактируется
@@ -274,16 +329,54 @@ namespace ProtolScadaRemake.Controls
             // Не обновляем если поле в фокусе
             if (textBox.IsFocused) return;
 
-            var tag = _global.Variables.GetByName(tagName);
-            if (tag != null && textBox.Text != tag.ValueString)
+            var tag = ResolveVariableByNameOrAlias(tagName);
+            if (tag != null)
             {
-                textBox.Text = tag.ValueString;
+                if (textBox.Text != tag.ValueString)
+                    textBox.Text = tag.ValueString;
             }
+        }
+        private TVariableTag ResolveVariableByNameOrAlias(string tagName)
+        {
+            foreach (var candidate in GetAliasCandidates(tagName))
+            {
+                var tag = _global?.Variables?.GetByName(candidate);
+                if (tag != null)
+                    return tag;
+            }
+
+            foreach (var candidate in GetAliasCandidates(tagName))
+            {
+                var tag = FindVariableCaseInsensitive(candidate);
+                if (tag != null)
+                    return tag;
+            }
+
+            return null;
+        }
+
+        private TCommandTag ResolveCommandByNameOrAlias(string tagName)
+        {
+            foreach (var candidate in GetAliasCandidates(tagName))
+            {
+                var command = _global?.Commands?.GetByName(candidate);
+                if (command != null)
+                    return command;
+            }
+
+            foreach (var candidate in GetAliasCandidates(tagName))
+            {
+                var command = FindCommandCaseInsensitive(candidate);
+                if (command != null)
+                    return command;
+            }
+
+            return null;
         }
 
         private void UpdateTuneButtonVisibility(Button tuneButton, string tagName)
         {
-            var tuneTag = _global.Variables.GetByName(tagName);
+            var tuneTag = ResolveVariableByNameOrAlias(tagName);
             if (tuneTag != null)
             {
                 tuneButton.Visibility = tuneTag.ValueReal > 0
@@ -374,7 +467,7 @@ namespace ProtolScadaRemake.Controls
                 if (string.IsNullOrEmpty(tagName)) continue;
 
                 // Проверяем, изменилось ли значение
-                var variable = _global.Variables.GetByName(tagName);
+                var variable = ResolveVariableByNameOrAlias(tagName);
                 if (variable == null)
                 {
                     Debug.WriteLine($"Переменная не найдена: {tagName}");
@@ -403,7 +496,7 @@ namespace ProtolScadaRemake.Controls
                 }
 
                 // Отправляем команду в контроллер
-                var command = _global.Commands.GetByName(tagName);
+                var command = ResolveCommandByNameOrAlias(tagName);
                 if (command != null)
                 {
                     command.WriteValue = newValue.ToString(CultureInfo.InvariantCulture);
@@ -414,7 +507,7 @@ namespace ProtolScadaRemake.Controls
                 }
                 else
                 {
-                    Debug.WriteLine($"Команда не найдена: {tagName}");
+                    Debug.WriteLine($"Команда не найдена: {tagName}. Проверьте имя команды в ModbusInitializer/конфиге.");
                     errorCount++;
                 }
             }
@@ -448,7 +541,7 @@ namespace ProtolScadaRemake.Controls
 
         private void SaveCheckBox(CheckBox checkBox, string tagName, ref int savedCount, ref int errorCount)
         {
-            var variable = _global.Variables.GetByName(tagName);
+            var variable = ResolveVariableByNameOrAlias(tagName);
             if (variable == null) return;
 
             bool newValue = checkBox.IsChecked == true;
@@ -456,7 +549,7 @@ namespace ProtolScadaRemake.Controls
 
             if (newValue != currentValue)
             {
-                var command = _global.Commands.GetByName(tagName);
+                var command = ResolveCommandByNameOrAlias(tagName);
                 if (command != null)
                 {
                     command.WriteValue = newValue ? "true" : "false";
@@ -510,7 +603,7 @@ namespace ProtolScadaRemake.Controls
                 return;
             }
 
-            var command = _global.Commands.GetByName(commandName);
+            var command = ResolveCommandByNameOrAlias(commandName);
             if (command != null)
             {
                 command.WriteValue = value;
