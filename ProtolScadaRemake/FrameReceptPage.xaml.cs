@@ -1,5 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -14,13 +17,13 @@ namespace ProtolScadaRemake.Controls
 
         // Словарь: какая секция сейчас в режиме редактирования
         // Ключ = имя секции, Значение = список TextBox'ов этой секции
-        private Dictionary<string, List<TextBox>> _sectionTextBoxes = new();
+        private readonly Dictionary<string, List<TextBox>> _sectionTextBoxes = new();
 
         // Какие секции сейчас редактируются
-        private HashSet<string> _editingSections = new();
+        private readonly HashSet<string> _editingSections = new();
 
         // Маппинг кнопок к секциям
-        private Dictionary<Button, string> _buttonToSection = new();
+        private readonly Dictionary<Button, string> _buttonToSection = new();
 
         // Цвета
         private static readonly Brush ReadOnlyBackground = new SolidColorBrush(Color.FromRgb(224, 224, 224));
@@ -28,9 +31,7 @@ namespace ProtolScadaRemake.Controls
         private static readonly Brush EditableBorder = new SolidColorBrush(Color.FromRgb(0, 120, 215));
         private static readonly Brush ChangedBackground = Brushes.LightYellow;
 
-
-        // Алиасы тегов для совместимости со старым WinForms-проектом
-        // (в старой версии PID секция использовала M600_PID_*, в новой может быть P651_PID_*)
+        // Алиасы тегов (для совместимости с наследником WinForms)
         private static readonly Dictionary<string, string[]> TagAliases = new()
         {
             ["P651_PID_P"] = new[] { "M600_PID_P" },
@@ -63,12 +64,9 @@ namespace ProtolScadaRemake.Controls
 
         #region Инициализация
 
-        /// <summary>
-        /// Регистрируем секции и их TextBox'ы
-        /// </summary>
         private void InitializeSections()
         {
-            // РАСТВОР ГРО
+            // ======== РАСТВОР ГРО ========
             _sectionTextBoxes["GRO"] = new List<TextBox>
             {
                 GroRecept_Selitra, GroRecept_Water, GroRecept_Acid,
@@ -77,45 +75,45 @@ namespace ProtolScadaRemake.Controls
                 P100_NominalSpeed, P100_MinSpeed, P100_MinMass
             };
 
-            // РАСТВОР ТС
+            // ======== РАСТВОР ТС ========
             _sectionTextBoxes["TC"] = new List<TextBox>
             {
                 TcRecept_Diesel, TcRecept_Emulsifier,
                 TcRecept_TempT200, TcRecept_TempT250
             };
 
-            // ПРОИЗВОДСТВО ЭМ
+            // ======== ПРОИЗВОДСТВО ЭМ ========
             _sectionTextBoxes["EM"] = new List<TextBox>
             {
                 EmRecept_Gro, EmRecept_FuelMix, EmRecept_WashFuelMass,
                 EmRecept_PrimerMass, EmRecept_PrimerTime, EmRecept_T650Level
             };
 
-            // ОТГРУЗКА
+            // ======== ОТГРУЗКА ========
             _sectionTextBoxes["UNLOAD"] = new List<TextBox>
             {
                 Unload_ReverseTime
             };
 
-            // PID P-601
+            // ======== PID P‑601 ========
             _sectionTextBoxes["P601"] = new List<TextBox>
             {
                 P601_PID_P, P601_PID_I, P601_PID_D, P601_PID_T
             };
 
-            // PID P-602
+            // ======== PID P‑602 ========
             _sectionTextBoxes["P602"] = new List<TextBox>
             {
                 P602_PID_P, P602_PID_I, P602_PID_D, P602_PID_T
             };
 
-            // PID P-651
+            // ======== PID P‑651 ========
             _sectionTextBoxes["P651"] = new List<TextBox>
             {
                 P651_PID_P, P651_PID_I, P651_PID_D, P651_PID_T
             };
 
-            // Маппинг кнопок к секциям
+            // Маппинг кнопок → секций
             _buttonToSection[GroEditButton] = "GRO";
             _buttonToSection[TcEditButton] = "TC";
             _buttonToSection[EmEditButton] = "EM";
@@ -124,27 +122,22 @@ namespace ProtolScadaRemake.Controls
             _buttonToSection[P602EditButton] = "P602";
             _buttonToSection[P651EditButton] = "P651";
 
-            // Все поля по умолчанию - только чтение
+            // По‑умолчанию всё только‑для‑чтения
             foreach (var section in _sectionTextBoxes.Values)
-            {
                 foreach (var tb in section)
-                {
                     tb.IsReadOnly = true;
-                }
-            }
         }
 
         private void InitializeTimer()
         {
-            _updateTimer = new DispatcherTimer();
-            _updateTimer.Interval = TimeSpan.FromMilliseconds(500);
+            _updateTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
             _updateTimer.Tick += UpdateTimer_Tick;
             _updateTimer.Start();
         }
 
         private void InitializeEventHandlers()
         {
-            // Все кнопки редактирования используют один обработчик
+            // Кнопки «Редактировать / Сохранить»
             GroEditButton.Click += EditSaveButton_Click;
             TcEditButton.Click += EditSaveButton_Click;
             EmEditButton.Click += EditSaveButton_Click;
@@ -153,16 +146,16 @@ namespace ProtolScadaRemake.Controls
             P602EditButton.Click += EditSaveButton_Click;
             P651EditButton.Click += EditSaveButton_Click;
 
-            // Автонастройка
+            // Автонастройка PID
             P601TuneButton.Click += P601TuneButton_Click;
             P602TuneButton.Click += P602TuneButton_Click;
             P651TuneButton.Click += P651TuneButton_Click;
 
-            // Компрессор
+            // Управление компрессором
             CompressorStartButton.Click += CompressorStartButton_Click;
             CompressorStopButton.Click += CompressorStopButton_Click;
 
-            // Чекбокс кислоты
+            // Чек‑бокс «Кислота»
             GroRecept_UseAcidCheck.Checked += GroRecept_UseAcidCheck_Changed;
             GroRecept_UseAcidCheck.Unchecked += GroRecept_UseAcidCheck_Changed;
         }
@@ -174,14 +167,8 @@ namespace ProtolScadaRemake.Controls
         private void UpdateTimer_Tick(object sender, EventArgs e)
         {
             _updateTimer.Stop();
-            try
-            {
-                UpdateData();
-            }
-            finally
-            {
-                _updateTimer.Start();
-            }
+            try { UpdateData(); }
+            finally { _updateTimer.Start(); }
         }
 
         private void UpdateData()
@@ -190,7 +177,7 @@ namespace ProtolScadaRemake.Controls
 
             try
             {
-                // РАСТВОР ГРО
+                // ---------- РАСТВОР ГРО ----------
                 UpdateTextBox(GroRecept_Selitra, "GRO_Recept_Selitra", "GRO");
                 UpdateTextBox(GroRecept_Water, "GRO_Recept_Water", "GRO");
                 UpdateTextBox(GroRecept_Acid, "GRO_Recept_Kislota", "GRO");
@@ -203,7 +190,7 @@ namespace ProtolScadaRemake.Controls
                 UpdateTextBox(P100_MinSpeed, "P100_SpeedLow", "GRO");
                 UpdateTextBox(P100_MinMass, "P100_MinMass", "GRO");
 
-                // Чекбокс кислоты (обновляем только если секция НЕ редактируется)
+                // Чек‑бокс «Кислота» (обновляем только если секция не в режиме редактирования)
                 if (!_editingSections.Contains("GRO"))
                 {
                     var acidTag = _global.Variables.GetByName("GRO_Recept_KislotaEnable");
@@ -216,20 +203,20 @@ namespace ProtolScadaRemake.Controls
                     }
                 }
 
-                // РАСТВОР ТС
+                // ---------- РАСТВОР ТС ----------
                 UpdateTextBox(TcRecept_Diesel, "TC_Recept_Disel", "TC");
                 UpdateTextBox(TcRecept_Emulsifier, "TC_Recept_Emulgator", "TC");
                 UpdateTextBox(TcRecept_TempT200, "TC_Recept_Temperature_T200", "TC");
                 UpdateTextBox(TcRecept_TempT250, "TC_Recept_Temperature_T250", "TC");
 
-                // PID P-601
+                // ---------- PID P‑601 ----------
                 UpdateTextBox(P601_PID_P, "P601_PID_P", "P601");
                 UpdateTextBox(P601_PID_I, "P601_PID_I", "P601");
                 UpdateTextBox(P601_PID_D, "P601_PID_D", "P601");
                 UpdateTextBox(P601_PID_T, "P601_PID_T", "P601");
                 UpdateTuneButtonVisibility(P601TuneButton, "P601_PID_Tune");
 
-                // ПРОИЗВОДСТВО ЭМ
+                // ---------- ПРОИЗВОДСТВО ЭМ ----------
                 UpdateTextBox(EmRecept_Gro, "EM_Recept_GRO", "EM");
                 UpdateTextBox(EmRecept_FuelMix, "EM_Recept_Disel", "EM");
                 UpdateTextBox(EmRecept_WashFuelMass, "EM_ReceptDiaeslLast", "EM");
@@ -237,24 +224,24 @@ namespace ProtolScadaRemake.Controls
                 UpdateTextBox(EmRecept_PrimerTime, "EM_ReceptZatravkaTime", "EM");
                 UpdateTextBox(EmRecept_T650Level, "EM_ReceptWorkLevel", "EM");
 
-                // PID P-602
+                // ---------- PID P‑602 ----------
                 UpdateTextBox(P602_PID_P, "P602_PID_P", "P602");
                 UpdateTextBox(P602_PID_I, "P602_PID_I", "P602");
                 UpdateTextBox(P602_PID_D, "P602_PID_D", "P602");
                 UpdateTextBox(P602_PID_T, "P602_PID_T", "P602");
                 UpdateTuneButtonVisibility(P602TuneButton, "P602_PID_Tune");
 
-                // ОТГРУЗКА
+                // ---------- ОТГРУЗКА ----------
                 UpdateTextBox(Unload_ReverseTime, "EM_Recept_ReverseTime", "UNLOAD");
 
-                // PID P-651
+                // ---------- PID P‑651 ----------
                 UpdateTextBox(P651_PID_P, "P651_PID_P", "P651");
                 UpdateTextBox(P651_PID_I, "P651_PID_I", "P651");
                 UpdateTextBox(P651_PID_D, "P651_PID_D", "P651");
                 UpdateTextBox(P651_PID_T, "P651_PID_T", "P651");
                 UpdateTuneButtonVisibility(P651TuneButton, "P651_PID_Tune");
 
-                // КОМПРЕССОР
+                // ---------- Компрессор ----------
                 var compressorTag = _global.Variables.GetByName("Compressor_Start");
                 if (compressorTag != null)
                 {
@@ -277,9 +264,9 @@ namespace ProtolScadaRemake.Controls
         }
 
         /// <summary>
-        /// Обновляет TextBox из переменной, но НЕ трогает если:
-        /// - секция в режиме редактирования
-        /// - поле в фокусе
+        /// Обновляет TextBox, **не** меняя его, если
+        /// – секция в режиме редактирования,
+        /// – поле в фокусе.
         /// </summary>
 
         private IEnumerable<string> GetAliasCandidates(string tagName)
@@ -323,65 +310,105 @@ namespace ProtolScadaRemake.Controls
 
         private void UpdateTextBox(TextBox textBox, string tagName, string sectionName)
         {
-            // Не обновляем если секция редактируется
-            if (_editingSections.Contains(sectionName)) return;
+            if (_editingSections.Contains(sectionName) || textBox.IsFocused) return;
 
-            // Не обновляем если поле в фокусе
-            if (textBox.IsFocused) return;
-
-            var tag = ResolveVariableByNameOrAlias(tagName);
+            var tag = FindVariableByNameOrAlias(tagName);
             if (tag != null)
             {
-                if (textBox.Text != tag.ValueString)
-                    textBox.Text = tag.ValueString;
+                var normalized = NormalizeNumericValue(tag.ValueString);
+                if (textBox.Text != normalized)
+                    textBox.Text = normalized;
             }
+            // ← убран `return null;` – метод возвращает void
         }
-        private TVariableTag ResolveVariableByNameOrAlias(string tagName)
+
+        private static string NormalizeNumericValue(string value)
         {
-            foreach (var candidate in GetAliasCandidates(tagName))
-            {
-                var tag = _global?.Variables?.GetByName(candidate);
-                if (tag != null)
-                    return tag;
-            }
+            if (string.IsNullOrWhiteSpace(value))
+                return value;
+
+            // Убираем любые символы, кроме цифр, точки, запятой, знаков +/-
+            var cleaned = Regex.Replace(value, @"[^0-9\.,\+\-]", "").Trim();
+            return string.IsNullOrWhiteSpace(cleaned) ? value : cleaned;
+        }
+
+        /// <summary>
+        /// Возвращает набор кандидатов: исходное имя + все алиасы.
+        /// </summary>
+        private IEnumerable<string> GetAliasCandidates(string tagName)
+        {
+            yield return tagName;
+            if (TagAliases.TryGetValue(tagName, out var aliases))
+                foreach (var a in aliases) yield return a;
+        }
+
+        /// <summary>
+        /// Поиск переменной (с учётом алиасов и регистронезависимо).
+        /// </summary>
+        private TVariableTag FindVariableByNameOrAlias(string tagName)
+        {
+            if (_global?.Variables == null) return null;
 
             foreach (var candidate in GetAliasCandidates(tagName))
             {
-                var tag = FindVariableCaseInsensitive(candidate);
-                if (tag != null)
-                    return tag;
+                // 1️⃣ Прямой поиск (точное совпадение)
+                var variable = _global.Variables.GetByName(candidate);
+                if (variable != null) return variable;
+
+                // 2️⃣ Поиск без учёта регистра
+                variable = FindVariableCaseInsensitive(candidate);
+                if (variable != null) return variable;
             }
 
             return null;
         }
 
-        private TCommandTag ResolveCommandByNameOrAlias(string tagName)
+        /// <summary>
+        /// Поиск команды (с учётом алиасов и регистронезависимо).
+        /// </summary>
+        private TCommandTag FindCommandByNameOrAlias(string tagName)
         {
-            foreach (var candidate in GetAliasCandidates(tagName))
-            {
-                var command = _global?.Commands?.GetByName(candidate);
-                if (command != null)
-                    return command;
-            }
+            if (_global?.Commands == null) return null;
 
             foreach (var candidate in GetAliasCandidates(tagName))
             {
-                var command = FindCommandCaseInsensitive(candidate);
-                if (command != null)
-                    return command;
+                var command = _global.Commands.GetByName(candidate);
+                if (command != null) return command;
+
+                command = FindCommandCaseInsensitive(candidate);
+                if (command != null) return command;
             }
 
             return null;
         }
+
+        // -------------------------------------------------------------------------
+        // Вспомогательные «case‑insensitive»‑поисковые методы (оставляем их)
+
+        private TVariableTag FindVariableCaseInsensitive(string tagName)
+        {
+            if (_global?.Variables?.Items == null) return null;
+            foreach (var item in _global.Variables.Items)
+                if (string.Equals(item.Name, tagName, StringComparison.OrdinalIgnoreCase))
+                    return item;
+            return null;
+        }
+
+        private TCommandTag FindCommandCaseInsensitive(string tagName)
+        {
+            if (_global?.Commands?.Items == null) return null;
+            foreach (var item in _global.Commands.Items)
+                if (string.Equals(item.Name, tagName, StringComparison.OrdinalIgnoreCase))
+                    return item;
+            return null;
+        }
+        // -------------------------------------------------------------------------
 
         private void UpdateTuneButtonVisibility(Button tuneButton, string tagName)
         {
-            var tuneTag = ResolveVariableByNameOrAlias(tagName);
+            var tuneTag = FindVariableByNameOrAlias(tagName);
             if (tuneTag != null)
-            {
-                tuneButton.Visibility = tuneTag.ValueReal > 0
-                    ? Visibility.Collapsed : Visibility.Visible;
-            }
+                tuneButton.Visibility = tuneTag.ValueReal > 0 ? Visibility.Collapsed : Visibility.Visible;
         }
 
         #endregion
@@ -389,114 +416,90 @@ namespace ProtolScadaRemake.Controls
         #region Редактирование / Сохранение секций
 
         /// <summary>
-        /// Единый обработчик для всех кнопок "РЕДАКТИРОВАТЬ" / "СОХРАНИТЬ"
+        /// Один обработчик для всех кнопок «Редактировать / Сохранить».
         /// </summary>
         private void EditSaveButton_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            if (button == null || _global == null) return;
+            if (sender is not Button button || _global == null) return;
 
-            // Проверяем доступ
             if (!_global.Access)
             {
                 MessageBox.Show("Нет доступа! Введите пароль.", "Доступ запрещён",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                                 MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            // Определяем секцию по кнопке
-            if (!_buttonToSection.TryGetValue(button, out string sectionName))
+            if (!_buttonToSection.TryGetValue(button, out var sectionName))
             {
                 Debug.WriteLine($"Секция для кнопки {button.Name} не найдена");
                 return;
             }
 
             if (_editingSections.Contains(sectionName))
-            {
-                // Сейчас в режиме редактирования → СОХРАНЯЕМ
-                SaveSection(sectionName, button);
-            }
+                SaveSection(sectionName, button);   // сейчас «СОХРАНИТЬ»
             else
-            {
-                // Сейчас в режиме чтения → ВХОДИМ В РЕДАКТИРОВАНИЕ
-                EnterEditMode(sectionName, button);
-            }
+                EnterEditMode(sectionName, button); // сейчас «РЕДАКТИРОВАТЬ»
         }
 
-        /// <summary>
-        /// Вход в режим редактирования для секции
-        /// </summary>
         private void EnterEditMode(string sectionName, Button button)
         {
             _editingSections.Add(sectionName);
 
-            if (_sectionTextBoxes.TryGetValue(sectionName, out var textBoxes))
-            {
-                foreach (var tb in textBoxes)
+            if (_sectionTextBoxes.TryGetValue(sectionName, out var tbs))
+                foreach (var tb in tbs)
                 {
                     tb.IsReadOnly = false;
                     tb.Background = EditableBackground;
                     tb.BorderBrush = EditableBorder;
                     tb.BorderThickness = new Thickness(2);
                 }
-            }
 
-            // Меняем кнопку на "СОХРАНИТЬ"
             button.Content = "СОХРАНИТЬ";
             button.Background = new SolidColorBrush(Color.FromRgb(0, 120, 215));
             button.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 90, 158));
-
             Debug.WriteLine($"Секция {sectionName}: вход в режим редактирования");
         }
 
-        /// <summary>
-        /// Сохранение секции и отправка команд в контроллер
-        /// </summary>
         private void SaveSection(string sectionName, Button button)
         {
             if (!_sectionTextBoxes.TryGetValue(sectionName, out var textBoxes))
                 return;
 
-            int savedCount = 0;
-            int errorCount = 0;
+            int savedCount = 0, errorCount = 0;
 
             foreach (var tb in textBoxes)
             {
-                // Получаем имя тега из свойства Tag
-                string tagName = tb.Tag?.ToString();
+                // Тег, привязанный к TextBox, должен быть задекларирован в XAML (Tag="GRO_Recept_Selitra" и т.д.)
+                var tagName = tb.Tag?.ToString();
                 if (string.IsNullOrEmpty(tagName)) continue;
 
-                // Проверяем, изменилось ли значение
-                var variable = ResolveVariableByNameOrAlias(tagName);
+                var variable = FindVariableByNameOrAlias(tagName);
                 if (variable == null)
                 {
                     Debug.WriteLine($"Переменная не найдена: {tagName}");
                     continue;
                 }
 
-                // Парсим новое значение
-                string textValue = tb.Text.Trim();
-                if (!double.TryParse(textValue, NumberStyles.Any, CultureInfo.InvariantCulture, out double newValue))
+                // Парсим введённый текст
+                var txt = tb.Text.Trim();
+                if (!double.TryParse(txt, NumberStyles.Any, CultureInfo.InvariantCulture, out double newValue))
                 {
-                    // Пробуем с запятой
-                    if (!double.TryParse(textValue.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out newValue))
+                    // Попробуем заменить запятую на точку (если пользователь так ввёл)
+                    if (!double.TryParse(txt.Replace(',', '.'), NumberStyles.Any,
+                                         CultureInfo.InvariantCulture, out newValue))
                     {
-                        Debug.WriteLine($"Не удалось распарсить значение '{textValue}' для {tagName}");
+                        Debug.WriteLine($"Не удалось распарсить значение «{txt}» для {tagName}");
                         tb.Background = Brushes.LightCoral;
                         errorCount++;
                         continue;
                     }
                 }
 
-                // Проверяем, изменилось ли значение
-                if (Math.Abs(variable.ValueReal - newValue) < 0.0001)
-                {
-                    Debug.WriteLine($"{tagName}: значение не изменилось ({newValue})");
-                    continue;
-                }
+                // Если значение не изменилось – пропускаем
+                if (Math.Abs(variable.ValueReal - newValue) < 0.0001) continue;
 
-                // Отправляем команду в контроллер
-                var command = ResolveCommandByNameOrAlias(tagName);
+                // Находим команду, которая отвечает за запись значения
+                var command = FindCommandByNameOrAlias(tagName);
                 if (command != null)
                 {
                     command.WriteValue = newValue.ToString(CultureInfo.InvariantCulture);
@@ -512,51 +515,45 @@ namespace ProtolScadaRemake.Controls
                 }
             }
 
-            // Сохраняем чекбоксы (если есть в секции)
+            // Специальный обработчик чек‑бокса «Кислота» (секция GRO)
             if (sectionName == "GRO")
-            {
                 SaveCheckBox(GroRecept_UseAcidCheck, "GRO_Recept_KislotaEnable", ref savedCount, ref errorCount);
-            }
 
             // Выходим из режима редактирования
             ExitEditMode(sectionName, button);
 
-            // Логируем
+            // Журнал
             if (savedCount > 0)
-            {
-                _global.Log.Add("Пользователь", $"Изменены параметры секции {sectionName} ({savedCount} значений)", 1);
-            }
+                _global.Log.Add("Пользователь",
+                                 $"Изменены параметры секции {sectionName} ({savedCount} значений)", 1);
 
-            // Показываем результат
+            // Пользовательский фидбек
             if (errorCount > 0)
-            {
                 MessageBox.Show($"Сохранено: {savedCount}, Ошибок: {errorCount}",
-                    "Результат", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
+                                "Результат", MessageBoxButton.OK, MessageBoxImage.Warning);
             else if (savedCount > 0)
-            {
                 Debug.WriteLine($"Секция {sectionName}: сохранено {savedCount} значений");
-            }
         }
 
-        private void SaveCheckBox(CheckBox checkBox, string tagName, ref int savedCount, ref int errorCount)
+        private void SaveCheckBox(CheckBox checkBox, string tagName,
+                                 ref int savedCount, ref int errorCount)
         {
-            var variable = ResolveVariableByNameOrAlias(tagName);
+            var variable = FindVariableByNameOrAlias(tagName);
             if (variable == null) return;
 
-            bool newValue = checkBox.IsChecked == true;
-            bool currentValue = variable.ValueReal > 0;
+            bool newVal = checkBox.IsChecked == true;
+            bool curVal = variable.ValueReal > 0;
 
-            if (newValue != currentValue)
+            if (newVal != curVal)
             {
-                var command = ResolveCommandByNameOrAlias(tagName);
+                var command = FindCommandByNameOrAlias(tagName);
                 if (command != null)
                 {
-                    command.WriteValue = newValue ? "true" : "false";
+                    command.WriteValue = newVal ? "true" : "false";
                     command.NeedToWrite = true;
                     command.SendToController();
                     savedCount++;
-                    Debug.WriteLine($"{tagName}: отправлено {newValue}");
+                    Debug.WriteLine($"{tagName}: отправлено {newVal}");
                 }
                 else
                 {
@@ -565,25 +562,19 @@ namespace ProtolScadaRemake.Controls
             }
         }
 
-        /// <summary>
-        /// Выход из режима редактирования
-        /// </summary>
         private void ExitEditMode(string sectionName, Button button)
         {
             _editingSections.Remove(sectionName);
 
-            if (_sectionTextBoxes.TryGetValue(sectionName, out var textBoxes))
-            {
-                foreach (var tb in textBoxes)
+            if (_sectionTextBoxes.TryGetValue(sectionName, out var tbs))
+                foreach (var tb in tbs)
                 {
                     tb.IsReadOnly = true;
                     tb.Background = ReadOnlyBackground;
                     tb.BorderBrush = new SolidColorBrush(Color.FromRgb(102, 102, 102));
                     tb.BorderThickness = new Thickness(1);
                 }
-            }
 
-            // Возвращаем кнопку в исходное состояние
             button.Content = "РЕДАКТИРОВАТЬ";
             button.Background = new SolidColorBrush(Color.FromRgb(30, 89, 69));
             button.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 255, 127));
@@ -603,7 +594,7 @@ namespace ProtolScadaRemake.Controls
                 return;
             }
 
-            var command = ResolveCommandByNameOrAlias(commandName);
+            var command = FindCommandByNameOrAlias(commandName);
             if (command != null)
             {
                 command.WriteValue = value;
@@ -619,19 +610,19 @@ namespace ProtolScadaRemake.Controls
 
         private void P601TuneButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("P601_PID_Tune", "true", "Автонастройка PID-регулятора P-601");
+            SendCommand("P601_PID_Tune", "true", "Автонастройка PID‑регулятора P‑601");
             P601TuneButton.Visibility = Visibility.Collapsed;
         }
 
         private void P602TuneButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("P602_PID_Tune", "true", "Автонастройка PID-регулятора P-602");
+            SendCommand("P602_PID_Tune", "true", "Автонастройка PID‑регулятора P‑602");
             P602TuneButton.Visibility = Visibility.Collapsed;
         }
 
         private void P651TuneButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("P651_PID_Tune", "true", "Автонастройка PID-регулятора P-651");
+            SendCommand("P651_PID_Tune", "true", "Автонастройка PID‑регулятора P‑651");
             P651TuneButton.Visibility = Visibility.Collapsed;
         }
 
@@ -651,17 +642,18 @@ namespace ProtolScadaRemake.Controls
 
         #endregion
 
-        #region Чекбокс кислоты
+        #region Чек‑бокс кислоты
 
         private void GroRecept_UseAcidCheck_Changed(object sender, RoutedEventArgs e)
         {
-            GroRecept_Acid.Visibility = (GroRecept_UseAcidCheck.IsChecked == true)
-                ? Visibility.Visible : Visibility.Hidden;
+            GroRecept_Acid.Visibility = GroRecept_UseAcidCheck.IsChecked == true
+                                        ? Visibility.Visible
+                                        : Visibility.Hidden;
         }
 
         #endregion
 
-        // Пустой обработчик из XAML (можно удалить из XAML)
+        // Пустой обработчик из XAML (можно удалить из XAML, если он не нужен)
         private void GroEditButton_Click_1(object sender, RoutedEventArgs e) { }
     }
 }
