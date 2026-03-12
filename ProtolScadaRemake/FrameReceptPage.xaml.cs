@@ -292,6 +292,46 @@ namespace ProtolScadaRemake.Controls
             return string.IsNullOrWhiteSpace(normalized) ? value : normalized;
         }
 
+
+        private IEnumerable<string> GetAliasCandidates(string tagName)
+        {
+            yield return tagName;
+
+            if (TagAliases.TryGetValue(tagName, out var aliases))
+            {
+                foreach (var alias in aliases)
+                    yield return alias;
+            }
+        }
+
+        private TVariableTag FindVariableCaseInsensitive(string tagName)
+        {
+            if (_global?.Variables?.Items == null)
+                return null;
+
+            foreach (var item in _global.Variables.Items)
+            {
+                if (string.Equals(item.Name, tagName, StringComparison.OrdinalIgnoreCase))
+                    return item;
+            }
+
+            return null;
+        }
+
+        private TCommandTag FindCommandCaseInsensitive(string tagName)
+        {
+            if (_global?.Commands?.Items == null)
+                return null;
+
+            foreach (var item in _global.Commands.Items)
+            {
+                if (string.Equals(item.Name, tagName, StringComparison.OrdinalIgnoreCase))
+                    return item;
+            }
+
+            return null;
+        }
+
         private void UpdateTextBox(TextBox textBox, string tagName, string sectionName)
         {
             // Не обновляем если секция редактируется
@@ -307,6 +347,43 @@ namespace ProtolScadaRemake.Controls
                 if (textBox.Text != normalized)
                     textBox.Text = normalized;
             }
+        }
+        private TVariableTag FindVariableByNameOrAlias(string tagName)
+        {
+            foreach (var candidate in GetAliasCandidates(tagName))
+            {
+                var tag = _global?.Variables?.GetByName(candidate);
+                if (tag != null)
+                    return tag;
+            }
+
+            foreach (var candidate in GetAliasCandidates(tagName))
+            {
+                var tag = FindVariableCaseInsensitive(candidate);
+                if (tag != null)
+                    return tag;
+            }
+
+            return null;
+        }
+
+        private TCommandTag FindCommandByNameOrAlias(string tagName)
+        {
+            foreach (var candidate in GetAliasCandidates(tagName))
+            {
+                var command = _global?.Commands?.GetByName(candidate);
+                if (command != null)
+                    return command;
+            }
+
+            foreach (var candidate in GetAliasCandidates(tagName))
+            {
+                var command = FindCommandCaseInsensitive(candidate);
+                if (command != null)
+                    return command;
+            }
+
+            return null;
         }
 
         private TVariableTag FindVariableByNameOrAlias(string tagName)
@@ -518,7 +595,7 @@ namespace ProtolScadaRemake.Controls
                 }
                 else
                 {
-                    Debug.WriteLine($"Команда не найдена: {tagName}");
+                    Debug.WriteLine($"Команда не найдена: {tagName}. Проверьте имя команды в ModbusInitializer/конфиге.");
                     errorCount++;
                 }
             }
