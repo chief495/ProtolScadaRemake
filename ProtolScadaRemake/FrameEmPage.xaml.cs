@@ -450,7 +450,7 @@ namespace ProtolScadaRemake
 
                 // Управление видимостью панелей
                 // В старой версии: RejimAutoPanel.Visible = (rejimValue != 0)
-                bool isOff = rejimValue == 0 || rejimValue == 1;
+                bool isOff = rejimValue == 0;
 
                 // Остальные панели скрываем в режиме OFF
                 if (StartupPanelControl != null)
