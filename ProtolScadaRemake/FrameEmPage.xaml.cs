@@ -427,31 +427,43 @@ namespace ProtolScadaRemake
             try
             {
                 var rejimTag = _global?.Variables?.GetByName("EM_Rejim");
-                if (rejimTag != null)
+
+                // ModePanel всегда виден
+                if (EmModePanel != null)
+                    EmModePanel.Visibility = Visibility.Visible;
+
+                if (rejimTag == null)
                 {
-                    double rejimValue = rejimTag.ValueReal;
-
-                    // Управление видимостью панелей
-                    // В старой версии: RejimAutoPanel.Visible = (rejimValue != 0)
-                    bool isOff = rejimValue == 0;
-
-                    // ModePanel всегда виден
-                    if (EmModePanel != null)
-                        EmModePanel.Visibility = Visibility.Visible;
-
-                    // Остальные панели скрываем в режиме OFF
                     if (StartupPanelControl != null)
-                        StartupPanelControl.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
+                        StartupPanelControl.Visibility = Visibility.Collapsed;
 
                     if (PerformancePanelControl != null)
-                        PerformancePanelControl.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
+                        PerformancePanelControl.Visibility = Visibility.Collapsed;
 
                     if (UnloadPanelControl != null)
-                        UnloadPanelControl.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
+                        UnloadPanelControl.Visibility = Visibility.Collapsed;
 
-                    // Для отладки
-                    System.Diagnostics.Debug.WriteLine($"EM режим: {rejimValue}, панели видимы: {!isOff}");
+                    return;
                 }
+
+                double rejimValue = rejimTag.ValueReal;
+
+                // Управление видимостью панелей
+                // В старой версии: RejimAutoPanel.Visible = (rejimValue != 0)
+                bool isOff = rejimValue == 0;
+
+                // Остальные панели скрываем в режиме OFF
+                if (StartupPanelControl != null)
+                    StartupPanelControl.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
+
+                if (PerformancePanelControl != null)
+                    PerformancePanelControl.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
+
+                if (UnloadPanelControl != null)
+                    UnloadPanelControl.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
+
+                // Для отладки
+                System.Diagnostics.Debug.WriteLine($"EM режим: {rejimValue}, панели видимы: {!isOff}");
             }
             catch (Exception ex)
             {
@@ -643,7 +655,7 @@ namespace ProtolScadaRemake
                 string commandName = mode switch
                 {
                     OperationMode.Off => "EM_RejimToOff",
-                    OperationMode.SemiAuto => "EM_RejimToManual",
+                    OperationMode.SemiAuto => "EM_RejimToAuto",
                     OperationMode.Auto => "EM_RejimToAuto",
                     _ => "EM_RejimToOff"
                 };
