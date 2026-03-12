@@ -10,6 +10,8 @@ namespace ProtolScadaRemake
     {
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
+        private OperationMode? _pendingRequestedMode;
+        private DateTime _pendingRequestedModeAt = DateTime.MinValue;
 
         // -----------------------------------------------------------------
         // Поля, отвечающие за логику режима работы
@@ -71,18 +73,153 @@ namespace ProtolScadaRemake
         // -----------------------------------------------------------------
         private void InitializeElements()
         {
-            // Тело метода – полностью без изменений (см. ваш оригинал)
-            // …
+            try
+            {
+                // Датчики уровня
+                InitializeSensor(LT150, "LT150", "Датчик уровня LT150", "LT-150", "%");
+                InitializeSensor(LT301, "LT301", "Датчик уровня LT301", "LT-301", "%");
+                InitializeSensor(LT303, "LT303", "Датчик уровня LT303", "LT-303", "%");
+                InitializeSensor(LT403, "LT403", "Датчик уровня LT403", "LT-403", "%");
+
+                // Сигнализаторы уровня
+                InitializeDiscreteSensor(LAHH101, "LAHH101", "Датчик уровня LAHH101", "LAHH-101");
+                InitializeDiscreteSensor(LALL103, "LALL103", "Датчик уровня LALL103", "LALL-103");
+                InitializeDiscreteSensor(LAHH151, "LAHH151", "Датчик уровня LAHH151", "LAHH-151");
+                InitializeDiscreteSensor(LALL153, "LALL153", "Датчик уровня LALL153", "LALL-153");
+                InitializeDiscreteSensor(LAHH301, "LAHH301", "Датчик уровня LAHH301", "LAHH-301");
+                InitializeDiscreteSensor(LAHH302, "LAHH302", "Датчик уровня LAHH302", "LAHH-302");
+                InitializeDiscreteSensor(LAHH401, "LAHH401", "Датчик уровня LAHH401", "LAHH-401");
+
+                // Датчики температуры
+                InitializeSensor(TT102, "TT102", "Датчик температуры TT-102", "TT-102", "°C");
+                InitializeSensor(TT152, "TT152", "Датчик температуры TT-152", "TT-152", "°C");
+                InitializeSensor(TT302, "TT302", "Датчик температуры TT-302", "TT-302", "°C");
+                InitializeSensor(TT402, "TT402", "Датчик температуры TT-402", "TT-402", "°C");
+                InitializeSensor(TT602, "TT602", "Датчик температуры TT-602", "TT-602", "°C");
+
+                // Датчики давления
+                InitializeSensor(PT104, "PT104", "Датчик давления PT104", "PT-104", "атм");
+                InitializeSensor(PT105, "PT105", "Датчик давления PT105", "PT-105", "атм");
+                InitializeSensor(PT304, "PT304", "Датчик давления PT304", "PT-304", "атм");
+                InitializeSensor(PT404, "PT404", "Датчик давления PT404", "PT-404", "атм");
+                InitializeSensor(PT601, "PT601", "Датчик давления PT601", "PT-601", "атм");
+
+                // Расходомеры
+                InitializeFM(FM401, "FM401", "Расходомер FM401", "FM401", "кг/мин");
+                InitializeFM(FM601, "FM601", "Расходомер FM601", "FM601", "кг/мин");
+
+                // Счетчик QM400
+                InitializeQM(QM400, "QM400", "Счетчик QM-400", "QM-400", "л");
+
+                // Весовой датчик WIT100
+                InitializeWIT(WIT100, "WIT100", "Вес Т-100", "WIT-100", "кг");
+
+                // Насосы обратные (P300, P400)
+                InitializePumpReverse(P300, "P300", "Насос P-300", "P-300");
+                InitializePumpReverse(P400, "P400", "Насос P-400", "P-400");
+
+                // Насосы обычные
+                InitializePumpUzUnderPanel(P100, "P100", "Насос P-100", "P-100");
+                InitializePumpUzUnderPanel(A100, "A100", "Шнек А-100", "A-100");
+                InitializePumpUzUnderPanel(P601, "P601", "Насос P-601", "P-601");
+
+                // Задвижки
+                InitializeValveV(VT101, "V101", "Клапан V-101", "V-101");
+                InitializeValveH(VT151, "V151", "Клапан V-151", "V-151");
+                InitializeValveH(VT152, "V152", "Клапан V-152", "V-152");
+                InitializeValveV(VT302, "V302", "Клапан V-302", "V-302");
+                InitializeValveV(VT305, "V305", "Клапан V-305", "V-305");
+                InitializeValveV(VT401, "V401", "Клапан V-401", "V-401");
+                Initialize3ValveH(VT601, "V601", "Клапан SV-601", "SV-601");
+
+                // Нагреватели
+                InitializeHeater(HE300, "HE300", "Нагреватель HE-300", "HE-300");
+                InitializeHeater(HE750, "HE750", "Нагреватель HE-750", "HE-750");
+                InitializeHeater(HE700_1, "HE700.1", "Нагреватель HE-700.1", "HE-700.1");
+                InitializeHeater(HE700_2, "HE700.2", "Нагреватель HE-700.2", "HE-700.2");
+
+                // Переключатели миксеров
+                if (M100Switch != null)
+                {
+                    M100Switch.Tag = "M100";
+                    M100Switch.StateChanged += M100Switch_StateChanged;
+                }
+
+                if (M150Switch != null)
+                {
+                    M150Switch.Tag = "M150";
+                    M150Switch.StateChanged += M150Switch_StateChanged;
+                }
+
+                if (M400Switch != null)
+                {
+                    M400Switch.Tag = "M400";
+                    M400Switch.StateChanged += M400Switch_StateChanged;
+                }
+
+                // Переключатели нагревателей
+                if (HE300Switch != null)
+                {
+                    HE300Switch.Tag = "HE300";
+                    HE300Switch.StateChanged += HE300Switch_StateChanged;
+                }
+
+                if (HE750Switch != null)
+                {
+                    HE750Switch.Tag = "HE750";
+                    HE750Switch.StateChanged += HE750Switch_StateChanged;
+                }
+
+                // Панель режима
+                if (GroModePanel != null)
+                {
+                    GroModePanel.ModeChanged += GroModePanel_ModeChanged;
+                }
+
+                // Инициализация уставки массы T-100
+                var tag = _global.Variables.GetByName("T100_MassSp");
+                if (tag != null)
+                {
+                    T100MassSpEdit.Text = NormalizeNumericValue(tag.ValueString);
+                }
+
+                // Инициализация уставок вещества
+                tag = _global.Variables.GetByName("GRO_ManualSelitraCounterSp");
+                if (tag != null)
+                {
+                    SelitraSpEdit.Text = NormalizeNumericValue(tag.ValueString);
+                }
+
+                tag = _global.Variables.GetByName("GRO_ManualWaterCounterSp");
+                if (tag != null)
+                {
+                    WaterSpEdit.Text = NormalizeNumericValue(tag.ValueString);
+                }
+
+                tag = _global.Variables.GetByName("GRO_ManualKislotaCounterSp");
+                if (tag != null)
+                {
+                    KislotaSpEdit.Text = NormalizeNumericValue(tag.ValueString);
+                }
+
+                // Инициализация скорости A100
+                tag = _global.Variables.GetByName("A100_Speed");
+                if (tag != null)
+                {
+                    A100SpeedSpEdit.Text = NormalizeNumericValue(tag.ValueString);
+                }
+
+            var normalized = Regex.Replace(value, @"[^0-9,.+-]", "").Trim();
+            normalized = normalized.TrimEnd('.', ',');
+            return string.IsNullOrWhiteSpace(normalized) ? value : normalized;
         }
 
-        // -----------------------------------------------------------------
-        // Вспомогательные функции
-        // -----------------------------------------------------------------
         private static string NormalizeNumericValue(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
                 return value;
 
+            // Убираем дублирующиеся единицы измерения, если они приходят вместе со значением
             var normalized = Regex.Replace(value, @"[^0-9,.+-]", "").Trim();
             normalized = normalized.TrimEnd('.', ',');
             return string.IsNullOrWhiteSpace(normalized) ? value : normalized;
@@ -355,8 +492,31 @@ namespace ProtolScadaRemake
         // -----------------------------------------------------------------
         private void UpdatePanelsVisibility()
         {
-            // Тело метода – без изменений из вашего оригинального кода
-            // …
+            try
+            {
+                // Обновление счетчиков в панели
+                var tag = _global.Variables.GetByName("GRO_ManualSelitraCounter");
+                if (tag != null && GRO_ManualSelitraCounterEdit != null)
+                {
+                    GRO_ManualSelitraCounterEdit.Text = NormalizeNumericValue(tag.ValueString);
+                }
+
+                tag = _global.Variables.GetByName("GRO_ManualWaterCounter");
+                if (tag != null && GRO_ManualWaterCounterEdit != null)
+                {
+                    GRO_ManualWaterCounterEdit.Text = NormalizeNumericValue(tag.ValueString);
+                }
+
+                tag = _global.Variables.GetByName("GRO_ManualKislotaCounter");
+                if (tag != null && GRO_ManualKislotaCounterEdit != null)
+                {
+                    GRO_ManualKislotaCounterEdit.Text = NormalizeNumericValue(tag.ValueString);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка обновления счетчиков: {ex.Message}");
+            }
         }
 
         // -----------------------------------------------------------------
@@ -364,8 +524,31 @@ namespace ProtolScadaRemake
         // -----------------------------------------------------------------
         private void UpdateCounters()
         {
-            // Тело метода – без изменений из вашего оригинального кода
-            // …
+            try
+              {
+                  // Обновление счетчиков в панели
+                  var tag = _global.Variables.GetByName("GRO_ManualSelitraCounter");
+                  if (tag != null && GRO_ManualSelitraCounterEdit != null)
+                  {
+                      GRO_ManualSelitraCounterEdit.Text = NormalizeNumericValue(tag.ValueString);
+                  }
+
+                  tag = _global.Variables.GetByName("GRO_ManualWaterCounter");
+                  if (tag != null && GRO_ManualWaterCounterEdit != null)
+                  {
+                      GRO_ManualWaterCounterEdit.Text = NormalizeNumericValue(tag.ValueString);
+                  }
+
+                  tag = _global.Variables.GetByName("GRO_ManualKislotaCounter");
+                  if (tag != null && GRO_ManualKislotaCounterEdit != null)
+                  {
+                      GRO_ManualKislotaCounterEdit.Text = NormalizeNumericValue(tag.ValueString);
+                  }
+              }
+              catch (Exception ex)
+              {
+                  System.Diagnostics.Debug.WriteLine($"Ошибка обновления счетчиков: {ex.Message}");
+              }
         }
 
         // -----------------------------------------------------------------
