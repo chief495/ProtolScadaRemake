@@ -487,6 +487,28 @@ namespace ProtolScadaRemake
             // Синхронизируем панель режимов с текущим режимом
             if (GroModePanel != null)
             {
+                // 15/16 - служебные состояния ПЛК.
+                // Оставляем выбранный пользователем режим, не принуждаем панель в OFF.
+                if (mode == 15 || mode == 16)
+                {
+                    bool hasFreshPending = _pendingRequestedMode.HasValue &&
+                        (DateTime.UtcNow - _pendingRequestedModeAt) < TimeSpan.FromSeconds(3);
+
+                    if (hasFreshPending)
+                    {
+                        if (GroModePanel.CurrentMode != _pendingRequestedMode.Value)
+                            GroModePanel.SetMode(_pendingRequestedMode.Value);
+                    }
+                    else
+                    {
+                        _pendingRequestedMode = null;
+                        if (GroModePanel.CurrentMode != OperationMode.Off)
+                            GroModePanel.SetMode(OperationMode.Off);
+                    }
+
+                    return;
+                }
+
                 OperationMode currentOperationMode = mode switch
                 {
                     0 => OperationMode.Off,
