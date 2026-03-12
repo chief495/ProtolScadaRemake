@@ -386,6 +386,82 @@ namespace ProtolScadaRemake.Controls
             return null;
         }
 
+        private TVariableTag FindVariableByNameOrAlias(string tagName)
+        {
+            var tag = _global?.Variables?.GetByName(tagName);
+            if (tag != null)
+                return tag;
+
+            if (TagAliases.TryGetValue(tagName, out var aliases))
+            {
+                foreach (var alias in aliases)
+                {
+                    tag = _global?.Variables?.GetByName(alias);
+                    if (tag != null)
+                        return tag;
+                }
+            }
+
+            return null;
+        }
+
+        private TCommandTag FindCommandByNameOrAlias(string tagName)
+        {
+            var command = _global?.Commands?.GetByName(tagName);
+            if (command != null)
+                return command;
+
+            if (TagAliases.TryGetValue(tagName, out var aliases))
+            {
+                foreach (var alias in aliases)
+                {
+                    command = _global?.Commands?.GetByName(alias);
+                    if (command != null)
+                        return command;
+                }
+            }
+
+            return null;
+        }
+
+        private TVariableTag FindVariableByNameOrAlias(string tagName)
+        {
+            var tag = _global?.Variables?.GetByName(tagName);
+            if (tag != null)
+                return tag;
+
+            if (TagAliases.TryGetValue(tagName, out var aliases))
+            {
+                foreach (var alias in aliases)
+                {
+                    tag = _global?.Variables?.GetByName(alias);
+                    if (tag != null)
+                        return tag;
+                }
+            }
+
+            return null;
+        }
+
+        private TCommandTag FindCommandByNameOrAlias(string tagName)
+        {
+            var command = _global?.Commands?.GetByName(tagName);
+            if (command != null)
+                return command;
+
+            if (TagAliases.TryGetValue(tagName, out var aliases))
+            {
+                foreach (var alias in aliases)
+                {
+                    command = _global?.Commands?.GetByName(alias);
+                    if (command != null)
+                        return command;
+                }
+            }
+
+            return null;
+        }
+
         private void UpdateTuneButtonVisibility(Button tuneButton, string tagName)
         {
             var tuneTag = FindVariableByNameOrAlias(tagName);
