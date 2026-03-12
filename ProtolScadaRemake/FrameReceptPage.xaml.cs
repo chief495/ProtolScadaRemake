@@ -347,6 +347,27 @@ namespace ProtolScadaRemake.Controls
                 if (textBox.Text != normalized)
                     textBox.Text = normalized;
             }
+
+            return null;
+        }
+
+        private TCommandTag ResolveCommandByNameOrAlias(string tagName)
+        {
+            foreach (var candidate in GetAliasCandidates(tagName))
+            {
+                var command = _global?.Commands?.GetByName(candidate);
+                if (command != null)
+                    return command;
+            }
+
+            foreach (var candidate in GetAliasCandidates(tagName))
+            {
+                var command = FindCommandCaseInsensitive(candidate);
+                if (command != null)
+                    return command;
+            }
+
+            return null;
         }
         private TVariableTag FindVariableByNameOrAlias(string tagName)
         {
