@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -10,9 +9,6 @@ namespace ProtolScadaRemake
     {
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
-        private DateTime _lastModeChangeRequest = DateTime.MinValue;
-        private DateTime _lastModeRetrySent = DateTime.MinValue;
-        private OperationMode? _pendingRequestedMode;
 
         public FrameGroPage()
         {
@@ -162,33 +158,33 @@ namespace ProtolScadaRemake
                 var tag = _global.Variables.GetByName("T100_MassSp");
                 if (tag != null)
                 {
-                    T100MassSpEdit.Text = NormalizeNumericValue(tag.ValueString);
+                    T100MassSpEdit.Text = tag.ValueString;
                 }
 
                 // Инициализация уставок вещества
                 tag = _global.Variables.GetByName("GRO_ManualSelitraCounterSp");
                 if (tag != null)
                 {
-                    SelitraSpEdit.Text = NormalizeNumericValue(tag.ValueString);
+                    SelitraSpEdit.Text = tag.ValueString;
                 }
 
                 tag = _global.Variables.GetByName("GRO_ManualWaterCounterSp");
                 if (tag != null)
                 {
-                    WaterSpEdit.Text = NormalizeNumericValue(tag.ValueString);
+                    WaterSpEdit.Text = tag.ValueString;
                 }
 
                 tag = _global.Variables.GetByName("GRO_ManualKislotaCounterSp");
                 if (tag != null)
                 {
-                    KislotaSpEdit.Text = NormalizeNumericValue(tag.ValueString);
+                    KislotaSpEdit.Text = tag.ValueString;
                 }
 
                 // Инициализация скорости A100
                 tag = _global.Variables.GetByName("A100_Speed");
                 if (tag != null)
                 {
-                    A100SpeedSpEdit.Text = NormalizeNumericValue(tag.ValueString);
+                    A100SpeedSpEdit.Text = tag.ValueString;
                 }
 
                 // Инициализация режима HE-700
@@ -202,17 +198,6 @@ namespace ProtolScadaRemake
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка инициализации элементов FrameGroPage: {ex.Message}");
             }
-        }
-
-        private static string NormalizeNumericValue(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return value;
-
-            // Убираем дублирующиеся единицы измерения, если они приходят вместе со значением
-            var normalized = Regex.Replace(value, @"[^0-9,.+-]", "").Trim();
-            normalized = normalized.TrimEnd('.', ',');
-            return string.IsNullOrWhiteSpace(normalized) ? value : normalized;
         }
 
         private void SubscribeToEvents()
@@ -468,40 +453,36 @@ namespace ProtolScadaRemake
         }
         private void UpdateOperationMode()
         {
-            var tag = _global.Variables.GetByName("GRO_Rejim");
+            // Получаем переменную с текущим режимом от ПЛК
+            var tag = _global?.Variables?.GetByName("GRO_Rejim");
             if (tag == null || GroModePanel == null) return;
 
+            // Значение переменной – целое (0‑16)
             int mode = (int)tag.ValueReal;
 
-            // Пока ПЛК в служебных 15/16 и есть запрошенный режим — удерживаем UI и повторяем команду
-            if ((mode == 15 || mode == 16) && _pendingRequestedMode.HasValue)
+            // Приводим целочисленное значение к нашему enum‑у OperationMode
+            OperationMode opMode = mode switch
             {
-                if (GroModePanel.CurrentMode != _pendingRequestedMode.Value)
-                    GroModePanel.SetMode(_pendingRequestedMode.Value);
-
-                if (DateTime.UtcNow - _lastModeRetrySent > TimeSpan.FromMilliseconds(700))
-                {
-                    SendGroModeCommand(_pendingRequestedMode.Value, logUserAction: false);
-                    _lastModeRetrySent = DateTime.UtcNow;
-                }
-
-                return;
-            }
-
-            OperationMode currentOperationMode = mode switch
-            {
+                // 0 – ОТКЛЮЧЕН
                 0 => OperationMode.Off,
-                1 or 3 or 4 or 5 or 6 or 7 or 8 or 15 => OperationMode.SemiAuto,
-                2 or 9 or 10 or 11 or 12 or 13 or 14 or 16 => OperationMode.Auto,
-                _ => GroModePanel.CurrentMode
+
+                // Полу‑авто (режимы 1,3‑8) – «ручной» (SemiAuto)
+                1 or 3 or 4 or 5 or 6 or 7 or 8 => OperationMode.SemiAuto,
+
+                // Авто (режимы 2,9‑14) – «автоматический» (Auto)
+                2 or 9 or 10 or 11 or 12 or 13 or 14 => OperationMode.Auto,
+
+                // Служебные состояния ПЛК (15,16). Для UI считаем их OFF,
+                // чтобы пользователь видел, что система не в работе.
+                15 or 16 => OperationMode.Off,
+
+                // По‑умолчанию – тоже OFF (защита от неожиданного кода)
+                _ => OperationMode.Off
             };
 
-            if (GroModePanel.CurrentMode != currentOperationMode)
-            {
-                GroModePanel.SetMode(currentOperationMode);
-            }
-
-            _pendingRequestedMode = null;
+            // Если панель показывает иной режим, меняем её
+            if (GroModePanel.CurrentMode != opMode)
+                GroModePanel.SetMode(opMode);
         }
 
         private void UpdatePanelsVisibility()
@@ -536,7 +517,7 @@ namespace ProtolScadaRemake
                 int mode = (int)rejimTag.ValueReal;
 
                 // Управление видимостью панелей
-                bool isOff = mode == 0;
+                bool isOff = mode == 0 || mode == 15 || mode == 16;
 
                 // Панель вещества - скрываем в режиме OFF
                 if (SubstancePanel != null)
@@ -572,19 +553,19 @@ namespace ProtolScadaRemake
                 var tag = _global.Variables.GetByName("GRO_ManualSelitraCounter");
                 if (tag != null && GRO_ManualSelitraCounterEdit != null)
                 {
-                    GRO_ManualSelitraCounterEdit.Text = NormalizeNumericValue(tag.ValueString);
+                    GRO_ManualSelitraCounterEdit.Text = tag.ValueString;
                 }
 
                 tag = _global.Variables.GetByName("GRO_ManualWaterCounter");
                 if (tag != null && GRO_ManualWaterCounterEdit != null)
                 {
-                    GRO_ManualWaterCounterEdit.Text = NormalizeNumericValue(tag.ValueString);
+                    GRO_ManualWaterCounterEdit.Text = tag.ValueString;
                 }
 
                 tag = _global.Variables.GetByName("GRO_ManualKislotaCounter");
                 if (tag != null && GRO_ManualKislotaCounterEdit != null)
                 {
-                    GRO_ManualKislotaCounterEdit.Text = NormalizeNumericValue(tag.ValueString);
+                    GRO_ManualKislotaCounterEdit.Text = tag.ValueString;
                 }
             }
             catch (Exception ex)
@@ -676,7 +657,7 @@ namespace ProtolScadaRemake
                 pump.VarName = varName;
                 pump.Description = description;
                 pump.TagName = tagName;
-                pump.UpdateElement();;
+                pump.UpdateElement(); ;
             }
         }
 
@@ -858,8 +839,6 @@ namespace ProtolScadaRemake
 
         private void GroModePanel_ModeChanged(object sender, OperationMode mode)
         {
-            _pendingRequestedMode = mode;
-            _lastModeRetrySent = DateTime.MinValue;
             SendGroModeCommand(mode, logUserAction: true);
 
             // Мгновенно отражаем выбор пользователя, затем ПЛК подтвердит фактическим режимом
@@ -885,11 +864,7 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
-                    command.SendToController();
-                    _lastModeChangeRequest = DateTime.UtcNow;
-
-                    if (logUserAction)
-                        _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
+                    _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
                 }
             }
             catch (Exception ex)
