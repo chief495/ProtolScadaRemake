@@ -277,8 +277,8 @@ namespace ProtolScadaRemake
 
                             if (accessText != null)
                             {
-                                accessText.Text = "ON";
-                                accessText.Foreground = new SolidColorBrush(Color.FromRgb(150, 255, 150));
+                                accessText.Text = "АДМИН";
+                                accessText.Foreground = new SolidColorBrush(Color.FromRgb(255, 220, 90));
                             }
 
                             if (accessBorder != null)
