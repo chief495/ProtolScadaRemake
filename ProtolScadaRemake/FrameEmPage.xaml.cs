@@ -30,6 +30,7 @@ namespace ProtolScadaRemake
             _repaintTimer.Interval = TimeSpan.FromMilliseconds(100);
             _repaintTimer.Tick += RepaintTimer_Tick;
 
+            UpdateOperationMode();
             UpdatePanelsVisibility();
 
             // Подписка на события
@@ -40,6 +41,7 @@ namespace ProtolScadaRemake
 
         private void FrameEmPage_Loaded(object sender, RoutedEventArgs e)
         {
+            UpdateOperationMode();
             UpdatePanelsVisibility();
             // Запуск таймера после загрузки
             _repaintTimer?.Start();
@@ -142,7 +144,10 @@ namespace ProtolScadaRemake
                 // 4. Обновление ModePanel (если нужно)
                 UpdateModePanelIfNeeded();
 
-                // 5. Обновление видимости панелей по режиму
+                // 5. Синхронизация переключателей режима по текущему EM_Rejim
+                UpdateOperationMode();
+
+                // 6. Обновление видимости панелей по режиму
                 UpdatePanelsVisibility();
 
             }
@@ -438,6 +443,24 @@ namespace ProtolScadaRemake
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка UpdateModePanelButtons: {ex.Message}");
+            }
+        }
+
+        private void UpdateOperationMode()
+        {
+            var tag = _global?.Variables?.GetByName("EM_Rejim");
+            if (tag == null || EmModePanel == null) return;
+
+            int mode = (int)tag.ValueReal;
+
+            // У EM фактически два режима на панели: OFF и AUTO
+            OperationMode currentOperationMode = mode == 0
+                ? OperationMode.Off
+                : OperationMode.Auto;
+
+            if (EmModePanel.CurrentMode != currentOperationMode)
+            {
+                EmModePanel.SetMode(currentOperationMode);
             }
         }
 
