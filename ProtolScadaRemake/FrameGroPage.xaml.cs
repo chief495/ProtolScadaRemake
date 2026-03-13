@@ -453,26 +453,36 @@ namespace ProtolScadaRemake
         }
         private void UpdateOperationMode()
         {
-            var tag = _global.Variables.GetByName("GRO_Rejim");
+            // Получаем переменную с текущим режимом от ПЛК
+            var tag = _global?.Variables?.GetByName("GRO_Rejim");
             if (tag == null || GroModePanel == null) return;
 
+            // Значение переменной – целое (0‑16)
             int mode = (int)tag.ValueReal;
 
-            OperationMode currentOperationMode = mode switch
+            // Приводим целочисленное значение к нашему enum‑у OperationMode
+            OperationMode opMode = mode switch
             {
-                OperationMode currentOperationMode = mode switch
-                {
-                    0 => OperationMode.Off,
-                    1 or 3 or 4 or 5 or 6 or 7 or 8 => OperationMode.SemiAuto,
-                    2 or 9 or 10 or 11 or 12 or 13 or 14 => OperationMode.Auto,
-                    15 or 16 => OperationMode.Off,
-                    _ => OperationMode.Off
-                };
+                // 0 – ОТКЛЮЧЕН
+                0 => OperationMode.Off,
 
-            if (GroModePanel.CurrentMode != currentOperationMode)
-            {
-                GroModePanel.SetMode(currentOperationMode);
-            }
+                // Полу‑авто (режимы 1,3‑8) – «ручной» (SemiAuto)
+                1 or 3 or 4 or 5 or 6 or 7 or 8 => OperationMode.SemiAuto,
+
+                // Авто (режимы 2,9‑14) – «автоматический» (Auto)
+                2 or 9 or 10 or 11 or 12 or 13 or 14 => OperationMode.Auto,
+
+                // Служебные состояния ПЛК (15,16). Для UI считаем их OFF,
+                // чтобы пользователь видел, что система не в работе.
+                15 or 16 => OperationMode.Off,
+
+                // По‑умолчанию – тоже OFF (защита от неожиданного кода)
+                _ => OperationMode.Off
+            };
+
+            // Если панель показывает иной режим, меняем её
+            if (GroModePanel.CurrentMode != opMode)
+                GroModePanel.SetMode(opMode);
         }
 
         private void UpdatePanelsVisibility()
