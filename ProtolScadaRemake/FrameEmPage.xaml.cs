@@ -697,13 +697,13 @@ namespace ProtolScadaRemake
                 string commandName = mode switch
                 {
                     OperationMode.Off => "EM_RejimToOff",
-                    OperationMode.SemiAuto => "EM_RejimToAuto",
+                    OperationMode.SemiAuto => "EM_RejimToManual",
                     OperationMode.Auto => "EM_RejimToAuto",
                     _ => "EM_RejimToOff"
                 };
 
                 TCommandTag command = _global.Commands.GetByName(commandName);
-                if (command != null)
+                if (command == null)
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
@@ -711,6 +711,12 @@ namespace ProtolScadaRemake
                     EmModePanel?.SetMode(mode);
                     _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
                 }
+
+                command.WriteValue = "true";
+                command.NeedToWrite = true;
+                command.SendToController();
+                EmModePanel?.SetMode(mode);
+                _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
             }
             catch (Exception ex)
             {
