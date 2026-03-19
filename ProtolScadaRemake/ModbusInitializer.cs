@@ -493,6 +493,7 @@ namespace ProtolScadaRemake
             global.Commands.Add("EM_Unload_Sp", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x08F3, "Float_32", "##0.###", "Режим отгрузки продукта. Задание");
             global.Variables.Add("EM_Unload_Speed", 0x18, 0x0025, 1, "Float_32", "", "##0.##", " кг./сек.", "Режим отгрузки продукта. Скорость");
             global.Variables.Add("EM_UnloadCounter", 0x18, 0x0027, 1, "Float_32", "", "##0.##", " кг.", "Режим отгрузки продукта. Отгружено");
+            global.Variables.Add("EM_Unload_TimeSp", 0x18, 0x0029, 1, "Float_32", "", "##0", " сек.", "Режим отгрузки продукта по времени. Задание времени");
             global.Commands.Add("EM_Unload_TimeStart", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x08F9, "Bool", "Нет;Да", "Режим отгрузки продукта по времени. Пуск");
             global.Commands.Add("EM_Unload_TimeStop", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x08FA, "Bool", "Нет;Да", "Режим отгрузки продукта по времени. Стоп");
             global.Variables.Add("EM_UnloadTorirovanieTime", 0x18, 0x002C, 1, "Float_32", "", "##0", " сек.", "Режим отгрузки продукта. Торирование. Время торирования");

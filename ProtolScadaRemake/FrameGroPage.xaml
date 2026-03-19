@@ -426,7 +426,7 @@
                                 Margin="0,5"/>
                 </StackPanel>
                 <StackPanel Margin="0,0,0,15">
-                    <TextBlock Text="Уставка (кг):" 
+                    <TextBlock Text="Уставка:" 
                                Foreground="White"
                                FontWeight="Bold"
                                FontSize="12"
