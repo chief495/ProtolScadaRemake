@@ -25,13 +25,14 @@ namespace ProtolScadaRemake
             set
             {
                 _eu = value;
-                TextEU1.Content = _eu;
-                TextEU2.Content = _eu;
-                TextEU3.Content = _eu;
-                TextEU4.Content = _eu;
-                TextEU5.Content = _eu;
-                TextEU6.Content = _eu;
-                ManualValueUnits.Content = _eu;
+                string euWithArrows = string.IsNullOrWhiteSpace(_eu) ? "▲▼" : $"{_eu} ▲▼";
+                TextEU1.Content = euWithArrows;
+                TextEU2.Content = euWithArrows;
+                TextEU3.Content = euWithArrows;
+                TextEU4.Content = euWithArrows;
+                TextEU5.Content = euWithArrows;
+                TextEU6.Content = euWithArrows;
+                ManualValueUnits.Content = euWithArrows;
             }
         }
 
