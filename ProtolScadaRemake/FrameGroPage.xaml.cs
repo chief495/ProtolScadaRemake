@@ -11,6 +11,8 @@ namespace ProtolScadaRemake
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
         private DateTime _lastModeChangeRequest = DateTime.MinValue;
+        private DateTime _lastModeRetrySent = DateTime.MinValue;
+        private OperationMode? _pendingRequestedMode;
 
         public FrameGroPage()
         {
@@ -167,19 +169,19 @@ namespace ProtolScadaRemake
                 tag = _global.Variables.GetByName("GRO_ManualSelitraCounterSp");
                 if (tag != null)
                 {
-                    SelitraSpEdit.Text = NormalizeNumericValue(tag.ValueString);
+                    SelitraSpEdit.Text = tag.ValueString;
                 }
 
                 tag = _global.Variables.GetByName("GRO_ManualWaterCounterSp");
                 if (tag != null)
                 {
-                    WaterSpEdit.Text = NormalizeNumericValue(tag.ValueString);
+                    WaterSpEdit.Text = tag.ValueString;
                 }
 
                 tag = _global.Variables.GetByName("GRO_ManualKislotaCounterSp");
                 if (tag != null)
                 {
-                    KislotaSpEdit.Text = NormalizeNumericValue(tag.ValueString);
+                    KislotaSpEdit.Text = tag.ValueString;
                 }
 
                 // Инициализация скорости A100
@@ -209,6 +211,7 @@ namespace ProtolScadaRemake
 
             // Убираем дублирующиеся единицы измерения, если они приходят вместе со значением
             var normalized = Regex.Replace(value, @"[^0-9,.+-]", "").Trim();
+            normalized = normalized.TrimEnd('.', ',');
             return string.IsNullOrWhiteSpace(normalized) ? value : normalized;
         }
 
@@ -463,34 +466,42 @@ namespace ProtolScadaRemake
                 System.Diagnostics.Debug.WriteLine($"Ошибка сброса команд: {ex.Message}");
             }
         }
-
         private void UpdateOperationMode()
         {
             var tag = _global.Variables.GetByName("GRO_Rejim");
-            if (tag == null) return;
+            if (tag == null || GroModePanel == null) return;
 
             int mode = (int)tag.ValueReal;
 
-            // Синхронизируем панель режимов с текущим режимом
-            if (GroModePanel != null)
+            // Пока ПЛК в служебных 15/16 и есть запрошенный режим — удерживаем UI и повторяем команду
+            if ((mode == 15 || mode == 16) && _pendingRequestedMode.HasValue)
             {
-                // 15/16 - служебные состояния ПЛК, не перезаписываем выбор пользователя
-                if (mode == 15 || mode == 16)
-                    return;
+                if (GroModePanel.CurrentMode != _pendingRequestedMode.Value)
+                    GroModePanel.SetMode(_pendingRequestedMode.Value);
 
-                OperationMode currentOperationMode = mode switch
+                if (DateTime.UtcNow - _lastModeRetrySent > TimeSpan.FromMilliseconds(700))
                 {
-                    0 => OperationMode.Off,
-                    1 or 3 or 4 or 5 or 6 or 7 or 8 => OperationMode.SemiAuto,
-                    2 or 9 or 10 or 11 or 12 or 13 or 14 => OperationMode.Auto,
-                    _ => OperationMode.Off
-                };
-
-                if (GroModePanel.CurrentMode != currentOperationMode)
-                {
-                    GroModePanel.SetMode(currentOperationMode);
+                    SendGroModeCommand(_pendingRequestedMode.Value, logUserAction: false);
+                    _lastModeRetrySent = DateTime.UtcNow;
                 }
+
+                return;
             }
+
+            OperationMode currentOperationMode = mode switch
+            {
+                0 => OperationMode.Off,
+                1 or 3 or 4 or 5 or 6 or 7 or 8 or 15 => OperationMode.SemiAuto,
+                2 or 9 or 10 or 11 or 12 or 13 or 14 or 16 => OperationMode.Auto,
+                _ => GroModePanel.CurrentMode
+            };
+
+            if (GroModePanel.CurrentMode != currentOperationMode)
+            {
+                GroModePanel.SetMode(currentOperationMode);
+            }
+
+            _pendingRequestedMode = null;
         }
 
         private void UpdatePanelsVisibility()
@@ -510,6 +521,15 @@ namespace ProtolScadaRemake
                     if (TransportPanel != null)
                         TransportPanel.Visibility = Visibility.Collapsed;
 
+                    if (A100SpeedPanel != null)
+                        A100SpeedPanel.Visibility = Visibility.Collapsed;
+
+                    if (HE700Panel != null)
+                        HE700Panel.Visibility = Visibility.Collapsed;
+
+                    if (T100MassPanel != null)
+                        T100MassPanel.Visibility = Visibility.Collapsed;
+
                     return;
                 }
 
@@ -526,17 +546,15 @@ namespace ProtolScadaRemake
                 if (TransportPanel != null)
                     TransportPanel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
 
-                // Панель скорости A100 - всегда видна
+                // Эти панели также скрываем в режиме OFF
                 if (A100SpeedPanel != null)
-                    A100SpeedPanel.Visibility = Visibility.Visible;
+                    A100SpeedPanel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
 
-                // Панель HE-700 - всегда видна
                 if (HE700Panel != null)
-                    HE700Panel.Visibility = Visibility.Visible;
+                    HE700Panel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
 
-                // Панель массы Т-100 - всегда видна
                 if (T100MassPanel != null)
-                    T100MassPanel.Visibility = Visibility.Visible;
+                    T100MassPanel.Visibility = isOff ? Visibility.Collapsed : Visibility.Visible;
 
                 System.Diagnostics.Debug.WriteLine($"GRO режим: {mode}, панели видимы: {!isOff}");
             }
@@ -560,13 +578,13 @@ namespace ProtolScadaRemake
                 tag = _global.Variables.GetByName("GRO_ManualWaterCounter");
                 if (tag != null && GRO_ManualWaterCounterEdit != null)
                 {
-                    GRO_ManualWaterCounterEdit.Text = NormalizeNumericValue(tag.ValueString);
+                    GRO_ManualWaterCounterEdit.Text = tag.ValueString;
                 }
 
                 tag = _global.Variables.GetByName("GRO_ManualKislotaCounter");
                 if (tag != null && GRO_ManualKislotaCounterEdit != null)
                 {
-                    GRO_ManualKislotaCounterEdit.Text = NormalizeNumericValue(tag.ValueString);
+                    GRO_ManualKislotaCounterEdit.Text = tag.ValueString;
                 }
             }
             catch (Exception ex)
@@ -840,6 +858,16 @@ namespace ProtolScadaRemake
 
         private void GroModePanel_ModeChanged(object sender, OperationMode mode)
         {
+            _pendingRequestedMode = mode;
+            _lastModeRetrySent = DateTime.MinValue;
+            SendGroModeCommand(mode, logUserAction: true);
+
+            // Мгновенно отражаем выбор пользователя, затем ПЛК подтвердит фактическим режимом
+            GroModePanel?.SetMode(mode);
+        }
+
+        private void SendGroModeCommand(OperationMode mode, bool logUserAction)
+        {
             if (_global == null) return;
 
             try
@@ -857,8 +885,11 @@ namespace ProtolScadaRemake
                 {
                     command.WriteValue = "true";
                     command.NeedToWrite = true;
-                    _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
+                    command.SendToController();
                     _lastModeChangeRequest = DateTime.UtcNow;
+
+                    if (logUserAction)
+                        _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
                 }
             }
             catch (Exception ex)
@@ -922,7 +953,7 @@ namespace ProtolScadaRemake
                     TCommandTag spCommand = _global.Commands.GetByName("GRO_ManualSelitraCounterSp");
                     if (spCommand != null && SelitraSpEdit != null)
                     {
-                        spCommand.WriteValue = SelitraSpEdit.Text;
+                        spCommand.WriteValue = NormalizeNumericValue(SelitraSpEdit.Text);
                         spCommand.NeedToWrite = true;
                     }
 
@@ -939,7 +970,7 @@ namespace ProtolScadaRemake
                     TCommandTag spCommand = _global.Commands.GetByName("GRO_ManualWaterCounterSp");
                     if (spCommand != null && WaterSpEdit != null)
                     {
-                        spCommand.WriteValue = WaterSpEdit.Text;
+                        spCommand.WriteValue = NormalizeNumericValue(WaterSpEdit.Text);
                         spCommand.NeedToWrite = true;
                     }
 
@@ -956,7 +987,7 @@ namespace ProtolScadaRemake
                     TCommandTag spCommand = _global.Commands.GetByName("GRO_ManualKislotaCounterSp");
                     if (spCommand != null && KislotaSpEdit != null)
                     {
-                        spCommand.WriteValue = KislotaSpEdit.Text;
+                        spCommand.WriteValue = NormalizeNumericValue(KislotaSpEdit.Text);
                         spCommand.NeedToWrite = true;
                     }
 

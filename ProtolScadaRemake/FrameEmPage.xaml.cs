@@ -10,6 +10,10 @@ namespace ProtolScadaRemake
     {
         private TGlobal _global;
         private DispatcherTimer _repaintTimer;
+        private OperationMode? _pendingModeRequest;
+        private DateTime _pendingModeRequestAt = DateTime.MinValue;
+        private bool _panelsEventsAttached;
+        private bool _isTorirovanieDialogOpen;
 
         public FrameEmPage()
         {
@@ -144,7 +148,6 @@ namespace ProtolScadaRemake
 
                 // 5. Обновление видимости панелей по режиму
                 UpdatePanelsVisibility();
-
             }
             catch (Exception ex)
             {
@@ -259,7 +262,6 @@ namespace ProtolScadaRemake
                 StartupPanelControl?.UpdateFromGlobal();
                 PerformancePanelControl?.UpdateFromGlobal();
                 UnloadPanelControl?.UpdateFromGlobal();
-
             }
             catch (Exception ex)
             {
@@ -282,12 +284,41 @@ namespace ProtolScadaRemake
 
                     // Обновляем статусы в ModePanel (если там есть элементы для отображения)
                     UpdateModePanelStatus(rejimValue);
+                    UpdateOperationModeFromPlc(rejimValue);
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка обновления ModePanel: {ex.Message}");
             }
+        }
+
+
+        private void UpdateOperationModeFromPlc(double rejimValue)
+        {
+            if (EmModePanel == null) return;
+
+            OperationMode mode = rejimValue switch
+            {
+                0 => OperationMode.Off,
+                1 or 2 => OperationMode.SemiAuto,
+                _ => OperationMode.Auto
+            };
+
+            if (_pendingModeRequest == OperationMode.SemiAuto
+                && DateTime.UtcNow - _pendingModeRequestAt < TimeSpan.FromSeconds(5)
+                && rejimValue > 0 && rejimValue <= 2)
+            {
+                mode = OperationMode.SemiAuto;
+            }
+
+            if (EmModePanel.CurrentMode != mode)
+            {
+                EmModePanel.SetMode(mode);
+            }
+
+            if (mode == OperationMode.Off || mode == OperationMode.Auto)
+                _pendingModeRequest = null;
         }
 
         private void UpdateModePanelStatus(double rejimValue)
@@ -311,10 +342,10 @@ namespace ProtolScadaRemake
                             currStageLabel.Text = "OFF";
                             currStageLabel.Foreground = Brushes.White;
                             break;
-                        case 1: // Автомат - OFF
-                            currRejimLabel.Text = "Автомат";
-                            currRejimLabel.Foreground = Brushes.LimeGreen;
-                            currStageLabel.Text = "OFF";
+                        case 1: // Полуавтомат
+                            currRejimLabel.Text = "Полуавтомат";
+                            currRejimLabel.Foreground = Brushes.Gold;
+                            currStageLabel.Text = "Ожидание";
                             currStageLabel.Foreground = Brushes.White;
                             break;
                         case 2: // Автомат - Затравка. Выход на режим.
@@ -380,7 +411,6 @@ namespace ProtolScadaRemake
 
                 // Также можно обновить кнопки в ModePanel
                 UpdateModePanelButtons(rejimValue);
-
             }
             catch (Exception ex)
             {
@@ -475,6 +505,10 @@ namespace ProtolScadaRemake
         {
             try
             {
+                if (_panelsEventsAttached)
+                {
+                    return;
+                }
                 // Установка глобального объекта для панелей (если у них есть свойство Global)
                 if (StartupPanelControl != null)
                 {
@@ -521,7 +555,7 @@ namespace ProtolScadaRemake
                     UnloadPanelControl.MassModeClick += UnloadPanel_MassModeClick;
                     UnloadPanelControl.TorirovanieButtonClick += UnloadPanel_TorirovanieButtonClick;
                 }
-
+                _panelsEventsAttached = true;
             }
             catch (Exception ex)
             {
@@ -655,22 +689,38 @@ namespace ProtolScadaRemake
                 string commandName = mode switch
                 {
                     OperationMode.Off => "EM_RejimToOff",
-                    OperationMode.SemiAuto => "EM_RejimToAuto",
+                    OperationMode.SemiAuto => "EM_RejimToManual",
                     OperationMode.Auto => "EM_RejimToAuto",
                     _ => "EM_RejimToOff"
                 };
 
                 TCommandTag command = _global.Commands.GetByName(commandName);
-                if (command != null)
+
+                if (command == null && mode == OperationMode.SemiAuto)
                 {
-                    command.WriteValue = "true";
-                    command.NeedToWrite = true;
-                    _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
+                    // Fallback для конфигураций, где отдельной команды полуавто нет
+                    command = _global.Commands.GetByName("EM_RejimToAuto");
                 }
+
+                if (command == null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Команда режима EM не найдена: {commandName}");
+                    return;
+                }
+
+                command.WriteValue = "true";
+                command.NeedToWrite = true;
+                command.SendToController();
+
+                _pendingModeRequest = mode;
+                _pendingModeRequestAt = DateTime.UtcNow;
+
+                EmModePanel?.SetMode(mode);
+                _global.Log.Add("Пользователь", $"Переход в режим {mode}", 1);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка изменения режима GRO: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка изменения режима EM: {ex.Message}");
             }
         }
 
@@ -747,19 +797,28 @@ namespace ProtolScadaRemake
 
         private void UnloadPanel_TorirovanieButtonClick(object sender, RoutedEventArgs e)
         {
+            if (_isTorirovanieDialogOpen)
+            {
+                return;
+            }
+
             try
             {
-                var dialog = new DialogTorirovanie(_global);
-                var parentWindow = Window.GetWindow(this);
-                if (parentWindow != null)
+                _isTorirovanieDialogOpen = true;
+                var dialog = new DialogTorirovanie(_global)
                 {
-                    dialog.Owner = parentWindow;
-                }
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen
+                };
+
                 dialog.ShowDialog();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка открытия диалога тарирования: {ex.Message}");
+            }
+            finally
+            {
+                _isTorirovanieDialogOpen = false;
             }
         }
 

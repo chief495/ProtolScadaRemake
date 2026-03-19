@@ -7,7 +7,7 @@
         Title="Тарирование" 
         Height="580" 
         Width="420"
-        WindowStartupLocation="CenterOwner"
+        WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         WindowStyle="None"
         AllowsTransparency="True"

@@ -219,49 +219,9 @@ namespace ProtolScadaRemake
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // Позиционирование окна по центру курсора как в старом проекте
-            try
-            {
-                var cursorPos = Win32.GetCursorPosition();
-                this.Left = cursorPos.X - this.Width / 2;
-                this.Top = cursorPos.Y - this.Height / 2;
-
-                // Проверка границ экрана
-                var screenWidth = SystemParameters.PrimaryScreenWidth;
-                var screenHeight = SystemParameters.PrimaryScreenHeight;
-
-                if (this.Left < 0) this.Left = 0;
-                if (this.Top < 0) this.Top = 0;
-                if (this.Left + this.Width > screenWidth) this.Left = screenWidth - this.Width;
-                if (this.Top + this.Height > screenHeight) this.Top = screenHeight - this.Height;
-
-                // Закрытие других экземпляров этой формы
-                CloseOtherInstances();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Ошибка загрузки окна тарирования: {ex.Message}");
-                this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            }
+            WindowStartupLocation = WindowStartupLocation.CenterScreen;
         }
 
-        private void CloseOtherInstances()
-        {
-            try
-            {
-                foreach (Window window in Application.Current.Windows)
-                {
-                    if (window != this && window is DialogTorirovanie)
-                    {
-                        window.Close();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Ошибка закрытия других экземпляров: {ex.Message}");
-            }
-        }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -278,27 +238,6 @@ namespace ProtolScadaRemake
             {
                 DragMove();
             }
-        }
-    }
-
-    // Вспомогательный класс для работы с курсором (аналог Cursor.Position из WinForms)
-    public static class Win32
-    {
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
-        private static extern bool GetCursorPos(out POINT lpPoint);
-
-        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-        public struct POINT
-        {
-            public int X;
-            public int Y;
-        }
-
-        public static System.Windows.Point GetCursorPosition()
-        {
-            GetCursorPos(out POINT lpPoint);
-            return new System.Windows.Point(lpPoint.X, lpPoint.Y);
         }
     }
 }
