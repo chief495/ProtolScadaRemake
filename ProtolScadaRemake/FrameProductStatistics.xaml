@@ -158,7 +158,7 @@
 
                             <!-- Единицы измерения (кг) -->
                             <TextBlock Grid.Column="2" 
-                                       Text="кг"
+                                       Text=""
                                        Style="{StaticResource UnitStyle}"/>
                         </Grid>
 
@@ -192,7 +192,7 @@
 
                             <!-- Единицы измерения (кг) -->
                             <TextBlock Grid.Column="2" 
-                                       Text="кг"
+                                       Text=""
                                        Style="{StaticResource UnitStyle}"/>
                         </Grid>
 

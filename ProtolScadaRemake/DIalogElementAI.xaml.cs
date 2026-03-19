@@ -25,13 +25,14 @@ namespace ProtolScadaRemake
             set
             {
                 _eu = value;
-                TextEU1.Content = _eu;
-                TextEU2.Content = _eu;
-                TextEU3.Content = _eu;
-                TextEU4.Content = _eu;
-                TextEU5.Content = _eu;
-                TextEU6.Content = _eu;
-                ManualValueUnits.Content = _eu;
+                string euText = string.IsNullOrWhiteSpace(_eu) ? string.Empty : _eu;
+                TextEU1.Content = euText;
+                TextEU2.Content = euText;
+                TextEU3.Content = euText;
+                TextEU4.Content = euText;
+                TextEU5.Content = euText;
+                TextEU6.Content = euText;
+                ManualValueUnits.Content = euText;
             }
         }
 
@@ -81,14 +82,35 @@ namespace ProtolScadaRemake
                 LoadNumericValue(LowCurrNumeric, VarName + "_LowCurr");
                 LoadNumericValue(HiCurrNumeric, VarName + "_HiCurr");
 
-                // Доступ
-                GroupBox2.IsEnabled = Global.Access;
-                GroupBox3.IsEnabled = Global.Access;
+                // Ограничение без пароля: блокируем только ручной режим и min/max у AI
+                ApplyAccessRestrictions();
             }
             finally
             {
                 _isInitializing = false;
             }
+        }
+
+
+        private void ApplyAccessRestrictions()
+        {
+            bool hasAccess = Global?.Access == true;
+
+            if (RBManual != null)
+                RBManual.IsEnabled = hasAccess;
+
+            if (ManualValueNumeric != null)
+                ManualValueNumeric.IsEnabled = hasAccess;
+
+            if (HFNumeric != null) HFNumeric.IsEnabled = hasAccess;
+            if (HWNumeric != null) HWNumeric.IsEnabled = hasAccess;
+            if (LWNumeric != null) LWNumeric.IsEnabled = hasAccess;
+            if (LFNumeric != null) LFNumeric.IsEnabled = hasAccess;
+
+            if (LowLevelNumeric != null) LowLevelNumeric.IsEnabled = hasAccess;
+            if (HiLevelNumeric != null) HiLevelNumeric.IsEnabled = hasAccess;
+            if (LowCurrNumeric != null) LowCurrNumeric.IsEnabled = hasAccess;
+            if (HiCurrNumeric != null) HiCurrNumeric.IsEnabled = hasAccess;
         }
 
         private void LoadNumericValue(NumericUpDown numeric, string varName)
@@ -113,7 +135,7 @@ namespace ProtolScadaRemake
         private void SendCommand(string commandSuffix, string value, string logMessage)
         {
             if (_isInitializing) return;
-            if (Global == null || !Global.Access) return;
+            if (Global == null) return;
 
             string fullCommandName = VarName + commandSuffix;
             TCommandTag command = Global.Commands.GetByName(fullCommandName);
@@ -177,7 +199,7 @@ namespace ProtolScadaRemake
         private void RBManual_Checked(object sender, RoutedEventArgs e)
         {
             if (_isInitializing) return;
-            if (Global == null || !Global.Access) return;
+            if (Global == null) return;
             if (RBManual.IsChecked != true) return;
 
             // ПОКАЗЫВАЕМ панель ручного значения
@@ -194,7 +216,7 @@ namespace ProtolScadaRemake
         private void RBAuto_Checked(object sender, RoutedEventArgs e)
         {
             if (_isInitializing) return;
-            if (Global == null || !Global.Access) return;
+            if (Global == null) return;
             if (RBAuto.IsChecked != true) return;
 
             // СКРЫВАЕМ панель ручного значения
