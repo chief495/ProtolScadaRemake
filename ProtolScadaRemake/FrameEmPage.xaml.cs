@@ -593,6 +593,11 @@ namespace ProtolScadaRemake
         private void UnloadPanel_MassModeClick(object sender, RoutedEventArgs e) => SendCommand("EM_Unloading_MassButton", "true");
         private void UnloadPanel_TorirovanieButtonClick(object sender, RoutedEventArgs e)
         {
+            if (_isTorirovanieDialogOpen)
+            {
+                return;
+            }
+
             try
             {
                 var dialog = new DialogTorirovanie(_global);
@@ -603,6 +608,10 @@ namespace ProtolScadaRemake
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка открытия диалога тарирования: {ex.Message}");
+            }
+            finally
+            {
+                _isTorirovanieDialogOpen = false;
             }
         }
 

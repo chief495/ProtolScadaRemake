@@ -59,7 +59,7 @@
                              Margin="50,0,0,0" 
                              HorizontalAlignment="Center" 
                              VerticalAlignment="Center"/>
-                    <mah:NumericUpDown x:Name="ManualSpeedNumeric" 
+                    <mah:NumericUpDown HideUpDownButtons="True" x:Name="ManualSpeedNumeric" 
                                      Width="105" 
                                      Background="White" 
                                      Maximum="100" 
@@ -81,7 +81,7 @@
                              Width="123" 
                              VerticalAlignment="Center" 
                              Margin="10,0,0,0"/>
-                    <mah:NumericUpDown x:Name="StartTimeNumeric" 
+                    <mah:NumericUpDown HideUpDownButtons="True" x:Name="StartTimeNumeric" 
                                      Width="155" 
                                      Height="23" 
                                      Background="White" 
@@ -102,7 +102,7 @@
                              Width="123" 
                              VerticalAlignment="Center" 
                              Margin="10,0,0,0"/>
-                    <mah:NumericUpDown x:Name="StopTimeNumeric" 
+                    <mah:NumericUpDown HideUpDownButtons="True" x:Name="StopTimeNumeric" 
                                      Width="155" 
                                      Height="23" 
                                      Background="White" 

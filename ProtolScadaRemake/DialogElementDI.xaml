@@ -73,14 +73,14 @@
                 </StackPanel>
                 <StackPanel Width="105" Height="59" Margin="-7,13,-1,0">
                     <!-- ДОБАВЛЕНЫ обработчики ValueChanged -->
-                    <mah:NumericUpDown x:Name="OnDelayNumeric" 
+                    <mah:NumericUpDown HideUpDownButtons="True" x:Name="OnDelayNumeric" 
                                      Margin="0,2,-7,0" 
                                      Width="96" 
                                      Background="White" 
                                      FontFamily="Arial" 
                                      FontSize="10"
                                      ValueChanged="OnDelayNumeric_ValueChanged"/>
-                    <mah:NumericUpDown x:Name="OffDelayNumeric" 
+                    <mah:NumericUpDown HideUpDownButtons="True" x:Name="OffDelayNumeric" 
                                      Margin="7,2,0,0" 
                                      Width="95"  
                                      Background="White" 
