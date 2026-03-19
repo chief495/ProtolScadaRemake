@@ -97,7 +97,7 @@
                                  Margin="5,0,5,0"/>
 
                         <TextBlock Grid.Column="2"
-                                   Text="%"
+                                   Text=""
                                    FontSize="11"
                                    Foreground="White"
                                    VerticalAlignment="Center"/>
@@ -131,7 +131,7 @@
 
                         <TextBlock x:Name="AmountUnit"
                                    Grid.Column="2"
-                                   Text="сек"
+                                   Text=""
                                    FontSize="11"
                                    Foreground="White"
                                    VerticalAlignment="Center"/>

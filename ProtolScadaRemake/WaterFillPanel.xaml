@@ -50,7 +50,7 @@
                          TextChanged="VolumeTextBox_TextChanged"/>
 
                 <TextBlock Grid.Column="2"
-                           Text="л"
+                           Text=""
                            FontSize="12"
                            Foreground="White"
                            VerticalAlignment="Center"/>
