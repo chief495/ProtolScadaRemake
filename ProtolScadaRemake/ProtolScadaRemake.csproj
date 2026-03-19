@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>ProtolLogo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -67,6 +68,10 @@
     <None Remove="Images\TopNavigation\ТcActive.png" />
     <None Remove="Images\TopNavigation\ТcDeactive.png" />
     <None Remove="Images\TopNavigation\ТcMove.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="ProtolLogo.ico" />
   </ItemGroup>
 
    <ItemGroup>
