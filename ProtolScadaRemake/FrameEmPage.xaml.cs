@@ -217,6 +217,24 @@ namespace ProtolScadaRemake
             }
         }
 
+
+        private void UpdateOperationModeFromPlc(double rejimValue)
+        {
+            if (EmModePanel == null) return;
+
+            OperationMode mode = rejimValue switch
+            {
+                0 => OperationMode.Off,
+                1 => OperationMode.SemiAuto,
+                _ => OperationMode.Auto
+            };
+
+            if (EmModePanel.CurrentMode != mode)
+            {
+                EmModePanel.SetMode(mode);
+            }
+        }
+
         private void UpdateModePanelStatus(double rejimValue)
         {
             try

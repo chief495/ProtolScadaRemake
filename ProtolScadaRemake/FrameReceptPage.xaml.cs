@@ -271,7 +271,9 @@ namespace ProtolScadaRemake.Controls
                 var compressorTag = _global.Variables.GetByName("Compressor_Start");
                 if (compressorTag != null)
                 {
-                    if (compressorTag.ValueReal > 0)
+                    bool compressorOn = compressorTag.ValueReal > 0;
+
+                    if (compressorOn)
                     {
                         CompressorStatus.Text = "ВКЛЮЧЕН";
                         CompressorStatus.Background = Brushes.Green;
@@ -280,6 +282,16 @@ namespace ProtolScadaRemake.Controls
                     {
                         CompressorStatus.Text = "ОТКЛЮЧЕН";
                         CompressorStatus.Background = Brushes.Gray;
+                    }
+
+                    if (CompressorPressurePanel != null)
+                        CompressorPressurePanel.Visibility = compressorOn ? Visibility.Visible : Visibility.Collapsed;
+
+                    if (compressorOn && CompressorPressureText != null)
+                    {
+                        var pressureTag = _global.Variables.GetByName("EM_ReceptAlarmPressure");
+                        if (pressureTag != null)
+                            CompressorPressureText.Text = pressureTag.ValueString;
                     }
                 }
             }
