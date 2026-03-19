@@ -590,9 +590,12 @@ namespace ProtolScadaRemake.Controls
 
         #region Автонастройка PID
 
-        private void SendCommand(string commandName, string value, string logMessage)
+        private void SendCommand(string commandName, string value, string logMessage, bool requireAccess = true)
         {
-            if (_global == null || !_global.Access)
+            if (_global == null)
+                return;
+
+            if (requireAccess && !_global.Access)
             {
                 MessageBox.Show("Нет доступа!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -614,19 +617,19 @@ namespace ProtolScadaRemake.Controls
 
         private void P601TuneButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("P601_PID_Tune", "true", "Автонастройка PID‑регулятора P‑601");
+            SendCommand("P601_PID_Tune", "true", "Автонастройка PID‑регулятора P‑601", requireAccess: false);
             P601TuneButton.Visibility = Visibility.Collapsed;
         }
 
         private void P602TuneButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("P602_PID_Tune", "true", "Автонастройка PID‑регулятора P‑602");
+            SendCommand("P602_PID_Tune", "true", "Автонастройка PID‑регулятора P‑602", requireAccess: false);
             P602TuneButton.Visibility = Visibility.Collapsed;
         }
 
         private void P651TuneButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("P651_PID_Tune", "true", "Автонастройка PID‑регулятора P‑651");
+            SendCommand("P651_PID_Tune", "true", "Автонастройка PID‑регулятора P‑651", requireAccess: false);
             P651TuneButton.Visibility = Visibility.Collapsed;
         }
 

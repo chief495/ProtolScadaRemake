@@ -131,7 +131,7 @@
 
                         <TextBlock x:Name="AmountUnit"
                                    Grid.Column="2"
-                                   Text="сек"
+                                   Text=""
                                    FontSize="11"
                                    Foreground="White"
                                    VerticalAlignment="Center"/>
