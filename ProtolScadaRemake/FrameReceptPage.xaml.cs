@@ -245,7 +245,9 @@ namespace ProtolScadaRemake.Controls
                 var compressorTag = _global.Variables.GetByName("Compressor_Start");
                 if (compressorTag != null)
                 {
-                    if (compressorTag.ValueReal > 0)
+                    bool compressorOn = compressorTag.ValueReal > 0;
+
+                    if (compressorOn)
                     {
                         CompressorStatus.Text = "ВКЛЮЧЕН";
                         CompressorStatus.Background = Brushes.Green;
@@ -254,6 +256,16 @@ namespace ProtolScadaRemake.Controls
                     {
                         CompressorStatus.Text = "ОТКЛЮЧЕН";
                         CompressorStatus.Background = Brushes.Gray;
+                    }
+
+                    if (CompressorPressurePanel != null)
+                        CompressorPressurePanel.Visibility = compressorOn ? Visibility.Visible : Visibility.Collapsed;
+
+                    if (compressorOn && CompressorPressureText != null)
+                    {
+                        var pressureTag = _global.Variables.GetByName("EM_ReceptAlarmPressure");
+                        if (pressureTag != null)
+                            CompressorPressureText.Text = pressureTag.ValueString;
                     }
                 }
             }
@@ -269,45 +281,6 @@ namespace ProtolScadaRemake.Controls
         /// – поле в фокусе.
         /// </summary>
 
-        private IEnumerable<string> GetAliasCandidates(string tagName)
-        {
-            yield return tagName;
-
-            if (TagAliases.TryGetValue(tagName, out var aliases))
-            {
-                foreach (var alias in aliases)
-                    yield return alias;
-            }
-        }
-
-        private TVariableTag FindVariableCaseInsensitive(string tagName)
-        {
-            if (_global?.Variables?.Items == null)
-                return null;
-
-            foreach (var item in _global.Variables.Items)
-            {
-                if (string.Equals(item.Name, tagName, StringComparison.OrdinalIgnoreCase))
-                    return item;
-            }
-
-            return null;
-        }
-
-        private TCommandTag FindCommandCaseInsensitive(string tagName)
-        {
-            if (_global?.Commands?.Items == null)
-                return null;
-
-            foreach (var item in _global.Commands.Items)
-            {
-                if (string.Equals(item.Name, tagName, StringComparison.OrdinalIgnoreCase))
-                    return item;
-            }
-
-            return null;
-        }
-
         private void UpdateTextBox(TextBox textBox, string tagName, string sectionName)
         {
             if (_editingSections.Contains(sectionName) || textBox.IsFocused) return;
@@ -315,9 +288,9 @@ namespace ProtolScadaRemake.Controls
             var tag = FindVariableByNameOrAlias(tagName);
             if (tag != null)
             {
-                var normalized = NormalizeNumericValue(tag.ValueString);
-                if (textBox.Text != normalized)
-                    textBox.Text = normalized;
+                var displayValue = tag.ValueString?.Trim();
+                if (textBox.Text != displayValue)
+                    textBox.Text = displayValue;
             }
             // ← убран `return null;` – метод возвращает void
         }
@@ -329,6 +302,7 @@ namespace ProtolScadaRemake.Controls
 
             // Убираем любые символы, кроме цифр, точки, запятой, знаков +/-
             var cleaned = Regex.Replace(value, @"[^0-9\.,\+\-]", "").Trim();
+            cleaned = cleaned.TrimEnd('.', ',');
             return string.IsNullOrWhiteSpace(cleaned) ? value : cleaned;
         }
 
@@ -481,7 +455,7 @@ namespace ProtolScadaRemake.Controls
                 }
 
                 // Парсим введённый текст
-                var txt = tb.Text.Trim();
+                var txt = NormalizeNumericValue(tb.Text.Trim());
                 if (!double.TryParse(txt, NumberStyles.Any, CultureInfo.InvariantCulture, out double newValue))
                 {
                     // Попробуем заменить запятую на точку (если пользователь так ввёл)
@@ -586,9 +560,12 @@ namespace ProtolScadaRemake.Controls
 
         #region Автонастройка PID
 
-        private void SendCommand(string commandName, string value, string logMessage)
+        private void SendCommand(string commandName, string value, string logMessage, bool requireAccess = true)
         {
-            if (_global == null || !_global.Access)
+            if (_global == null)
+                return;
+
+            if (requireAccess && !_global.Access)
             {
                 MessageBox.Show("Нет доступа!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -610,19 +587,19 @@ namespace ProtolScadaRemake.Controls
 
         private void P601TuneButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("P601_PID_Tune", "true", "Автонастройка PID‑регулятора P‑601");
+            SendCommand("P601_PID_Tune", "true", "Автонастройка PID‑регулятора P‑601", requireAccess: false);
             P601TuneButton.Visibility = Visibility.Collapsed;
         }
 
         private void P602TuneButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("P602_PID_Tune", "true", "Автонастройка PID‑регулятора P‑602");
+            SendCommand("P602_PID_Tune", "true", "Автонастройка PID‑регулятора P‑602", requireAccess: false);
             P602TuneButton.Visibility = Visibility.Collapsed;
         }
 
         private void P651TuneButton_Click(object sender, RoutedEventArgs e)
         {
-            SendCommand("P651_PID_Tune", "true", "Автонастройка PID‑регулятора P‑651");
+            SendCommand("P651_PID_Tune", "true", "Автонастройка PID‑регулятора P‑651", requireAccess: false);
             P651TuneButton.Visibility = Visibility.Collapsed;
         }
 
