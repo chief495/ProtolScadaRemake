@@ -57,7 +57,7 @@
                          Padding="0"
                          Visibility="Hidden"/>
 
-                    <mah:NumericUpDown x:Name="ManualValueNumeric" ToolTip="Используйте кнопки ↑/↓ или клавиши" UpDownButtonsWidth="20" HideUpDownButtons="False" 
+                    <mah:NumericUpDown x:Name="ManualValueNumeric" ToolTip="▲ увеличить / ▼ уменьшить" 
                                      Background="White" 
                                      Minimum="0" 
                                      Maximum="100" 
@@ -101,10 +101,10 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Width="100" Margin="5,0,0,0">
-                    <mah:NumericUpDown x:Name="HFNumeric" ToolTip="Используйте кнопки ↑/↓ или клавиши" UpDownButtonsWidth="20" HideUpDownButtons="False" Height="28" FontFamily="Arial" FontSize="10" Width="100" Background="White" Maximum="100" Minimum="0" ValueChanged="HFNumeric_ValueChanged"/>
-                    <mah:NumericUpDown x:Name="HWNumeric" ToolTip="Используйте кнопки ↑/↓ или клавиши" UpDownButtonsWidth="20" HideUpDownButtons="False" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="HWNumeric_ValueChanged"/>
-                    <mah:NumericUpDown x:Name="LWNumeric" ToolTip="Используйте кнопки ↑/↓ или клавиши" UpDownButtonsWidth="20" HideUpDownButtons="False" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="LWNumeric_ValueChanged"/>
-                    <mah:NumericUpDown x:Name="LFNumeric" ToolTip="Используйте кнопки ↑/↓ или клавиши" UpDownButtonsWidth="20" HideUpDownButtons="False" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="LFNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="HFNumeric" ToolTip="▲ увеличить / ▼ уменьшить" Height="28" FontFamily="Arial" FontSize="10" Width="100" Background="White" Maximum="100" Minimum="0" ValueChanged="HFNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="HWNumeric" ToolTip="▲ увеличить / ▼ уменьшить" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="HWNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="LWNumeric" ToolTip="▲ увеличить / ▼ уменьшить" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="LWNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="LFNumeric" ToolTip="▲ увеличить / ▼ уменьшить" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="LFNumeric_ValueChanged"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Width="40" Margin="5,0,0,0">
@@ -140,10 +140,10 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Width="100" Margin="10,0,0,0">
-                    <mah:NumericUpDown x:Name="LowLevelNumeric" ToolTip="Используйте кнопки ↑/↓ или клавиши" UpDownButtonsWidth="20" HideUpDownButtons="False" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="LowLevelNumeric_ValueChanged"/>
-                    <mah:NumericUpDown x:Name="HiLevelNumeric" ToolTip="Используйте кнопки ↑/↓ или клавиши" UpDownButtonsWidth="20" HideUpDownButtons="False" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="HiLevelNumeric_ValueChanged"/>
-                    <mah:NumericUpDown x:Name="LowCurrNumeric" ToolTip="Используйте кнопки ↑/↓ или клавиши" UpDownButtonsWidth="20" HideUpDownButtons="False" Height="28" FontSize="10" Background="White" Maximum="30" Minimum="0" ValueChanged="LowCurrNumeric_ValueChanged"/>
-                    <mah:NumericUpDown x:Name="HiCurrNumeric" ToolTip="Используйте кнопки ↑/↓ или клавиши" UpDownButtonsWidth="20" HideUpDownButtons="False" Height="28" FontSize="10" Background="White" Maximum="30" Minimum="0" ValueChanged="HiCurrNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="LowLevelNumeric" ToolTip="▲ увеличить / ▼ уменьшить" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="LowLevelNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="HiLevelNumeric" ToolTip="▲ увеличить / ▼ уменьшить" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="HiLevelNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="LowCurrNumeric" ToolTip="▲ увеличить / ▼ уменьшить" Height="28" FontSize="10" Background="White" Maximum="30" Minimum="0" ValueChanged="LowCurrNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="HiCurrNumeric" ToolTip="▲ увеличить / ▼ уменьшить" Height="28" FontSize="10" Background="White" Maximum="30" Minimum="0" ValueChanged="HiCurrNumeric_ValueChanged"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Width="50" Margin="10,0,0,0">
