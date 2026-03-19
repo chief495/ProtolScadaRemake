@@ -283,6 +283,11 @@
                                             Style="{StaticResource ControlButtonStyle}"
                                             Background="#7B001C" BorderBrush="#FF0033"/>
                                 </StackPanel>
+
+                                <StackPanel x:Name="CompressorPressurePanel" Visibility="Collapsed" Margin="0,4,0,2">
+                                    <TextBlock Text="Давление компрессора" Foreground="White" FontSize="12" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="CompressorPressureText" Text="0" Foreground="#FF5CC8FF" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </StackPanel>
                             </StackPanel>
                         </StackPanel>
                     </Border>

@@ -176,6 +176,7 @@ namespace ProtolScadaRemake
 
             // Убираем дублирующиеся единицы измерения, если они приходят вместе со значением
             var normalized = Regex.Replace(value, @"[^0-9,.+-]", "").Trim();
+            normalized = normalized.TrimEnd('.', ',');
             return string.IsNullOrWhiteSpace(normalized) ? value : normalized;
         }
 
