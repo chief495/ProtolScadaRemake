@@ -72,6 +72,16 @@ namespace ProtolScadaRemake
                 AmountUnit.Text = unit;
         }
 
+        private string GetVariableUnit(string variableName, string fallback)
+        {
+            var unit = Global?.Variables?.GetByName(variableName)?.TextAfter;
+            return string.IsNullOrWhiteSpace(unit) ? fallback : unit.Trim();
+        }
+
+        private string GetTimeAmountUnit() => GetVariableUnit("EM_Unload_TimeSp", GetVariableUnit("EM_UnloadTorirovanieTime", string.Empty));
+
+        private string GetMassAmountUnit() => GetVariableUnit("EM_UnloadCounter", string.Empty);
+
         public void SetUnloadedValue(string value)
         {
             if (UnloadedValue != null)
@@ -93,73 +103,73 @@ namespace ProtolScadaRemake
                     SetMode("С ПУЛЬТА");
                     SetStage("СТОП");
                     SetAmountLabel("ВРЕМЯ");
-                    SetAmountUnit("сек");
+                    SetAmountUnit(GetTimeAmountUnit());
                     break;
                 case "1": // По ВРЕМЕНИ (стоп)
                     SetMode("По ВРЕМЕНИ");
                     SetStage("СТОП");
                     SetAmountLabel("ВРЕМЯ");
-                    SetAmountUnit("сек");
+                    SetAmountUnit(GetTimeAmountUnit());
                     break;
                 case "2": // ПО ВЕСУ (стоп)
                     SetMode("ПО ВЕСУ");
                     SetStage("СТОП");
                     SetAmountLabel("ВЕС");
-                    SetAmountUnit("кг");
+                    SetAmountUnit(GetMassAmountUnit());
                     break;
                 case "3": // С ПУЛЬТА (работа)
                     SetMode("С ПУЛЬТА");
                     SetStage("РАБОТА");
                     SetAmountLabel("ВРЕМЯ");
-                    SetAmountUnit("сек");
+                    SetAmountUnit(GetTimeAmountUnit());
                     break;
                 case "4": // С ПУЛЬТА (реверс)
                     SetMode("С ПУЛЬТА");
                     SetStage("РЕВЕРС");
                     SetAmountLabel("ВРЕМЯ");
-                    SetAmountUnit("сек");
+                    SetAmountUnit(GetTimeAmountUnit());
                     break;
                 case "5": // По ВРЕМЕНИ (отгрузка)
                     SetMode("По ВРЕМЕНИ");
                     SetStage("ОТГРУЗКА");
                     SetAmountLabel("ВРЕМЯ");
-                    SetAmountUnit("сек");
+                    SetAmountUnit(GetTimeAmountUnit());
                     break;
                 case "6": // По ВРЕМЕНИ (реверс)
                     SetMode("По ВРЕМЕНИ");
                     SetStage("РЕВЕРС");
                     SetAmountLabel("ВРЕМЯ");
-                    SetAmountUnit("сек");
+                    SetAmountUnit(GetTimeAmountUnit());
                     break;
                 case "7": // По ВРЕМЕНИ (Торитование.Пуск)
                     SetMode("По ВРЕМЕНИ");
                     SetStage("ТОРИТОВАНИЕ");
                     SetAmountLabel("ВРЕМЯ");
-                    SetAmountUnit("сек");
+                    SetAmountUnit(GetTimeAmountUnit());
                     break;
                 case "8": // По ВРЕМЕНИ (Торитование.Пуск)
                     SetMode("По ВРЕМЕНИ");
                     SetStage("ТОРИТОВАНИЕ");
                     SetAmountLabel("ВРЕМЯ");
-                    SetAmountUnit("сек");
+                    SetAmountUnit(GetTimeAmountUnit());
                     break;
                 case "9": // ПО ВЕСУ (отгрузка)
                     SetMode("ПО ВЕСУ");
                     SetStage("ОТГРУЗКА");
                     SetAmountLabel("ВЕС");
-                    SetAmountUnit("кг");
+                    SetAmountUnit(GetMassAmountUnit());
                     break;
                 case "10": // ПО ВЕСУ (реверс)
                     SetMode("ПО ВЕСУ");
                     SetStage("РЕВЕРС");
                     SetAmountLabel("ВЕС");
-                    SetAmountUnit("кг");
+                    SetAmountUnit(GetMassAmountUnit());
                     break;
                 default:
                     SetMode("ПУЛЬТ");
                     SetStage("СТОП");
                     SetAmountLabel("ВРЕМЯ");
-                    SetAmountUnit("сек");
+                    SetAmountUnit(GetTimeAmountUnit());
                     break;
             }
         }
@@ -261,7 +271,7 @@ namespace ProtolScadaRemake
 
             SetMode("С ПУЛЬТА");
             SetAmountLabel("ВРЕМЯ");
-            SetAmountUnit("сек");
+            SetAmountUnit(GetTimeAmountUnit());
             System.Diagnostics.Debug.WriteLine("Режим отгрузки: С ПУЛЬТА");
         }
 
@@ -278,7 +288,7 @@ namespace ProtolScadaRemake
 
             SetMode("ПО ВРЕМЕНИ");
             SetAmountLabel("ВРЕМЯ");
-            SetAmountUnit("сек");
+            SetAmountUnit(GetTimeAmountUnit());
             System.Diagnostics.Debug.WriteLine("Режим отгрузки: ПО ВРЕМЕНИ");
         }
 
@@ -295,7 +305,7 @@ namespace ProtolScadaRemake
 
             SetMode("ПО ВЕСУ");
             SetAmountLabel("ВЕС");
-            SetAmountUnit("кг");
+            SetAmountUnit(GetMassAmountUnit());
             System.Diagnostics.Debug.WriteLine("Режим отгрузки: ПО ВЕСУ");
         }
 

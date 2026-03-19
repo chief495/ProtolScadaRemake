@@ -38,12 +38,12 @@
                           Margin="0,0,0,8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="80"/>
-                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="72"/>
+                            <ColumnDefinition Width="46"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="ПРОИЗВОДИТЕЛЬНОСТЬ"
-                                   FontSize="11"
+                        <TextBlock Text="ПРОИЗВ."
+                                   FontSize="10"
                                    Foreground="White"
                                    VerticalAlignment="Center"/>
 
@@ -60,7 +60,7 @@
                                  Margin="5,0,5,0"/>
 
                         <TextBlock Grid.Column="2"
-                                   Text="кг/ч"
+                                   Text="кг/мин"
                                    FontSize="11"
                                    Foreground="White"
                                    VerticalAlignment="Center"/>
@@ -126,8 +126,8 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="ПРОИЗВОДИТЕЛЬНОСТЬ"
-                                   FontSize="11"
+                        <TextBlock Text="ПРОИЗВ."
+                                   FontSize="10"
                                    Foreground="White"
                                    VerticalAlignment="Center"/>
 
@@ -141,7 +141,7 @@
                                    Margin="5,0,2,0"/>
 
                         <TextBlock Grid.Column="2"
-                                   Text="кг/ч"
+                                   Text="кг/мин"
                                    FontSize="11"
                                    Foreground="White"
                                    VerticalAlignment="Center"/>

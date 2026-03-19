@@ -340,9 +340,11 @@ namespace ProtolScadaRemake
             global.Variables.Add("GRO_ManualSelitraCounterSp", 0x16, 0x0056, 1, "Float_32", "", "##0.#", " кг.", "Подготовка ГРО. Полуатомат. Нужная масса селитры.");
             global.Commands.Add("GRO_ManualSelitraCounterSp", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x0866, "Float_32", "##0.#", "Подготовка ГРО. Полуатомат. Нужная масса селитры.");
             global.Commands.Add("GRO_Manual_Water_Start", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x0868, "Bool", "Нет;Да", "Подготовка ГРО. Режим полуавто. Пуск наполнения воды.");
+            global.Variables.Add("GRO_ManualWaterCounterSp", 0x16, 0x0059, 1, "Float_32", "", "##0.#", " кг.", "Подготовка ГРО. Полуатомат. Нужная масса воды.");
             global.Commands.Add("GRO_ManualWaterCounterSp", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x0869, "Float_32", "##0.#", "Подготовка ГРО. Полуатомат. Нужная масса воды.");
             global.Variables.Add("GRO_ManualWaterCounter", 0x16, 0x005B, 1, "Float_32", "", "##0.#", " кг.", "Подготовка ГРО. Полуатомат. Набранная масса воды.");
             global.Commands.Add("GRO_Manual_Kislota_Start", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x086D, "Bool", "Нет;Да", "Подготовка ГРО. Режим полуавто. Пуск наполнения кислоты.");
+            global.Variables.Add("GRO_ManualKislotaCounterSp", 0x16, 0x005E, 1, "Float_32", "", "##0.#", " кг.", "Подготовка ГРО. Полуатомат. Нужная масса кислоты.");
             global.Commands.Add("GRO_ManualKislotaCounterSp", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x086E, "Float_32", "##0.#", "Подготовка ГРО. Полуатомат. Нужная масса кислоты.");
             global.Variables.Add("GRO_ManualKislotaCounter", 0x17, 0x0000, 1, "Float_32", "", "##0.#", " кг.", "Подготовка ГРО. Полуатомат. Набранная масса кислоты.");
             global.Commands.Add("GRO_Auto_Start", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x0872, "Bool", "Нет;Да", "Подготовка ГРО. Режим Автомат. Пуск.");
@@ -491,6 +493,7 @@ namespace ProtolScadaRemake
             global.Commands.Add("EM_Unload_Sp", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x08F3, "Float_32", "##0.###", "Режим отгрузки продукта. Задание");
             global.Variables.Add("EM_Unload_Speed", 0x18, 0x0025, 1, "Float_32", "", "##0.##", " кг./сек.", "Режим отгрузки продукта. Скорость");
             global.Variables.Add("EM_UnloadCounter", 0x18, 0x0027, 1, "Float_32", "", "##0.##", " кг.", "Режим отгрузки продукта. Отгружено");
+            global.Variables.Add("EM_Unload_TimeSp", 0x18, 0x0029, 1, "Float_32", "", "##0", " сек.", "Режим отгрузки продукта по времени. Задание времени");
             global.Commands.Add("EM_Unload_TimeStart", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x08F9, "Bool", "Нет;Да", "Режим отгрузки продукта по времени. Пуск");
             global.Commands.Add("EM_Unload_TimeStop", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x08FA, "Bool", "Нет;Да", "Режим отгрузки продукта по времени. Стоп");
             global.Variables.Add("EM_UnloadTorirovanieTime", 0x18, 0x002C, 1, "Float_32", "", "##0", " сек.", "Режим отгрузки продукта. Торирование. Время торирования");
