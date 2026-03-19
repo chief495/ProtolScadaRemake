@@ -78,9 +78,9 @@ namespace ProtolScadaRemake
             return string.IsNullOrWhiteSpace(unit) ? fallback : unit.Trim();
         }
 
-        private string GetTimeAmountUnit() => GetVariableUnit("EM_Unload_TimeSp", GetVariableUnit("EM_UnloadTorirovanieTime", string.Empty));
+        private string GetTimeAmountUnit() => GetVariableUnit("EM_UnloadTorirovanieTime", "сек.");
 
-        private string GetMassAmountUnit() => GetVariableUnit("EM_UnloadCounter", string.Empty);
+        private string GetMassAmountUnit() => GetVariableUnit("EM_UnloadCounter", "кг.");
 
         public void SetUnloadedValue(string value)
         {
