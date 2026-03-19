@@ -333,6 +333,7 @@
 
         <!-- Панель задания массы в Т-100 -->
         <Border x:Name="T100MassPanel"
+               Visibility="Collapsed"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Margin="10,767,0,0"
@@ -385,6 +386,7 @@
 
         <!-- Панель выбора вещества с уставками и счетчиками -->
         <Border x:Name="SubstancePanel" 
+               Visibility="Collapsed"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Margin="10,216,0,0" 
@@ -472,6 +474,7 @@
                                     VerticalContentAlignment="Center"
                                     Padding="5,0"/>
                         </Border>
+                        <TextBlock Text="кг." Foreground="White" FontSize="11" VerticalAlignment="Center" Margin="5,0,0,0"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                         <TextBlock Text="Кислота:" 
@@ -494,6 +497,7 @@
                                     VerticalContentAlignment="Center"
                                     Padding="5,0"/>
                         </Border>
+                        <TextBlock Text="кг." Foreground="White" FontSize="11" VerticalAlignment="Center" Margin="5,0,0,0"/>
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Margin="0,0,0,15">
@@ -622,6 +626,7 @@
 
         <!-- Панель перекачки Т100-Т150 -->
         <Border x:Name="TransportPanel" 
+               Visibility="Collapsed"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Margin="982,528,0,0" 
@@ -680,6 +685,7 @@
 
         <!-- Панель скорости A100 -->
         <Border x:Name="A100SpeedPanel" 
+               Visibility="Collapsed"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Margin="10,645,0,0" 
@@ -727,6 +733,7 @@
 
         <!-- Панель режима HE-700 -->
         <Border x:Name="HE700Panel" 
+               Visibility="Collapsed"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Margin="762,527,0,0" 

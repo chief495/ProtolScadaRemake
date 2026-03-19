@@ -60,7 +60,7 @@
                                  Margin="5,0,5,0"/>
 
                         <TextBlock Grid.Column="2"
-                                   Text="кг/ч"
+                                   Text="кг/мин"
                                    FontSize="11"
                                    Foreground="White"
                                    VerticalAlignment="Center"/>
@@ -141,7 +141,7 @@
                                    Margin="5,0,2,0"/>
 
                         <TextBlock Grid.Column="2"
-                                   Text="кг/ч"
+                                   Text="кг/мин"
                                    FontSize="11"
                                    Foreground="White"
                                    VerticalAlignment="Center"/>
