@@ -44,6 +44,32 @@ namespace ProtolScadaRemake.Controls
             ["M600_PID_T"] = new[] { "P651_PID_T" },
         };
 
+        private static readonly Dictionary<string, string> TagUnits = new()
+        {
+            ["GRO_Recept_Selitra"] = "кг",
+            ["GRO_Recept_Water"] = "кг",
+            ["GRO_Recept_Kislota"] = "кг",
+            ["GRO_Recept_Tmax"] = "°C",
+            ["GRO_Recept_Tmin"] = "°C",
+            ["GRO_Recept_TmaxDelta"] = "°C",
+            ["GRO_Recept_A100BlockTemp"] = "°C",
+            ["GRO_Recept_A100BlockWeith"] = "кг",
+            ["P100_SpeedHi"] = "%",
+            ["P100_SpeedLow"] = "%",
+            ["P100_MinMass"] = "кг",
+            ["TC_Recept_Disel"] = "кг",
+            ["TC_Recept_Emulgator"] = "кг",
+            ["TC_Recept_Temperature_T200"] = "°C",
+            ["TC_Recept_Temperature_T250"] = "°C",
+            ["EM_Recept_GRO"] = "кг",
+            ["EM_Recept_Disel"] = "кг",
+            ["EM_ReceptDiaeslLast"] = "кг",
+            ["EM_ReceptZatravkaMass"] = "кг",
+            ["EM_ReceptZatravkaTime"] = "с",
+            ["EM_ReceptWorkLevel"] = "%",
+            ["EM_Recept_ReverseTime"] = "с"
+        };
+
         public TGlobal Global
         {
             get => _global;
@@ -288,7 +314,11 @@ namespace ProtolScadaRemake.Controls
             var tag = FindVariableByNameOrAlias(tagName);
             if (tag != null)
             {
-                var displayValue = tag.ValueString?.Trim();
+                var normalized = NormalizeNumericValue(tag.ValueString);
+                var displayValue = TagUnits.TryGetValue(tagName, out var unit) && !string.IsNullOrWhiteSpace(normalized)
+                    ? $"{normalized} {unit}"
+                    : normalized;
+
                 if (textBox.Text != displayValue)
                     textBox.Text = displayValue;
             }
