@@ -636,8 +636,7 @@
                BorderThickness="1"
                Background="Transparent"
                CornerRadius="8"
-               Padding="15"
-               Visibility="Visible">
+               Padding="15">
             <StackPanel>
                 <TextBlock Text="ПЕРЕКАЧКА Т200 → Т250"
                            FontWeight="Heavy"

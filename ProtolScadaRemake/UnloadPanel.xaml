@@ -240,7 +240,7 @@
 
                     <TextBlock x:Name="UnloadedUnit"
                                Grid.Column="2"
-                               Text="кг"
+                               Text=""
                                FontSize="11"
                                Foreground="White"
                                VerticalAlignment="Center"/>
