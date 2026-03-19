@@ -15,8 +15,12 @@ namespace ProtolScadaRemake.Controls
         private DispatcherTimer _updateTimer;
         private TGlobal _global;
 
+        // Флаг: разрешено ли скрывать кнопки автонастройки
+        // (запрещаем на первые несколько секунд после запуска)
+        private bool _allowHideTuneButtons = false;
+        private DateTime _startTime;
+
         // Словарь: какая секция сейчас в режиме редактирования
-        // Ключ = имя секции, Значение = список TextBox'ов этой секции
         private readonly Dictionary<string, List<TextBox>> _sectionTextBoxes = new();
 
         // Какие секции сейчас редактируются
@@ -31,7 +35,7 @@ namespace ProtolScadaRemake.Controls
         private static readonly Brush EditableBorder = new SolidColorBrush(Color.FromRgb(0, 120, 215));
         private static readonly Brush ChangedBackground = Brushes.LightYellow;
 
-        // Алиасы тегов (для совместимости с наследником WinForms)
+        // Алиасы тегов
         private static readonly Dictionary<string, string[]> TagAliases = new()
         {
             ["P651_PID_P"] = new[] { "M600_PID_P" },
@@ -42,6 +46,9 @@ namespace ProtolScadaRemake.Controls
             ["M600_PID_I"] = new[] { "P651_PID_I" },
             ["M600_PID_D"] = new[] { "P651_PID_D" },
             ["M600_PID_T"] = new[] { "P651_PID_T" },
+            ["P601_PID_Tune"] = new[] { "P601_PID_TuneCmd", "P601_Tune" },
+            ["P602_PID_Tune"] = new[] { "P602_PID_TuneCmd", "P602_Tune" },
+            ["P651_PID_Tune"] = new[] { "P651_PID_TuneCmd", "P651_Tune", "M600_PID_Tune" },
         };
 
         private static readonly Dictionary<string, string> TagUnits = new()
@@ -83,12 +90,50 @@ namespace ProtolScadaRemake.Controls
         public FrameReceptPage()
         {
             InitializeComponent();
+
+            _startTime = DateTime.Now;
+
+            // ВАЖНО: Принудительно делаем кнопки видимыми ДО всего остального
+            ForceShowTuneButtons();
+
             InitializeSections();
             InitializeTimer();
             InitializeEventHandlers();
+
+            // Разрешаем скрывать кнопки через 3 секунды после запуска
+            var delayTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+            delayTimer.Tick += (s, e) =>
+            {
+                _allowHideTuneButtons = true;
+                delayTimer.Stop();
+                Debug.WriteLine(">>> Разрешено скрытие кнопок автонастройки");
+            };
+            delayTimer.Start();
+
+            Debug.WriteLine("========================================");
+            Debug.WriteLine("FrameReceptPage: Конструктор завершён");
+            Debug.WriteLine($"P601TuneButton.Visibility = {P601TuneButton.Visibility}");
+            Debug.WriteLine($"P602TuneButton.Visibility = {P602TuneButton.Visibility}");
+            Debug.WriteLine($"P651TuneButton.Visibility = {P651TuneButton.Visibility}");
+            Debug.WriteLine("========================================");
         }
 
-        #region Инициализация
+        /// <summary>
+        /// Принудительно показывает все кнопки автонастройки
+        /// </summary>
+        private void ForceShowTuneButtons()
+        {
+            P601TuneButton.Visibility = Visibility.Visible;
+            P602TuneButton.Visibility = Visibility.Visible;
+            P651TuneButton.Visibility = Visibility.Visible;
+
+            // Также убедимся, что они включены
+            P601TuneButton.IsEnabled = true;
+            P602TuneButton.IsEnabled = true;
+            P651TuneButton.IsEnabled = true;
+
+            Debug.WriteLine("ForceShowTuneButtons: Все кнопки принудительно показаны");
+        }
 
         private void InitializeSections()
         {
@@ -186,10 +231,6 @@ namespace ProtolScadaRemake.Controls
             GroRecept_UseAcidCheck.Unchecked += GroRecept_UseAcidCheck_Changed;
         }
 
-        #endregion
-
-        #region Обновление данных (live)
-
         private void UpdateTimer_Tick(object sender, EventArgs e)
         {
             _updateTimer.Stop();
@@ -216,7 +257,7 @@ namespace ProtolScadaRemake.Controls
                 UpdateTextBox(P100_MinSpeed, "P100_SpeedLow", "GRO");
                 UpdateTextBox(P100_MinMass, "P100_MinMass", "GRO");
 
-                // Чек‑бокс «Кислота» (обновляем только если секция не в режиме редактирования)
+                // Чек‑бокс «Кислота»
                 if (!_editingSections.Contains("GRO"))
                 {
                     var acidTag = _global.Variables.GetByName("GRO_Recept_KislotaEnable");
@@ -301,12 +342,6 @@ namespace ProtolScadaRemake.Controls
             }
         }
 
-        /// <summary>
-        /// Обновляет TextBox, **не** меняя его, если
-        /// – секция в режиме редактирования,
-        /// – поле в фокусе.
-        /// </summary>
-
         private void UpdateTextBox(TextBox textBox, string tagName, string sectionName)
         {
             if (_editingSections.Contains(sectionName) || textBox.IsFocused) return;
@@ -322,7 +357,6 @@ namespace ProtolScadaRemake.Controls
                 if (textBox.Text != displayValue)
                     textBox.Text = displayValue;
             }
-            // ← убран `return null;` – метод возвращает void
         }
 
         private static string NormalizeNumericValue(string value)
@@ -330,15 +364,11 @@ namespace ProtolScadaRemake.Controls
             if (string.IsNullOrWhiteSpace(value))
                 return value;
 
-            // Убираем любые символы, кроме цифр, точки, запятой, знаков +/-
             var cleaned = Regex.Replace(value, @"[^0-9\.,\+\-]", "").Trim();
             cleaned = cleaned.TrimEnd('.', ',');
             return string.IsNullOrWhiteSpace(cleaned) ? value : cleaned;
         }
 
-        /// <summary>
-        /// Возвращает набор кандидатов: исходное имя + все алиасы.
-        /// </summary>
         private IEnumerable<string> GetAliasCandidates(string tagName)
         {
             yield return tagName;
@@ -346,20 +376,15 @@ namespace ProtolScadaRemake.Controls
                 foreach (var a in aliases) yield return a;
         }
 
-        /// <summary>
-        /// Поиск переменной (с учётом алиасов и регистронезависимо).
-        /// </summary>
         private TVariableTag FindVariableByNameOrAlias(string tagName)
         {
             if (_global?.Variables == null) return null;
 
             foreach (var candidate in GetAliasCandidates(tagName))
             {
-                // 1️⃣ Прямой поиск (точное совпадение)
                 var variable = _global.Variables.GetByName(candidate);
                 if (variable != null) return variable;
 
-                // 2️⃣ Поиск без учёта регистра
                 variable = FindVariableCaseInsensitive(candidate);
                 if (variable != null) return variable;
             }
@@ -367,9 +392,6 @@ namespace ProtolScadaRemake.Controls
             return null;
         }
 
-        /// <summary>
-        /// Поиск команды (с учётом алиасов и регистронезависимо).
-        /// </summary>
         private TCommandTag FindCommandByNameOrAlias(string tagName)
         {
             if (_global?.Commands == null) return null;
@@ -385,9 +407,6 @@ namespace ProtolScadaRemake.Controls
 
             return null;
         }
-
-        // -------------------------------------------------------------------------
-        // Вспомогательные «case‑insensitive»‑поисковые методы (оставляем их)
 
         private TVariableTag FindVariableCaseInsensitive(string tagName)
         {
@@ -406,22 +425,51 @@ namespace ProtolScadaRemake.Controls
                     return item;
             return null;
         }
-        // -------------------------------------------------------------------------
-
-        private void UpdateTuneButtonVisibility(Button tuneButton, string tagName)
-        {
-            var tuneTag = FindVariableByNameOrAlias(tagName);
-            if (tuneTag != null)
-                tuneButton.Visibility = tuneTag.ValueReal > 0 ? Visibility.Collapsed : Visibility.Visible;
-        }
-
-        #endregion
-
-        #region Редактирование / Сохранение секций
 
         /// <summary>
-        /// Один обработчик для всех кнопок «Редактировать / Сохранить».
+        /// Обновляет видимость кнопки автонастройки.
+        /// ВАЖНО: Кнопка скрывается ТОЛЬКО если:
+        /// 1. Прошло более 3 секунд с момента запуска
+        /// 2. Тег найден И его значение > 0
         /// </summary>
+        private void UpdateTuneButtonVisibility(Button tuneButton, string tagName)
+        {
+            // Не скрываем кнопки в первые 3 секунды после запуска
+            if (!_allowHideTuneButtons)
+            {
+                // Убеждаемся, что кнопка видна
+                if (tuneButton.Visibility != Visibility.Visible)
+                {
+                    tuneButton.Visibility = Visibility.Visible;
+                    Debug.WriteLine($"[ЗАЩИТА] {tagName}: кнопка принудительно показана (защитный период)");
+                }
+                return;
+            }
+
+            var tuneTag = FindVariableByNameOrAlias(tagName);
+
+            if (tuneTag == null)
+            {
+                // Тег не найден — кнопка ВСЕГДА видима
+                if (tuneButton.Visibility != Visibility.Visible)
+                {
+                    tuneButton.Visibility = Visibility.Visible;
+                    Debug.WriteLine($"[ВНИМАНИЕ] Тег {tagName} не найден! Кнопка остаётся видимой.");
+                }
+                return;
+            }
+
+            // Кнопка скрыта ТОЛЬКО когда автонастройка активна (значение > 0)
+            bool tuneActive = tuneTag.ValueReal > 0;
+            var newVisibility = tuneActive ? Visibility.Collapsed : Visibility.Visible;
+
+            if (tuneButton.Visibility != newVisibility)
+            {
+                tuneButton.Visibility = newVisibility;
+                Debug.WriteLine($"{tagName}: значение = {tuneTag.ValueReal}, кнопка → {newVisibility}");
+            }
+        }
+
         private void EditSaveButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is not Button button || _global == null) return;
@@ -440,9 +488,9 @@ namespace ProtolScadaRemake.Controls
             }
 
             if (_editingSections.Contains(sectionName))
-                SaveSection(sectionName, button);   // сейчас «СОХРАНИТЬ»
+                SaveSection(sectionName, button);
             else
-                EnterEditMode(sectionName, button); // сейчас «РЕДАКТИРОВАТЬ»
+                EnterEditMode(sectionName, button);
         }
 
         private void EnterEditMode(string sectionName, Button button)
@@ -473,7 +521,6 @@ namespace ProtolScadaRemake.Controls
 
             foreach (var tb in textBoxes)
             {
-                // Тег, привязанный к TextBox, должен быть задекларирован в XAML (Tag="GRO_Recept_Selitra" и т.д.)
                 var tagName = tb.Tag?.ToString();
                 if (string.IsNullOrEmpty(tagName)) continue;
 
@@ -484,11 +531,9 @@ namespace ProtolScadaRemake.Controls
                     continue;
                 }
 
-                // Парсим введённый текст
                 var txt = NormalizeNumericValue(tb.Text.Trim());
                 if (!double.TryParse(txt, NumberStyles.Any, CultureInfo.InvariantCulture, out double newValue))
                 {
-                    // Попробуем заменить запятую на точку (если пользователь так ввёл)
                     if (!double.TryParse(txt.Replace(',', '.'), NumberStyles.Any,
                                          CultureInfo.InvariantCulture, out newValue))
                     {
@@ -499,10 +544,8 @@ namespace ProtolScadaRemake.Controls
                     }
                 }
 
-                // Если значение не изменилось – пропускаем
                 if (Math.Abs(variable.ValueReal - newValue) < 0.0001) continue;
 
-                // Находим команду, которая отвечает за запись значения
                 var command = FindCommandByNameOrAlias(tagName);
                 if (command != null)
                 {
@@ -514,24 +557,20 @@ namespace ProtolScadaRemake.Controls
                 }
                 else
                 {
-                    Debug.WriteLine($"Команда не найдена: {tagName}. Проверьте имя команды в ModbusInitializer/конфиге.");
+                    Debug.WriteLine($"Команда не найдена: {tagName}");
                     errorCount++;
                 }
             }
 
-            // Специальный обработчик чек‑бокса «Кислота» (секция GRO)
             if (sectionName == "GRO")
                 SaveCheckBox(GroRecept_UseAcidCheck, "GRO_Recept_KislotaEnable", ref savedCount, ref errorCount);
 
-            // Выходим из режима редактирования
             ExitEditMode(sectionName, button);
 
-            // Журнал
             if (savedCount > 0)
                 _global.Log.Add("Пользователь",
                                  $"Изменены параметры секции {sectionName} ({savedCount} значений)", 1);
 
-            // Пользовательский фидбек
             if (errorCount > 0)
                 MessageBox.Show($"Сохранено: {savedCount}, Ошибок: {errorCount}",
                                 "Результат", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -586,10 +625,6 @@ namespace ProtolScadaRemake.Controls
             Debug.WriteLine($"Секция {sectionName}: выход из режима редактирования");
         }
 
-        #endregion
-
-        #region Автонастройка PID
-
         private void SendCommand(string commandName, string value, string logMessage, bool requireAccess = true)
         {
             if (_global == null)
@@ -608,34 +643,31 @@ namespace ProtolScadaRemake.Controls
                 command.NeedToWrite = true;
                 command.SendToController();
                 _global.Log.Add("Пользователь", logMessage, 1);
+                Debug.WriteLine($"Команда {commandName} отправлена: {value}");
             }
             else
             {
-                Debug.WriteLine($"Команда не найдена: {commandName}");
+                Debug.WriteLine($"[ОШИБКА] Команда не найдена: {commandName}");
             }
         }
 
         private void P601TuneButton_Click(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine(">>> Нажата кнопка автонастройки P-601");
             SendCommand("P601_PID_Tune", "true", "Автонастройка PID‑регулятора P‑601", requireAccess: false);
-            P601TuneButton.Visibility = Visibility.Collapsed;
         }
 
         private void P602TuneButton_Click(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine(">>> Нажата кнопка автонастройки P-602");
             SendCommand("P602_PID_Tune", "true", "Автонастройка PID‑регулятора P‑602", requireAccess: false);
-            P602TuneButton.Visibility = Visibility.Collapsed;
         }
 
         private void P651TuneButton_Click(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine(">>> Нажата кнопка автонастройки P-651");
             SendCommand("P651_PID_Tune", "true", "Автонастройка PID‑регулятора P‑651", requireAccess: false);
-            P651TuneButton.Visibility = Visibility.Collapsed;
         }
-
-        #endregion
-
-        #region Компрессор
 
         private void CompressorStartButton_Click(object sender, RoutedEventArgs e)
         {
@@ -647,10 +679,6 @@ namespace ProtolScadaRemake.Controls
             SendCommand("Compressor_Start", "false", "Отключение компрессора");
         }
 
-        #endregion
-
-        #region Чек‑бокс кислоты
-
         private void GroRecept_UseAcidCheck_Changed(object sender, RoutedEventArgs e)
         {
             GroRecept_Acid.Visibility = GroRecept_UseAcidCheck.IsChecked == true
@@ -658,9 +686,6 @@ namespace ProtolScadaRemake.Controls
                                         : Visibility.Hidden;
         }
 
-        #endregion
-
-        // Пустой обработчик из XAML (можно удалить из XAML, если он не нужен)
         private void GroEditButton_Click_1(object sender, RoutedEventArgs e) { }
     }
 }
