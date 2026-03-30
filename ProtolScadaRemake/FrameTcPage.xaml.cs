@@ -1,8 +1,6 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace ProtolScadaRemake
@@ -1087,7 +1085,7 @@ namespace ProtolScadaRemake
             {
                 command.WriteValue = "true";
                 command.NeedToWrite = true;
-                _global.Log.Add("Пользователь", "Остановка авторежима", 1);  
+                _global.Log.Add("Пользователь", "Остановка авторежима", 1);
             }
         }
 

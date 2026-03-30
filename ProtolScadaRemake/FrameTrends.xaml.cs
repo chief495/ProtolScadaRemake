@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using OxyPlot;
+﻿using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 using OxyPlot.Wpf;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace ProtolScadaRemake.Views
 {
