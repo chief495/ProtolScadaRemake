@@ -336,6 +336,7 @@ namespace ProtolScadaRemake
             GaugeT301.FillLevel = ReadLevelPercent("LT301_Value");
             GaugeT303.FillLevel = ReadLevelPercent("LT303_Value");
             GaugeT403.FillLevel = ReadLevelPercent("LT403_Value");
+            GaugeT100.FillLevel = ReadLevelPercent("WIT100_Volume");
         }
 
         private double ReadLevelPercent(string variableName)

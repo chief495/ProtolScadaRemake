@@ -54,6 +54,15 @@
                            FillColor="#8046A3FF"
                            IsHitTestVisible="False"/>
 
+        <local:LiquidGauge x:Name="GaugeT100"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Margin="228,730,0,0"
+                           Width="353"
+                           Height="187"
+                           FillColor="#8046A3FF"
+                           IsHitTestVisible="False"/>
+
         <!-- ========== ДАТЧИКИ УРОВНЯ (AI) ========== -->
         <!-- LT150 - Уровень T150 -->
         <local:Element_AI x:Name="LT150"

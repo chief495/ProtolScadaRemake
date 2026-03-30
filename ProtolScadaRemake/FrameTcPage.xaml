@@ -24,6 +24,15 @@
                            FillColor="#8046A3FF"
                            IsHitTestVisible="False"/>
 
+        <local:LiquidGauge x:Name="GaugeT200"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Margin="306,520,0,0"
+                           Width="353"
+                           Height="187"
+                           FillColor="#8046A3FF"
+                           IsHitTestVisible="False"/>
+
         <!-- ========== АНАЛОГОВЫЕ ДАТЧИКИ ========== -->
         <local:Element_AI x:Name="PT205" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="449,193,0,0"/>
         <local:Element_AI x:Name="PT206" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="439,317,0,0"/>

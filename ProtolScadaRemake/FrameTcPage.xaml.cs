@@ -267,6 +267,7 @@ namespace ProtolScadaRemake
         {
             if (_global?.Variables == null) return;
             GaugeT250.FillLevel = ReadLevelPercent("LT253_Value");
+            GaugeT200.FillLevel = ReadLevelPercent("WIT200_Volume");
         }
 
         private double ReadLevelPercent(string variableName)
