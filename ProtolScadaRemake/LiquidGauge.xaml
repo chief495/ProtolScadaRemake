@@ -4,24 +4,7 @@
              Width="353" Height="187">
 
     <Grid>
-        <!-- Определяем форму для обрезки -->
-        <Grid.Resources>
-            <PathGeometry x:Key="TankShape">
-                <PathFigure StartPoint="10,0" IsClosed="True">
-                    <LineSegment Point="343,0"/>
-                    <BezierSegment Point1="348.523,0" Point2="353,4.47715" Point3="353,10"/>
-                    <LineSegment Point="353,177"/>
-                    <BezierSegment Point1="353,182.523" Point2="348.523,187" Point3="343,187"/>
-                    <LineSegment Point="10,187"/>
-                    <BezierSegment Point1="4.477,187" Point2="0,182.523" Point3="0,177"/>
-                    <LineSegment Point="0,10"/>
-                    <BezierSegment Point1="0,4.47715" Point2="4.47715,0" Point3="10,0"/>
-                </PathFigure>
-            </PathGeometry>
-        </Grid.Resources>
-
-        <!-- Контейнер с обрезкой по форме ёмкости -->
-        <Grid>
+        <Grid ClipToBounds="False">
             <Grid.Clip>
                 <PathGeometry>
                     <PathFigure StartPoint="10,0" IsClosed="True">
@@ -30,27 +13,17 @@
                         <LineSegment Point="353,177"/>
                         <BezierSegment Point1="353,182.523" Point2="348.523,187" Point3="343,187"/>
                         <LineSegment Point="10,187"/>
-                        <BezierSegment Point1="4.477,187" Point2="0,182.523" Point3="0,177"/>
+                        <BezierSegment Point1="4.47718,187" Point2="2.69318e-05,182.523" Point3="2.69318e-05,177"/>
                         <LineSegment Point="0,10"/>
                         <BezierSegment Point1="0,4.47715" Point2="4.47715,0" Point3="10,0"/>
                     </PathFigure>
                 </PathGeometry>
             </Grid.Clip>
 
-            <!-- Полупрозрачный фон -->
-            <Rectangle Fill="#30000000"/>
-
-            <!-- Заполнение (зелёное) - растёт снизу вверх -->
-            <Rectangle x:Name="FillRect" 
+            <Rectangle x:Name="FillRect"
                        Fill="#8032CD32"
                        VerticalAlignment="Bottom"
                        Height="0"/>
         </Grid>
-
-        <!-- Рамка ёмкости (полупрозрачная) -->
-        <Path Stroke="#80FFFFFF" 
-              StrokeThickness="2" 
-              Fill="Transparent"
-              Data="M 10 0 L 343 0 C 348.523 0 353 4.47715 353 10 L 353 177 C 353 182.523 348.523 187 343 187 L 10 187 C 4.477 187 0 182.523 0 177 L 0 10 C 0 4.47715 4.47715 0 10 0 Z"/>
     </Grid>
 </UserControl>

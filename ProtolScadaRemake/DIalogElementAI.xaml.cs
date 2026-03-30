@@ -17,6 +17,8 @@ namespace ProtolScadaRemake
         public string VarName = "";
 
         private bool _isInitializing = true;
+        private string _lowBoundSuffix = "_LowLevel";
+        private string _hiBoundSuffix = "_HiLevel";
 
         private string _eu;
         public string EU
@@ -47,6 +49,8 @@ namespace ProtolScadaRemake
 
             try
             {
+                ResolveMeasurementBoundSuffixes();
+
                 // Режим работы
                 TVariableTag VariableTag = Global.Variables.GetByName(VarName + "_Manual");
                 if (VariableTag != null)
@@ -77,12 +81,12 @@ namespace ProtolScadaRemake
                 LoadNumericValue(HFNumeric, VarName + "_HF");
 
                 // Настройки датчика
-                LoadNumericValue(LowLevelNumeric, VarName + "_LowLevel");
-                LoadNumericValue(HiLevelNumeric, VarName + "_HiLevel");
+                LoadNumericValue(LowLevelNumeric, VarName + _lowBoundSuffix);
+                LoadNumericValue(HiLevelNumeric, VarName + _hiBoundSuffix);
                 LoadNumericValue(LowCurrNumeric, VarName + "_LowCurr");
                 LoadNumericValue(HiCurrNumeric, VarName + "_HiCurr");
 
-                // Ограничение без пароля: блокируем только ручной режим и min/max у AI
+                // Ограничение без пароля: параметры нормирования доступны всегда
                 ApplyAccessRestrictions();
             }
             finally
@@ -91,6 +95,28 @@ namespace ProtolScadaRemake
             }
         }
 
+
+        private void ResolveMeasurementBoundSuffixes()
+        {
+            string[] lowCandidates = { "_LowLevel", "_LowTemp", "_LowPress" };
+            string[] hiCandidates = { "_HiLevel", "_HiTemp", "_HiPress" };
+
+            _lowBoundSuffix = ResolveFirstExistingSuffix(lowCandidates, "_LowLevel");
+            _hiBoundSuffix = ResolveFirstExistingSuffix(hiCandidates, "_HiLevel");
+        }
+
+        private string ResolveFirstExistingSuffix(string[] candidates, string fallback)
+        {
+            if (Global == null) return fallback;
+
+            foreach (string suffix in candidates)
+            {
+                if (Global.Commands?.GetByName(VarName + suffix) != null || Global.Variables?.GetByName(VarName + suffix) != null)
+                    return suffix;
+            }
+
+            return fallback;
+        }
 
         private void ApplyAccessRestrictions()
         {
@@ -107,10 +133,11 @@ namespace ProtolScadaRemake
             if (LWNumeric != null) LWNumeric.IsEnabled = hasAccess;
             if (LFNumeric != null) LFNumeric.IsEnabled = hasAccess;
 
-            if (LowLevelNumeric != null) LowLevelNumeric.IsEnabled = hasAccess;
-            if (HiLevelNumeric != null) HiLevelNumeric.IsEnabled = hasAccess;
-            if (LowCurrNumeric != null) LowCurrNumeric.IsEnabled = hasAccess;
-            if (HiCurrNumeric != null) HiCurrNumeric.IsEnabled = hasAccess;
+            // Параметры нормирования доступны обычному пользователю без пароля
+            if (LowLevelNumeric != null) LowLevelNumeric.IsEnabled = true;
+            if (HiLevelNumeric != null) HiLevelNumeric.IsEnabled = true;
+            if (LowCurrNumeric != null) LowCurrNumeric.IsEnabled = true;
+            if (HiCurrNumeric != null) HiCurrNumeric.IsEnabled = true;
         }
 
         private void LoadNumericValue(NumericUpDown numeric, string varName)
@@ -261,12 +288,12 @@ namespace ProtolScadaRemake
 
         private void LowLevelNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
-            SendNumericCommand(LowLevelNumeric, "_LowLevel", "Нижняя граница измеряемого уровня", EU ?? "%");
+            SendNumericCommand(LowLevelNumeric, _lowBoundSuffix, "Нижняя граница измеряемой величины", EU ?? "%");
         }
 
         private void HiLevelNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
-            SendNumericCommand(HiLevelNumeric, "_HiLevel", "Верхняя граница измеряемого уровня", EU ?? "%");
+            SendNumericCommand(HiLevelNumeric, _hiBoundSuffix, "Верхняя граница измеряемой величины", EU ?? "%");
         }
 
         private void LowCurrNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)

@@ -58,11 +58,11 @@ namespace ProtolScadaRemake
                 InitializeSensor(TT252, "TT252", "Датчик температуры TT-252", "TT-252", "°C");
                 InitializeSensor(TT602, "TT602", "Датчик температуры TT-602", "TT-602", "°C");
                 InitializeSensor(LT150, "LT150", "Датчик уровня LT150", "LT-150", "%");
-                InitializeFM(FM601, "FM601", "Расходомер FM601", "FM601", "кг/мин");
+                InitializeFM(FM601, "FM601", "Расходомер FM601", "FM601", "кг/мин | г/см³");
                 InitializeSensor(PT601, "PT601", "Датчик давления PT601", "PT-601", "атм");
                 InitializeSensor(PT606, "PT606", "Датчик давления PT606", "PT-606", "атм");
                 InitializeSensor(LT253, "LT253", "Датчик уровня LT253", "LT-253", "%");
-                InitializeFM(FM602, "FM602", "Расходомер FM602", "FM602", "кг/мин");
+                InitializeFM(FM602, "FM602", "Расходомер FM602", "FM602", "кг/мин | г/см³");
                 InitializeSensor(LT651, "LT651", "Датчик уровня LT651", "LT-651", "%");
                 InitializeSensor(PT652, "PT652", "Давление PT652", "PT-652", "атм");
                 InitializeSensor(PT604, "PT604", "Давление PT604", "PT-604", "атм");
@@ -189,6 +189,7 @@ namespace ProtolScadaRemake
                 V505?.UpdateElement();
 
                 UpdateMixerTogglesFromVariables();
+                UpdateLiquidGauges();
             }
             catch (Exception ex)
             {
@@ -224,6 +225,22 @@ namespace ProtolScadaRemake
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка обновления переключателей: {ex.Message}");
             }
+        }
+
+        private void UpdateLiquidGauges()
+        {
+            if (_global?.Variables == null) return;
+
+            GaugeT150.FillLevel = ReadLevelPercent("LT150_Value");
+            GaugeT250.FillLevel = ReadLevelPercent("LT253_Value");
+            GaugeT650.FillLevel = ReadLevelPercent("LT651_Value");
+        }
+
+        private double ReadLevelPercent(string variableName)
+        {
+            var tag = _global?.Variables?.GetByName(variableName);
+            if (tag == null) return 0;
+            return Math.Max(0, Math.Min(100, tag.ValueReal));
         }
 
         private void UpdatePanelInfo()

@@ -274,6 +274,21 @@ namespace ProtolScadaRemake
 
             // Обновляем состояние переключателей миксеров из переменных
             UpdateMixerTogglesFromVariables();
+            UpdateLiquidGauges();
+        }
+
+        private void UpdateLiquidGauges()
+        {
+            if (_global?.Variables == null) return;
+            GaugeT400.FillLevel = ReadLevelPercent("LT403_Value");
+            GaugeT500.FillLevel = ReadLevelPercent("LT503_Value");
+        }
+
+        private double ReadLevelPercent(string variableName)
+        {
+            var tag = _global?.Variables?.GetByName(variableName);
+            if (tag == null) return 0;
+            return Math.Max(0, Math.Min(100, tag.ValueReal));
         }
 
         private void UpdateMixerTogglesFromVariables()
