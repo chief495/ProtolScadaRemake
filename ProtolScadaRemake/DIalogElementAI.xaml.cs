@@ -86,7 +86,7 @@ namespace ProtolScadaRemake
                 LoadNumericValue(LowCurrNumeric, VarName + "_LowCurr");
                 LoadNumericValue(HiCurrNumeric, VarName + "_HiCurr");
 
-                // Ограничение без пароля: блокируем только ручной режим и min/max у AI
+                // Ограничение без пароля: параметры нормирования доступны всегда
                 ApplyAccessRestrictions();
             }
             finally
@@ -133,10 +133,11 @@ namespace ProtolScadaRemake
             if (LWNumeric != null) LWNumeric.IsEnabled = hasAccess;
             if (LFNumeric != null) LFNumeric.IsEnabled = hasAccess;
 
-            if (LowLevelNumeric != null) LowLevelNumeric.IsEnabled = hasAccess;
-            if (HiLevelNumeric != null) HiLevelNumeric.IsEnabled = hasAccess;
-            if (LowCurrNumeric != null) LowCurrNumeric.IsEnabled = hasAccess;
-            if (HiCurrNumeric != null) HiCurrNumeric.IsEnabled = hasAccess;
+            // Параметры нормирования доступны обычному пользователю без пароля
+            if (LowLevelNumeric != null) LowLevelNumeric.IsEnabled = true;
+            if (HiLevelNumeric != null) HiLevelNumeric.IsEnabled = true;
+            if (LowCurrNumeric != null) LowCurrNumeric.IsEnabled = true;
+            if (HiCurrNumeric != null) HiCurrNumeric.IsEnabled = true;
         }
 
         private void LoadNumericValue(NumericUpDown numeric, string varName)
