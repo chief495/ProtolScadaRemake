@@ -18,6 +18,34 @@
         <!-- Фоновая картинка -->
         <ImageXaml:ImageEmPage HorizontalAlignment="Left" VerticalAlignment="Top" Width="1790" Height="1020" Margin="-10,-10,0,0"/>
 
+        <!-- Шкалы заполнения ёмкостей -->
+        <local:LiquidGauge x:Name="GaugeT150"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Margin="336,295,0,0"
+                           Width="353"
+                           Height="187"
+                           FillColor="#8046A3FF"
+                           IsHitTestVisible="False"/>
+
+        <local:LiquidGauge x:Name="GaugeT250"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Margin="380,605,0,0"
+                           Width="353"
+                           Height="187"
+                           FillColor="#8046A3FF"
+                           IsHitTestVisible="False"/>
+
+        <local:LiquidGauge x:Name="GaugeT650"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Margin="1077,199,0,0"
+                           Width="353"
+                           Height="187"
+                           FillColor="#8046A3FF"
+                           IsHitTestVisible="False"/>
+
         <!-- Панель выбора режима (верхний левый угол) -->
         <local:ModePanel x:Name="EmModePanel"
                         HorizontalAlignment="Left"

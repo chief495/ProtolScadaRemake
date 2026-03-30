@@ -37,20 +37,11 @@
                 </PathGeometry>
             </Grid.Clip>
 
-            <!-- Полупрозрачный фон -->
-            <Rectangle Fill="#30000000"/>
-
-            <!-- Заполнение (зелёное) - растёт снизу вверх -->
-            <Rectangle x:Name="FillRect" 
+            <!-- Заполнение - растёт снизу вверх -->
+            <Rectangle x:Name="FillRect"
                        Fill="#8032CD32"
                        VerticalAlignment="Bottom"
                        Height="0"/>
         </Grid>
-
-        <!-- Рамка ёмкости (полупрозрачная) -->
-        <Path Stroke="#80FFFFFF" 
-              StrokeThickness="2" 
-              Fill="Transparent"
-              Data="M 10 0 L 343 0 C 348.523 0 353 4.47715 353 10 L 353 177 C 353 182.523 348.523 187 343 187 L 10 187 C 4.477 187 0 182.523 0 177 L 0 10 C 0 4.47715 4.47715 0 10 0 Z"/>
     </Grid>
 </UserControl>
