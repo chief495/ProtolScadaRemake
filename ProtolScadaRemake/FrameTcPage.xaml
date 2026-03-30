@@ -14,6 +14,16 @@
         <!-- Фоновая картинка -->
         <ImageXaml:ImageTcPage HorizontalAlignment="Center" VerticalAlignment="Top" Width="1790" Height="1010"/>
 
+        <!-- Шкала заполнения ёмкости T250 -->
+        <local:LiquidGauge x:Name="GaugeT250"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Margin="1088,460,0,0"
+                           Width="353"
+                           Height="187"
+                           FillColor="#8046A3FF"
+                           IsHitTestVisible="False"/>
+
         <!-- ========== АНАЛОГОВЫЕ ДАТЧИКИ ========== -->
         <local:Element_AI x:Name="PT205" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="449,193,0,0"/>
         <local:Element_AI x:Name="PT206" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="439,317,0,0"/>

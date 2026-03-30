@@ -79,7 +79,7 @@ namespace ProtolScadaRemake
                 InitializeSensor(TT252, "TT252", "Датчик температуры TT252", "TT252", "°C");
 
                 // FM602 - Массовый расходомер FM602
-                InitializeFM(FM602, "FM602", "Расходомер FM602", "FM602", "кг/мин");
+                InitializeFM(FM602, "FM602", "Расходомер FM602", "FM602", "кг/мин | г/см³");
 
                 // WIT200 - Датчик веса WIT200
                 InitializeWIT(WIT200, "WIT200_Volume", "Датчик веса WIT200", "WIT200", "кг");
@@ -260,6 +260,20 @@ namespace ProtolScadaRemake
 
             // Обновление состояния переключателей из переменных
             UpdateToggleSwitchesFromVariables();
+            UpdateLiquidGauges();
+        }
+
+        private void UpdateLiquidGauges()
+        {
+            if (_global?.Variables == null) return;
+            GaugeT250.FillLevel = ReadLevelPercent("LT253_Value");
+        }
+
+        private double ReadLevelPercent(string variableName)
+        {
+            var tag = _global?.Variables?.GetByName(variableName);
+            if (tag == null) return 0;
+            return Math.Max(0, Math.Min(100, tag.ValueReal));
         }
 
         private void UpdateToggleSwitchesFromVariables()

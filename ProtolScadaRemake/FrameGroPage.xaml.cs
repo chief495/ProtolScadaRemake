@@ -99,7 +99,7 @@ namespace ProtolScadaRemake
                 InitializeSensor(PT601, "PT601", "Датчик давления PT601", "PT-601", "атм");
 
                 InitializeFM(FM401, "FM401", "Расходомер FM401", "FM401", "кг/мин");
-                InitializeFM(FM601, "FM601", "Расходомер FM601", "FM601", "кг/мин");
+                InitializeFM(FM601, "FM601", "Расходомер FM601", "FM601", "кг/мин | г/см³");
 
                 InitializeQM(QM400, "QM400", "Счетчик QM-400", "QM-400", "л");
                 InitializeWIT(WIT100, "WIT100", "Вес Т-100", "WIT-100", "кг");
@@ -326,6 +326,23 @@ namespace ProtolScadaRemake
             HE300?.UpdateElement(); HE750?.UpdateElement(); HE700_1?.UpdateElement(); HE700_2?.UpdateElement();
 
             UpdateToggleSwitchesFromVariables();
+            UpdateLiquidGauges();
+        }
+
+        private void UpdateLiquidGauges()
+        {
+            if (_global?.Variables == null) return;
+            GaugeT150.FillLevel = ReadLevelPercent("LT150_Value");
+            GaugeT301.FillLevel = ReadLevelPercent("LT301_Value");
+            GaugeT303.FillLevel = ReadLevelPercent("LT303_Value");
+            GaugeT403.FillLevel = ReadLevelPercent("LT403_Value");
+        }
+
+        private double ReadLevelPercent(string variableName)
+        {
+            var tag = _global?.Variables?.GetByName(variableName);
+            if (tag == null) return 0;
+            return Math.Max(0, Math.Min(100, tag.ValueReal));
         }
 
         private void UpdateToggleSwitchesFromVariables()
