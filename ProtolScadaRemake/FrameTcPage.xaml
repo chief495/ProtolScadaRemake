@@ -27,9 +27,9 @@
         <local:LiquidGauge x:Name="GaugeT200"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
-                           Margin="306,520,0,0"
-                           Width="353"
-                           Height="187"
+                           Margin="331,492,0,0"
+                           Width="329"
+                           Height="173"
                            FillColor="#8046A3FF"
                            IsHitTestVisible="False"/>
 
