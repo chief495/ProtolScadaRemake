@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace YourNamespace
+namespace ProtolScadaRemake
 {
     public partial class LiquidGauge : UserControl
     {
