@@ -17,6 +17,43 @@
         <!-- Фоновая картинка -->
         <ImageXaml:ImageGroPage HorizontalAlignment="Center" VerticalAlignment="Top" Width="1790" Height="1010"/>
 
+        <!-- Шкалы заполнения ёмкостей -->
+        <local:LiquidGauge x:Name="GaugeT150"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Margin="1144,730,0,0"
+                           Width="353"
+                           Height="187"
+                           FillColor="#8046A3FF"
+                           IsHitTestVisible="False"/>
+
+        <local:LiquidGauge x:Name="GaugeT301"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Margin="969,168,0,0"
+                           Width="353"
+                           Height="187"
+                           FillColor="#8046A3FF"
+                           IsHitTestVisible="False"/>
+
+        <local:LiquidGauge x:Name="GaugeT303"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Margin="1228,168,0,0"
+                           Width="353"
+                           Height="187"
+                           FillColor="#8046A3FF"
+                           IsHitTestVisible="False"/>
+
+        <local:LiquidGauge x:Name="GaugeT403"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Margin="402,204,0,0"
+                           Width="353"
+                           Height="187"
+                           FillColor="#8046A3FF"
+                           IsHitTestVisible="False"/>
+
         <!-- ========== ДАТЧИКИ УРОВНЯ (AI) ========== -->
         <!-- LT150 - Уровень T150 -->
         <local:Element_AI x:Name="LT150"
