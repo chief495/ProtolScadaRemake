@@ -21,36 +21,36 @@
         <local:LiquidGauge x:Name="GaugeT150"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
-                           Margin="1144,730,0,0"
-                           Width="353"
-                           Height="187"
+                           Margin="1053,750,0,0"
+                           Width="329"
+                           Height="174"
                            FillColor="#8046A3FF"
                            IsHitTestVisible="False"/>
 
         <local:LiquidGauge x:Name="GaugeT301"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
-                           Margin="969,168,0,0"
-                           Width="353"
-                           Height="187"
+                           Margin="975,227,0,0"
+                           Width="240"
+                           Height="133"
                            FillColor="#8046A3FF"
                            IsHitTestVisible="False"/>
 
         <local:LiquidGauge x:Name="GaugeT303"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
-                           Margin="1228,168,0,0"
-                           Width="353"
-                           Height="187"
+                           Margin="1232,227,0,0"
+                           Width="239"
+                           Height="133"
                            FillColor="#8046A3FF"
                            IsHitTestVisible="False"/>
 
         <local:LiquidGauge x:Name="GaugeT403"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
-                           Margin="402,204,0,0"
-                           Width="353"
-                           Height="187"
+                           Margin="314,219,0,0"
+                           Width="327"
+                           Height="173"
                            FillColor="#8046A3FF"
                            IsHitTestVisible="False"/>
 
