@@ -22,8 +22,8 @@
         <local:LiquidGauge x:Name="GaugeT400"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
-                           Margin="885,427,0,0"
-                           Width="325"
+                           Margin="883,427,0,0"
+                           Width="329"
                            Height="174"
                            FillColor="#8046A3FF"
                            IsHitTestVisible="False"/>

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -9,6 +10,28 @@ namespace ProtolScadaRemake
         public LiquidGauge()
         {
             InitializeComponent();
+        }
+
+        // Обновляем Clip при загрузке и изменении размера
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            UpdateClip();
+        }
+
+        private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            UpdateClip();
+            UpdateFill();
+        }
+
+        private void UpdateClip()
+        {
+            this.Clip = new RectangleGeometry
+            {
+                RadiusX = 10,
+                RadiusY = 10,
+                Rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight)
+            };
         }
 
         // Dependency Property для уровня заполнения (0-100)
@@ -35,11 +58,10 @@ namespace ProtolScadaRemake
 
         private void UpdateFill()
         {
-            // Ограничиваем значение 0-100
-            double level = Math.Max(0, Math.Min(100, FillLevel));
+            if (this.ActualHeight <= 0) return;
 
-            // Высота контрола 187, рассчитываем высоту заполнения
-            FillRect.Height = (level / 100.0) * 187;
+            double level = Math.Max(0, Math.Min(100, FillLevel));
+            FillRect.Height = (level / 100.0) * this.ActualHeight;
         }
 
         // Свойство для цвета заполнения
