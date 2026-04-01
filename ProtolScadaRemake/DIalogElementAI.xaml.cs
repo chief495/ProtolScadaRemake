@@ -1,6 +1,7 @@
 ﻿using MahApps.Metro.Controls;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -209,7 +210,7 @@ namespace ProtolScadaRemake
 
             if (command == null)
             {
-                Debug.WriteLine($"Команда не найдена: {fullCommandName}");
+                Debug.WriteLine($"Команда не найдена: {string.Join(", ", _varPrefixes.Select(p => p + commandSuffix))}");
                 return;
             }
 
