@@ -1,0 +1,73 @@
+﻿<Window x:Class="ProtolScadaRemake.DialogElementQM"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="DialogElementQM"
+        Height="220"
+        Width="650"
+        Background="#FFCCC9C9"
+        Icon="Images/ProtolLogo.ico"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <GroupBox Header="Счетчик" FontFamily="Arial" FontSize="12" Padding="10">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <Label Content="Текущее значение:" Width="140" Padding="0"/>
+                    <TextBlock x:Name="CurrentValueTextBlock" Width="70" TextAlignment="Right" VerticalAlignment="Center"/>
+                    <Label x:Name="CurrentValueEU" Width="40" Padding="4,0,0,0"/>
+                </StackPanel>
+
+                <Button x:Name="ResetButton"
+                        Content="Сброс управления"
+                        Height="30"
+                        Width="170"
+                        HorizontalAlignment="Left"
+                        Click="ResetButton_Click"/>
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Grid.Column="1"
+                  Header="Настройки"
+                  FontFamily="Arial"
+                  FontSize="12"
+                  Padding="10"
+                  Margin="10,0,0,0">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <Label Content="Начальное значение:" Width="190" Padding="0"/>
+                    <TextBox x:Name="StartValueTextBox"
+                             Width="120"
+                             Height="26"
+                             VerticalContentAlignment="Center"
+                             TextAlignment="Right"
+                             PreviewMouseDown="SettingsTextBox_PreviewMouseDown"
+                             PreviewKeyDown="SettingsTextBox_PreviewKeyDown"
+                             KeyDown="SettingsTextBox_KeyDown"
+                             LostFocus="StartValueTextBox_LostFocus"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Импульсов на м³:" Width="190" Padding="0"/>
+                    <TextBox x:Name="PulseSizeTextBox"
+                             Width="120"
+                             Height="26"
+                             VerticalContentAlignment="Center"
+                             TextAlignment="Right"
+                             PreviewMouseDown="SettingsTextBox_PreviewMouseDown"
+                             PreviewKeyDown="SettingsTextBox_PreviewKeyDown"
+                             KeyDown="SettingsTextBox_KeyDown"
+                             LostFocus="PulseSizeTextBox_LostFocus"/>
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+</Window>
