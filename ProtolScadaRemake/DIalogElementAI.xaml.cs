@@ -1,6 +1,5 @@
 ﻿using MahApps.Metro.Controls;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
@@ -18,7 +17,7 @@ namespace ProtolScadaRemake
 
         public TGlobal Global;
         public string VarName = "";
-        private readonly List<string> _varPrefixes = new();
+        private string _varPrefix = "";
 
         private bool _isInitializing = true;
         private string _lowBoundSuffix = "_LowLevel";
@@ -147,8 +146,7 @@ namespace ProtolScadaRemake
 
         private void ResolveVarPrefix()
         {
-            _varPrefixes.Clear();
-            AddVarPrefixCandidate(VarName);
+            _varPrefix = VarName;
 
             if (string.IsNullOrWhiteSpace(VarName) || Global == null)
                 return;
@@ -160,58 +158,28 @@ namespace ProtolScadaRemake
                     continue;
 
                 string candidate = VarName[..^suffix.Length];
-                AddVarPrefixCandidate(candidate);
-            }
-
-            // Иногда базовое имя приходит без "источника значения" (FM/QM/WIT),
-            // а команды/переменные записаны с промежуточным суффиксом.
-            string[] sourceSuffixes = { "_Value", "_Volume", "_MassFlow", "_VolumeFlow", "_Total" };
-            foreach (string sourceSuffix in sourceSuffixes)
-            {
-                AddVarPrefixCandidate(VarName + sourceSuffix);
-            }
-        }
-
-        private void AddVarPrefixCandidate(string prefix)
-        {
-            if (string.IsNullOrWhiteSpace(prefix)) return;
-            if (_varPrefixes.Contains(prefix, StringComparer.OrdinalIgnoreCase)) return;
-            _varPrefixes.Add(prefix);
-        }
-
-        private TVariableTag FindVariable(string suffix)
-        {
-            if (Global == null) return null;
-
-            foreach (string prefix in _varPrefixes)
-            {
-                TVariableTag tag = Global.Variables?.GetByName(prefix + suffix);
-                if (tag != null) return tag;
-            }
-
-            return null;
-        }
-
-        private TCommandTag FindCommand(string suffix, out string fullCommandName)
-        {
-            fullCommandName = string.Empty;
-            if (Global == null) return null;
-
-            foreach (string prefix in _varPrefixes)
-            {
-                string candidateName = prefix + suffix;
-                TCommandTag command = Global.Commands?.GetByName(candidateName);
-                if (command != null)
+                if (HasAnalogLikeTags(candidate))
                 {
-                    fullCommandName = candidateName;
-                    return command;
+                    _varPrefix = candidate;
+                    return;
                 }
             }
-
-            return null;
         }
 
-        private TCommandTag FindCommand(string suffix) => FindCommand(suffix, out _);
+        private bool HasAnalogLikeTags(string prefix)
+        {
+            string[] checkSuffixes = { "_Manual", "_ManualValue", "_LW", "_HW", "_LF", "_HF", "_LowCurr", "_HiCurr" };
+            foreach (string suffix in checkSuffixes)
+            {
+                if (Global.Commands?.GetByName(prefix + suffix) != null || Global.Variables?.GetByName(prefix + suffix) != null)
+                    return true;
+            }
+            return false;
+        }
+
+        private TVariableTag FindVariable(string suffix) => Global?.Variables?.GetByName(_varPrefix + suffix);
+
+        private TCommandTag FindCommand(string suffix) => Global?.Commands?.GetByName(_varPrefix + suffix);
 
         private void LoadNumericValue(NumericUpDown numeric, string suffix)
         {
@@ -237,7 +205,8 @@ namespace ProtolScadaRemake
             if (_isInitializing) return;
             if (Global == null) return;
 
-            TCommandTag command = FindCommand(commandSuffix, out string fullCommandName);
+            string fullCommandName = _varPrefix + commandSuffix;
+            TCommandTag command = FindCommand(commandSuffix);
 
             if (command == null)
             {

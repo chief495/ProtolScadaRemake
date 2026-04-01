@@ -1,7 +1,7 @@
 ﻿using MahApps.Metro.Controls;
+using System;
 using System.Globalization;
 using System.Windows;
-using System.Windows.Input;
 
 namespace ProtolScadaRemake
 {
@@ -66,22 +66,6 @@ namespace ProtolScadaRemake
             PulseSizeNumeric.IsEnabled = hasAccess;
         }
 
-        private bool EnsureAccessForSettings()
-        {
-            if (Global == null) return false;
-            if (Global.Access) return true;
-
-            DialogPassword dialog = new DialogPassword
-            {
-                Global = Global,
-                Owner = this
-            };
-
-            dialog.ShowDialog();
-            ApplyAccessRestrictions();
-            return Global.Access;
-        }
-
         private void SendNumericCommand(NumericUpDown numeric, string suffix, string logMessage)
         {
             if (_isInitializing) return;
@@ -107,18 +91,6 @@ namespace ProtolScadaRemake
         private void PulseSizeNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
             SendNumericCommand(PulseSizeNumeric, "_PulseSize", "Изменено количество импульсов на м³");
-        }
-
-        private void SettingsNumeric_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (Global?.Access == true) return;
-            if (!EnsureAccessForSettings()) e.Handled = true;
-        }
-
-        private void SettingsNumeric_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (Global?.Access == true) return;
-            if (!EnsureAccessForSettings()) e.Handled = true;
         }
 
         private void ResetButton_Click(object sender, RoutedEventArgs e)

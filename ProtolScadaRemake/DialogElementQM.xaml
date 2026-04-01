@@ -49,8 +49,6 @@
                                      Width="120"
                                      Minimum="0"
                                      Maximum="1000000"
-                                     PreviewMouseDown="SettingsNumeric_PreviewMouseDown"
-                                     PreviewKeyDown="SettingsNumeric_PreviewKeyDown"
                                      ValueChanged="StartValueNumeric_ValueChanged"/>
                 </StackPanel>
 
@@ -60,8 +58,6 @@
                                      Width="120"
                                      Minimum="0"
                                      Maximum="1000000"
-                                     PreviewMouseDown="SettingsNumeric_PreviewMouseDown"
-                                     PreviewKeyDown="SettingsNumeric_PreviewKeyDown"
                                      ValueChanged="PulseSizeNumeric_ValueChanged"/>
                 </StackPanel>
             </StackPanel>
