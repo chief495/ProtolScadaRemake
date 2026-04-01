@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" d:DesignWidth="136" 
-             Background="#FF0C2948" Height="47" MouseDown="ValueLabel_Click">
+             Background="#FF0C2948" Height="47">
 
     <Grid Width="136" Height="46" HorizontalAlignment="Center" VerticalAlignment="Top">
         <Grid.RowDefinitions>

@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 
 namespace ProtolScadaRemake
@@ -78,24 +77,5 @@ namespace ProtolScadaRemake
             }
         }
 
-        private void ValueLabel_Click(object sender, MouseButtonEventArgs e)
-        {
-            if (Global == null) return;
-
-            try
-            {
-                DialogElementAI Dialog = new DialogElementAI();
-                Dialog.Title = Description;
-                Dialog.Global = Global;
-                Dialog.VarName = VarName;
-                Dialog.EU = EU;
-                Dialog.Initialize();
-                Dialog.ShowDialog();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Ошибка открытия диалога Element_WIT: {ex.Message}");
-            }
-        }
     }
 }

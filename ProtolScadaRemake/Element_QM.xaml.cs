@@ -86,7 +86,7 @@ namespace ProtolScadaRemake
 
             try
             {
-                DialogElementAI Dialog = new DialogElementAI();
+                DialogElementQM Dialog = new DialogElementQM();
                 Dialog.Title = Description;
                 Dialog.Global = Global;
                 Dialog.VarName = VarName;

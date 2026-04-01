@@ -60,7 +60,7 @@
                     <mah:NumericUpDown x:Name="ManualValueNumeric" 
                                      Background="White" 
                                      Minimum="0" 
-                                     Maximum="100" 
+                                     Maximum="1000000" 
                                      Width="80"
                                      FontSize="11"
                                      Margin="5,0,0,0"
@@ -101,10 +101,10 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Width="100" Margin="5,0,0,0">
-                    <mah:NumericUpDown x:Name="HFNumeric" Height="28" FontFamily="Arial" FontSize="10" Width="100" Background="White" Maximum="100" Minimum="0" ValueChanged="HFNumeric_ValueChanged"/>
-                    <mah:NumericUpDown x:Name="HWNumeric" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="HWNumeric_ValueChanged"/>
-                    <mah:NumericUpDown x:Name="LWNumeric" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="LWNumeric_ValueChanged"/>
-                    <mah:NumericUpDown x:Name="LFNumeric" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="LFNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="HFNumeric" Height="28" FontFamily="Arial" FontSize="10" Width="100" Background="White" Maximum="1000000" Minimum="0" ValueChanged="HFNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="HWNumeric" Height="28" FontSize="10" Background="White" Maximum="1000000" Minimum="0" ValueChanged="HWNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="LWNumeric" Height="28" FontSize="10" Background="White" Maximum="1000000" Minimum="0" ValueChanged="LWNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="LFNumeric" Height="28" FontSize="10" Background="White" Maximum="1000000" Minimum="0" ValueChanged="LFNumeric_ValueChanged"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Width="40" Margin="5,0,0,0">
@@ -140,8 +140,8 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Width="100" Margin="10,0,0,0">
-                    <mah:NumericUpDown x:Name="LowLevelNumeric" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="LowLevelNumeric_ValueChanged"/>
-                    <mah:NumericUpDown x:Name="HiLevelNumeric" Height="28" FontSize="10" Background="White" Maximum="100" Minimum="0" ValueChanged="HiLevelNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="LowLevelNumeric" Height="28" FontSize="10" Background="White" Maximum="1000000" Minimum="0" ValueChanged="LowLevelNumeric_ValueChanged"/>
+                    <mah:NumericUpDown x:Name="HiLevelNumeric" Height="28" FontSize="10" Background="White" Maximum="1000000" Minimum="0" ValueChanged="HiLevelNumeric_ValueChanged"/>
                     <mah:NumericUpDown x:Name="LowCurrNumeric" Height="28" FontSize="10" Background="White" Maximum="30" Minimum="0" ValueChanged="LowCurrNumeric_ValueChanged"/>
                     <mah:NumericUpDown x:Name="HiCurrNumeric" Height="28" FontSize="10" Background="White" Maximum="30" Minimum="0" ValueChanged="HiCurrNumeric_ValueChanged"/>
                 </StackPanel>
