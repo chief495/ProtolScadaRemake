@@ -4,9 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" d:DesignWidth="136" 
-             Background="Transparent" Height="47" MouseDown="ValueLabel_Click">
+             Background="Transparent" Height="60" MouseDown="ValueLabel_Click">
 
-    <Grid Width="136" Height="46" HorizontalAlignment="Center" VerticalAlignment="Top">
+    <Grid Width="136" Height="60" HorizontalAlignment="Center" VerticalAlignment="Top">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="0*"/>
@@ -70,7 +70,7 @@
 
         <TextBlock x:Name="TextBlockEU" 
                    HorizontalAlignment="Left" 
-                   Margin="89,23,0,0" 
+                   Margin="99,22,0,0" 
                    TextWrapping="Wrap" 
                    Text="кг/мин" 
                    VerticalAlignment="Top" 
@@ -78,6 +78,16 @@
                    FontFamily="Arial" 
                    Height="19"/>
 
+
+        <TextBlock x:Name="TextBlockDensityEU"
+                   HorizontalAlignment="Center"
+                   Margin="0,46,0,0"
+                   Text="г/см³"
+                   VerticalAlignment="Top"
+                   Foreground="White"
+                   FontFamily="Arial"
+                   FontSize="10"
+                   TextAlignment="Center"/>
         <Image x:Name="HandImage" 
                Margin="122,16,-11,0" 
                Source="/Images/Hand.png" 

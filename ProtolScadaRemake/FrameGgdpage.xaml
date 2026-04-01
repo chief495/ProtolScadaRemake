@@ -18,6 +18,25 @@
         <!-- Фоновая картинка -->
         <ImageXaml:ImageGgdPage HorizontalAlignment="Center" VerticalAlignment="Top" Width="1790" Height="1020" Margin="0,0,0,0"/>
 
+        <!-- Шкалы заполнения ёмкостей -->
+        <local:LiquidGauge x:Name="GaugeT400"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Margin="958,454,0,0"
+                           Width="353"
+                           Height="187"
+                           FillColor="#8046A3FF"
+                           IsHitTestVisible="False"/>
+
+        <local:LiquidGauge x:Name="GaugeT500"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Margin="466,454,0,0"
+                           Width="353"
+                           Height="187"
+                           FillColor="#8046A3FF"
+                           IsHitTestVisible="False"/>
+
         <!-- Панель набора воды T500 (левая сторона) -->
         <local:WaterFillPanel x:Name="T500WaterPanel"
                               HorizontalAlignment="Left"

@@ -189,6 +189,7 @@ namespace ProtolScadaRemake
                 V505?.UpdateElement();
 
                 UpdateMixerTogglesFromVariables();
+                UpdateLiquidGauges();
             }
             catch (Exception ex)
             {
@@ -224,6 +225,22 @@ namespace ProtolScadaRemake
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка обновления переключателей: {ex.Message}");
             }
+        }
+
+        private void UpdateLiquidGauges()
+        {
+            if (_global?.Variables == null) return;
+
+            GaugeT150.FillLevel = ReadLevelPercent("LT150_Value");
+            GaugeT250.FillLevel = ReadLevelPercent("LT253_Value");
+            GaugeT650.FillLevel = ReadLevelPercent("LT651_Value");
+        }
+
+        private double ReadLevelPercent(string variableName)
+        {
+            var tag = _global?.Variables?.GetByName(variableName);
+            if (tag == null) return 0;
+            return Math.Max(0, Math.Min(100, tag.ValueReal));
         }
 
         private void UpdatePanelInfo()

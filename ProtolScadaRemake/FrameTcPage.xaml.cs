@@ -260,6 +260,21 @@ namespace ProtolScadaRemake
 
             // Обновление состояния переключателей из переменных
             UpdateToggleSwitchesFromVariables();
+            UpdateLiquidGauges();
+        }
+
+        private void UpdateLiquidGauges()
+        {
+            if (_global?.Variables == null) return;
+            GaugeT250.FillLevel = ReadLevelPercent("LT253_Value");
+            GaugeT200.FillLevel = ReadLevelPercent("WIT200_Volume");
+        }
+
+        private double ReadLevelPercent(string variableName)
+        {
+            var tag = _global?.Variables?.GetByName(variableName);
+            if (tag == null) return 0;
+            return Math.Max(0, Math.Min(100, tag.ValueReal));
         }
 
         private void UpdateToggleSwitchesFromVariables()

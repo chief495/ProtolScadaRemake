@@ -43,6 +43,11 @@ namespace ProtolScadaRemake
 
                 if (Global == null) return;
 
+                if (TextBlockDensityEU != null)
+                {
+                    TextBlockDensityEU.Text = Global.Variables?.GetByName(VarName + "_Density") != null ? "г/см³" : string.Empty;
+                }
+
                 // ОСНОВНОЕ ЗНАЧЕНИЕ - массовый расход (кг/мин)
                 TVariableTag Tag = Global.Variables?.GetByName(VarName + "_MassFlow");
                 if (Tag != null && ValueLabel != null)
