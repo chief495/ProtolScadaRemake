@@ -101,7 +101,7 @@ namespace ProtolScadaRemake
                 InitializeFM(FM601, "FM601", "Расходомер FM601", "FM601", "кг/мин | г/см³");
 
                 InitializeQM(QM400, "QM400", "Счетчик QM-400", "QM-400", "л");
-                InitializeWIT(WIT100, "WIT100", "Вес Т-100", "WIT-100", "кг");
+                InitializeWIT(WIT100, "WIT100", "Датчик веса", "WIT-100", "кг");
 
                 InitializePumpReverse(P300, "P300", "Насос P-300", "P-300");
                 InitializePumpReverse(P400, "P400", "Насос P-400", "P-400");
