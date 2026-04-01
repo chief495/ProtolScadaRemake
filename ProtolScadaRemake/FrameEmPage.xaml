@@ -22,27 +22,27 @@
         <local:LiquidGauge x:Name="GaugeT150"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
-                           Margin="336,295,0,0"
-                           Width="353"
-                           Height="187"
+                           Margin="254,313,0,0"
+                           Width="329"
+                           Height="174"
                            FillColor="#8046A3FF"
                            IsHitTestVisible="False"/>
 
         <local:LiquidGauge x:Name="GaugeT250"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
-                           Margin="380,605,0,0"
-                           Width="353"
-                           Height="187"
+                           Margin="294,622,0,0"
+                           Width="329"
+                           Height="174"
                            FillColor="#8046A3FF"
                            IsHitTestVisible="False"/>
 
         <local:LiquidGauge x:Name="GaugeT650"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
-                           Margin="1077,199,0,0"
-                           Width="353"
-                           Height="187"
+                           Margin="1048,326,0,0"
+                           Width="283"
+                           Height="146"
                            FillColor="#8046A3FF"
                            IsHitTestVisible="False"/>
 

@@ -13,7 +13,7 @@ namespace ProtolScadaRemake
         public TGlobal Global;
         public string VarName = "";
         public string TagName { get; set; } = "";
-        public string EU { get; set; } = "кг/ч";
+        public string EU { get; set; } = "";
         public string Designation { get; set; } = "";
 
         public Element_FM()

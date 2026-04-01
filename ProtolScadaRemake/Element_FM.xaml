@@ -70,7 +70,7 @@
 
         <TextBlock x:Name="TextBlockEU" 
                    HorizontalAlignment="Left" 
-                   Margin="99,22,0,0" 
+                   Margin="89,22,0,0" 
                    TextWrapping="Wrap" 
                    Text="кг/мин" 
                    VerticalAlignment="Top" 

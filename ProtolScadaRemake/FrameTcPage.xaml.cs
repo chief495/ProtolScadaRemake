@@ -77,7 +77,7 @@ namespace ProtolScadaRemake
                 InitializeSensor(TT252, "TT252", "Датчик температуры TT252", "TT252", "°C");
 
                 // FM602 - Массовый расходомер FM602
-                InitializeFM(FM602, "FM602", "Расходомер FM602", "FM602", "кг/мин | г/см³");
+                InitializeFM(FM602, "FM602", "Расходомер FM602", "FM602", "кг/мин");
 
                 // WIT200 - Датчик веса WIT200
                 InitializeWIT(WIT200, "WIT200_Volume", "Датчик веса WIT200", "WIT200", "кг");

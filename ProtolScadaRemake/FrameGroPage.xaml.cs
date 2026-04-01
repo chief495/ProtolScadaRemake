@@ -67,7 +67,6 @@ namespace ProtolScadaRemake
             finally { _repaintTimer.Start(); }
         }
 
-        #region Инициализация элементов
         private void InitializeElements()
         {
             try
@@ -98,7 +97,7 @@ namespace ProtolScadaRemake
                 InitializeSensor(PT601, "PT601", "Датчик давления PT601", "PT-601", "атм");
 
                 InitializeFM(FM401, "FM401", "Расходомер FM401", "FM401", "кг/мин");
-                InitializeFM(FM601, "FM601", "Расходомер FM601", "FM601", "кг/мин | г/см³");
+                InitializeFM(FM601, "FM601", "Расходомер FM601", "FM601", "кг/мин");
 
                 InitializeQM(QM400, "QM400", "Счетчик QM-400", "QM-400", "л");
                 InitializeWIT(WIT100, "WIT100", "Датчик веса", "WIT-100", "кг");
@@ -299,9 +298,7 @@ namespace ProtolScadaRemake
                 heater.TagName = tagName;
             }
         }
-        #endregion
 
-        #region Обновления UI
         private void UpdateAllElements()
         {
             LT150?.UpdateElement(); LT301?.UpdateElement(); LT303?.UpdateElement(); LT403?.UpdateElement();
@@ -456,9 +453,7 @@ namespace ProtolScadaRemake
             t = _global.Variables.GetByName("GRO_ManualKislotaCounter");
             if (t != null && GRO_ManualKislotaCounterEdit != null) GRO_ManualKislotaCounterEdit.Text = t.ValueString;
         }
-        #endregion
 
-        #region Переключатели
         private void M100Switch_StateChanged(object sender, bool isChecked) => SendSimple("M100_StartMixer", isChecked);
         private void M150Switch_StateChanged(object sender, bool isChecked) => SendSimple("M150_StartMixer", isChecked);
         private void M400Switch_StateChanged(object sender, bool isChecked) => SendSimple("M400_StartMixer", isChecked);
@@ -497,9 +492,7 @@ namespace ProtolScadaRemake
             var mode = (OperationMode)e.Value;
             SendGroModeCommand(mode);
         }
-        #endregion
 
-        #region Кнопки
         private void SetT100MassButton_Click(object sender, RoutedEventArgs e)
         {
             var cmd = _global?.Commands?.GetByName("T100_MassSp");
@@ -558,7 +551,6 @@ namespace ProtolScadaRemake
             var cmd = _global?.Commands?.GetByName(commandName);
             if (cmd != null) { cmd.WriteValue = "true"; cmd.NeedToWrite = true; }
         }
-        #endregion
 
         private void Cleanup()
         {
