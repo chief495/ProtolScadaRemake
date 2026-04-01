@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         mc:Ignorable="d"
         Title="DialogElementQM"
         Height="220"
@@ -44,28 +45,20 @@
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                     <Label Content="Начальное значение:" Width="190" Padding="0"/>
-                    <TextBox x:Name="StartValueTextBox"
-                             Width="120"
-                             Height="26"
-                             VerticalContentAlignment="Center"
-                             TextAlignment="Right"
-                             PreviewMouseDown="SettingsTextBox_PreviewMouseDown"
-                             PreviewKeyDown="SettingsTextBox_PreviewKeyDown"
-                             KeyDown="SettingsTextBox_KeyDown"
-                             LostFocus="StartValueTextBox_LostFocus"/>
+                    <mah:NumericUpDown x:Name="StartValueNumeric"
+                                     Width="120"
+                                     Minimum="0"
+                                     Maximum="1000000"
+                                     ValueChanged="StartValueNumeric_ValueChanged"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Импульсов на м³:" Width="190" Padding="0"/>
-                    <TextBox x:Name="PulseSizeTextBox"
-                             Width="120"
-                             Height="26"
-                             VerticalContentAlignment="Center"
-                             TextAlignment="Right"
-                             PreviewMouseDown="SettingsTextBox_PreviewMouseDown"
-                             PreviewKeyDown="SettingsTextBox_PreviewKeyDown"
-                             KeyDown="SettingsTextBox_KeyDown"
-                             LostFocus="PulseSizeTextBox_LostFocus"/>
+                    <mah:NumericUpDown x:Name="PulseSizeNumeric"
+                                     Width="120"
+                                     Minimum="0"
+                                     Maximum="1000000"
+                                     ValueChanged="PulseSizeNumeric_ValueChanged"/>
                 </StackPanel>
             </StackPanel>
         </GroupBox>
