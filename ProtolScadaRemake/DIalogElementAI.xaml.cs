@@ -210,7 +210,7 @@ namespace ProtolScadaRemake
 
             if (command == null)
             {
-                Debug.WriteLine($"Команда не найдена: {string.Join(", ", _varPrefixes.Select(p => p + commandSuffix))}");
+                Debug.WriteLine($"Команда не найдена");
                 return;
             }
 
