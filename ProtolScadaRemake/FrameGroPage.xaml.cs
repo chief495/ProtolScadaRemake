@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
@@ -99,7 +98,7 @@ namespace ProtolScadaRemake
                 InitializeSensor(PT601, "PT601", "Датчик давления PT601", "PT-601", "атм");
 
                 InitializeFM(FM401, "FM401", "Расходомер FM401", "FM401", "кг/мин");
-                InitializeFM(FM601, "FM601", "Расходомер FM601", "FM601", "кг/мин");
+                InitializeFM(FM601, "FM601", "Расходомер FM601", "FM601", "кг/мин | г/см³");
 
                 InitializeQM(QM400, "QM400", "Счетчик QM-400", "QM-400", "л");
                 InitializeWIT(WIT100, "WIT100", "Датчик веса", "WIT-100", "кг");

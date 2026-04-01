@@ -1,7 +1,6 @@
 ﻿using ProtolScada;
 using ProtolScadaRemake.Controls;
 using ProtolScadaRemake.Views;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;

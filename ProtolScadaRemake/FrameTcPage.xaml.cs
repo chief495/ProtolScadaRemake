@@ -1,8 +1,6 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace ProtolScadaRemake
@@ -79,7 +77,7 @@ namespace ProtolScadaRemake
                 InitializeSensor(TT252, "TT252", "Датчик температуры TT252", "TT252", "°C");
 
                 // FM602 - Массовый расходомер FM602
-                InitializeFM(FM602, "FM602", "Расходомер FM602", "FM602", "кг/мин");
+                InitializeFM(FM602, "FM602", "Расходомер FM602", "FM602", "кг/мин | г/см³");
 
                 // WIT200 - Датчик веса WIT200
                 InitializeWIT(WIT200, "WIT200_Volume", "Датчик веса WIT200", "WIT200", "кг");
@@ -1087,7 +1085,7 @@ namespace ProtolScadaRemake
             {
                 command.WriteValue = "true";
                 command.NeedToWrite = true;
-                _global.Log.Add("Пользователь", "Остановка авторежима", 1);  
+                _global.Log.Add("Пользователь", "Остановка авторежима", 1);
             }
         }
 

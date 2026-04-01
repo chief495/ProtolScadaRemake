@@ -207,7 +207,7 @@
                            VerticalAlignment="Top"
                            Margin="389,318,0,0"
                            Width="50"
-                           Height="24"/>
+                           Height="28"/>
 
         <!-- M250 - Миксер T250 -->
         <local:ToggleSwitch x:Name="M250"
