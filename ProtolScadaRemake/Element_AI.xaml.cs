@@ -6,7 +6,7 @@ namespace ProtolScadaRemake
 {
     public partial class Element_AI : UserControl
     {
-        public Brush WarningColor = Brushes.Yellow;
+        public Brush WarningColor = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#e1c84a"));
         public Brush FaultColor = Brushes.Red;
         public string Description = "";
         public TGlobal Global;

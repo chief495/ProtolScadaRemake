@@ -79,7 +79,7 @@ namespace ProtolScadaRemake
 
         private void InitializeUpdateTimer()
         {
-            _updateTimer = new System.Timers.Timer(100.0); // 100ms = 10Hz (используем double)
+            _updateTimer = new System.Timers.Timer(10.0); // 100ms = 10Hz (используем double)
             _updateTimer.Elapsed += async (sender, e) =>
             {
                 try
