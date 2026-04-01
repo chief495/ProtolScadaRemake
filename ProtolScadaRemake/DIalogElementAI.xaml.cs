@@ -1,5 +1,8 @@
 ﻿using MahApps.Metro.Controls;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -15,6 +18,7 @@ namespace ProtolScadaRemake
 
         public TGlobal Global;
         public string VarName = "";
+        private readonly List<string> _varPrefixes = new();
 
         private bool _isInitializing = true;
         private string _lowBoundSuffix = "_LowLevel";
@@ -49,10 +53,11 @@ namespace ProtolScadaRemake
 
             try
             {
+                ResolveVarPrefix();
                 ResolveMeasurementBoundSuffixes();
 
                 // Режим работы
-                TVariableTag VariableTag = Global.Variables.GetByName(VarName + "_Manual");
+                TVariableTag VariableTag = FindVariable("_Manual");
                 if (VariableTag != null)
                 {
                     if (VariableTag.ValueReal > 0)
@@ -70,21 +75,21 @@ namespace ProtolScadaRemake
                 }
 
                 // Ручное значение
-                VariableTag = Global.Variables.GetByName(VarName + "_ManualValue");
+                VariableTag = FindVariable("_ManualValue");
                 if (VariableTag != null)
                     ManualValueNumeric.Value = VariableTag.ValueReal;
 
                 // Аварийные значения
-                LoadNumericValue(LWNumeric, VarName + "_LW");
-                LoadNumericValue(HWNumeric, VarName + "_HW");
-                LoadNumericValue(LFNumeric, VarName + "_LF");
-                LoadNumericValue(HFNumeric, VarName + "_HF");
+                LoadNumericValue(LWNumeric, "_LW");
+                LoadNumericValue(HWNumeric, "_HW");
+                LoadNumericValue(LFNumeric, "_LF");
+                LoadNumericValue(HFNumeric, "_HF");
 
                 // Настройки датчика
-                LoadNumericValue(LowLevelNumeric, VarName + _lowBoundSuffix);
-                LoadNumericValue(HiLevelNumeric, VarName + _hiBoundSuffix);
-                LoadNumericValue(LowCurrNumeric, VarName + "_LowCurr");
-                LoadNumericValue(HiCurrNumeric, VarName + "_HiCurr");
+                LoadNumericValue(LowLevelNumeric, _lowBoundSuffix);
+                LoadNumericValue(HiLevelNumeric, _hiBoundSuffix);
+                LoadNumericValue(LowCurrNumeric, "_LowCurr");
+                LoadNumericValue(HiCurrNumeric, "_HiCurr");
 
                 // Ограничение без пароля: параметры нормирования доступны всегда
                 ApplyAccessRestrictions();
@@ -111,7 +116,7 @@ namespace ProtolScadaRemake
 
             foreach (string suffix in candidates)
             {
-                if (Global.Commands?.GetByName(VarName + suffix) != null || Global.Variables?.GetByName(VarName + suffix) != null)
+                if (FindCommand(suffix) != null || FindVariable(suffix) != null)
                     return suffix;
             }
 
@@ -140,9 +145,77 @@ namespace ProtolScadaRemake
             if (HiCurrNumeric != null) HiCurrNumeric.IsEnabled = true;
         }
 
-        private void LoadNumericValue(NumericUpDown numeric, string varName)
+        private void ResolveVarPrefix()
         {
-            TVariableTag tag = Global.Variables.GetByName(varName);
+            _varPrefixes.Clear();
+            AddVarPrefixCandidate(VarName);
+
+            if (string.IsNullOrWhiteSpace(VarName) || Global == null)
+                return;
+
+            string[] removableSuffixes = { "_Value", "_Volume", "_MassFlow", "_VolumeFlow", "_Total" };
+            foreach (string suffix in removableSuffixes)
+            {
+                if (!VarName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                string candidate = VarName[..^suffix.Length];
+                AddVarPrefixCandidate(candidate);
+            }
+
+            // Иногда базовое имя приходит без "источника значения" (FM/QM/WIT),
+            // а команды/переменные записаны с промежуточным суффиксом.
+            string[] sourceSuffixes = { "_Value", "_Volume", "_MassFlow", "_VolumeFlow", "_Total" };
+            foreach (string sourceSuffix in sourceSuffixes)
+            {
+                AddVarPrefixCandidate(VarName + sourceSuffix);
+            }
+        }
+
+        private void AddVarPrefixCandidate(string prefix)
+        {
+            if (string.IsNullOrWhiteSpace(prefix)) return;
+            if (_varPrefixes.Contains(prefix, StringComparer.OrdinalIgnoreCase)) return;
+            _varPrefixes.Add(prefix);
+        }
+
+        private TVariableTag FindVariable(string suffix)
+        {
+            if (Global == null) return null;
+
+            foreach (string prefix in _varPrefixes)
+            {
+                TVariableTag tag = Global.Variables?.GetByName(prefix + suffix);
+                if (tag != null) return tag;
+            }
+
+            return null;
+        }
+
+        private TCommandTag FindCommand(string suffix, out string fullCommandName)
+        {
+            fullCommandName = string.Empty;
+            if (Global == null) return null;
+
+            foreach (string prefix in _varPrefixes)
+            {
+                string candidateName = prefix + suffix;
+                TCommandTag command = Global.Commands?.GetByName(candidateName);
+                if (command != null)
+                {
+                    fullCommandName = candidateName;
+                    return command;
+                }
+            }
+
+            return null;
+        }
+
+        private TCommandTag FindCommand(string suffix) => FindCommand(suffix, out _);
+
+        private void LoadNumericValue(NumericUpDown numeric, string suffix)
+        {
+            TVariableTag tag = FindVariable(suffix);
             if (tag != null)
                 numeric.Value = tag.ValueReal;
         }
@@ -164,12 +237,11 @@ namespace ProtolScadaRemake
             if (_isInitializing) return;
             if (Global == null) return;
 
-            string fullCommandName = VarName + commandSuffix;
-            TCommandTag command = Global.Commands.GetByName(fullCommandName);
+            TCommandTag command = FindCommand(commandSuffix, out string fullCommandName);
 
             if (command == null)
             {
-                Debug.WriteLine($"Команда не найдена: {fullCommandName}");
+                Debug.WriteLine($"Команда не найдена: {string.Join(", ", _varPrefixes.Select(p => p + commandSuffix))}");
                 return;
             }
 
@@ -205,7 +277,7 @@ namespace ProtolScadaRemake
             if (_isInitializing) return;
             if (!numeric.Value.HasValue) return;
 
-            TVariableTag variable = Global.Variables.GetByName(VarName + suffix);
+            TVariableTag variable = FindVariable(suffix);
 
             if (variable != null)
             {
@@ -232,7 +304,7 @@ namespace ProtolScadaRemake
             // ПОКАЗЫВАЕМ панель ручного значения
             SetManualPanelVisibility(Visibility.Visible);
 
-            TVariableTag ManualVariable = Global.Variables.GetByName(VarName + "_Manual");
+            TVariableTag ManualVariable = FindVariable("_Manual");
 
             if (ManualVariable != null && ManualVariable.ValueReal < 1)
             {
@@ -249,7 +321,7 @@ namespace ProtolScadaRemake
             // СКРЫВАЕМ панель ручного значения
             SetManualPanelVisibility(Visibility.Hidden);
 
-            TVariableTag ManualVariable = Global.Variables.GetByName(VarName + "_Manual");
+            TVariableTag ManualVariable = FindVariable("_Manual");
 
             if (ManualVariable != null && ManualVariable.ValueReal > 0)
             {
