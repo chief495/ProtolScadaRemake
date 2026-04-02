@@ -180,7 +180,251 @@
     </DrawingGroup>
     <DrawingImage Drawing="{StaticResource PumpH_Changed_xaml}" x:Key="PumpHChangedIcon"/>
 
-    
+    <!-- Изображение - Насос M600 - Смена состояния -->
+    <DrawingGroup x:Key="M600_Changed_xaml">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0.0,0.0,211.0,331.0"/>
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing Brush="#ffffd600">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="3.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 204.5 14.5 V 35.5 H 72.5 V 14.5 H 204.5 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff5d5d5d">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="2.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 71 7 V 43 H 67 V 7 H 71 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff5d5d5d">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="2.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 210 7 V 43 H 206 V 7 H 210 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="5.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 49.5 25 H 66.5" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff17233b">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ffffd600" Thickness="2.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 25 1 C 38.2548 1 49 11.7452 49 25 C 49 38.2548 38.2548 49 25 49 C 11.7452 49 1 38.2548 1 25 C 1 11.7452 11.7452 1 25 1 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ffffd600">
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 25 5 C 36.0457 5 45 13.9543 45 25 C 45 36.0457 36.0457 45 25 45 C 13.9543 45 5 36.0457 5 25 C 5 13.9543 13.9543 5 25 5 Z"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ffffd600">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff17233b" LineJoin="Round" Thickness="3.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 30.5 17.5664 C 30.5 14.8332 33.493 13.1549 35.8252 14.5801 L 47.9893 22.0137 C 50.2225 23.3784 50.2225 26.6216 47.9893 27.9863 L 35.8252 35.4199 C 33.493 36.8452 30.5 35.1669 30.5 32.4336 V 17.5664 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+    <DrawingImage Drawing="{StaticResource M600_Changed_xaml}" x:Key="M600ChangedIcon"/>
+
+    <!-- Изображение - Насос M600 - Fault -->
+    <DrawingGroup x:Key="M600_Fault_xaml">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0.0,0.0,211.0,331.0"/>
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing Brush="#ffff0000">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="3.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 204.5 83.5 V 104.5 H 72.5 V 83.5 H 204.5 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff5d5d5d">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="2.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 71 76 V 112 H 67 V 76 H 71 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff5d5d5d">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="2.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 210 76 V 112 H 206 V 76 H 210 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="5.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 49.5 94 H 66.5" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff17233b">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ffff0000" Thickness="2.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 25 70 C 38.2548 70 49 80.7452 49 94 C 49 107.255 38.2548 118 25 118 C 11.7452 118 1 107.255 1 94 C 1 80.7452 11.7452 70 25 70 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ffff0000">
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 25 74 C 36.0457 74 45 82.9543 45 94 C 45 105.046 36.0457 114 25 114 C 13.9543 114 5 105.046 5 94 C 5 82.9543 13.9543 74 25 74 Z"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ffff0000">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff17233b" LineJoin="Round" Thickness="3.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 30.5 86.5664 C 30.5 83.8332 33.493 82.1549 35.8252 83.5801 L 47.9893 91.0137 C 50.2225 92.3784 50.2225 95.6216 47.9893 96.9863 L 35.8252 104.42 C 33.493 105.845 30.5 104.167 30.5 101.434 V 86.5664 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+    <DrawingImage Drawing="{StaticResource M600_Fault_xaml}" x:Key="M600FaultIcon"/>
+
+    <!-- Изображение - Насос M600 - Останов -->
+    <DrawingGroup x:Key="M600_Stop_xaml">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0.0,0.0,211.0,331.0"/>
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing Brush="#ffb4b4b4">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="3.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 204.5 154.5 V 175.5 H 72.5 V 154.5 H 204.5 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff5d5d5d">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="2.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 71 147 V 183 H 67 V 147 H 71 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff5d5d5d">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="2.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 210 147 V 183 H 206 V 147 H 210 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="5.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 49.5 165 H 66.5" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ffb4b4b4">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="2.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 25 141 C 38.2548 141 49 151.745 49 165 C 49 178.255 38.2548 189 25 189 C 11.7452 189 1 178.255 1 165 C 1 151.745 11.7452 141 25 141 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff5d5d5d">
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 25 145 C 36.0457 145 45 153.954 45 165 C 45 176.046 36.0457 185 25 185 C 13.9543 185 5 176.046 5 165 C 5 153.954 13.9543 145 25 145 Z"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff5d5d5d">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ffb4b4b4" LineJoin="Round" Thickness="3.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 30.5 157.566 C 30.5 154.833 33.493 153.155 35.8252 154.58 L 47.9893 162.014 C 50.2225 163.378 50.2225 166.622 47.9893 167.986 L 35.8252 175.42 C 33.493 176.845 30.5 175.167 30.5 172.434 V 157.566 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+    <DrawingImage Drawing="{StaticResource M600_Stop_xaml}" x:Key="M600StopIcon"/>
+
+    <!-- Изображение - Насос M600 - В работе -->
+    <DrawingGroup x:Key="M600_Work_xaml">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0.0,0.0,211.0,331.0"/>
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing Brush="#ff00cc44">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="3.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 204.5 295.5 V 316.5 H 72.5 V 295.5 H 204.5 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff5d5d5d">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="2.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 71 288 V 324 H 67 V 288 H 71 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff5d5d5d">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="2.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 210 288 V 324 H 206 V 288 H 210 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff5d5d5d" Thickness="5.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 49.5 306 H 66.5" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff17233b">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff00cc44" Thickness="2.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 25 282 C 38.2548 282 49 292.745 49 306 C 49 319.255 38.2548 330 25 330 C 11.7452 330 1 319.255 1 306 C 1 292.745 11.7452 282 25 282 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff00cc44">
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 25 286 C 36.0457 286 45 294.954 45 306 C 45 317.046 36.0457 326 25 326 C 13.9543 326 5 317.046 5 306 C 5 294.954 13.9543 286 25 286 Z"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#ff00cc44">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#ff17233b" LineJoin="Round" Thickness="3.0" DashCap="Flat"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 30.5 298.566 C 30.5 295.833 33.493 294.155 35.8252 295.58 L 47.9893 303.014 C 50.2225 304.378 50.2225 307.622 47.9893 308.986 L 35.8252 316.42 C 33.493 317.845 30.5 316.167 30.5 313.434 V 298.566 Z" FillRule="Nonzero"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+    <DrawingImage Drawing="{StaticResource M600_Work_xaml}" x:Key="M600StartIcon"/>
+
+
     <!-- Изображение - Двух ходовой клапан (горизонтальный) - Открыт -->
     <DrawingGroup x:Key="ValveH_Open_xaml">
         <DrawingGroup.ClipGeometry>

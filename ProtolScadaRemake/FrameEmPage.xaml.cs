@@ -87,12 +87,12 @@ namespace ProtolScadaRemake
                     M250.Description = "Миксер M-250";
                     M250.CommandSuffix = "_StartMixer";
                 }
-                InitializeMixerHotspot(M150MixerHotspot, "T150", "Миксер M-150");
+                InitializeMixerHotspot(M150MixerHotspot, "M150", "Миксер M-150");
                 InitializeMixerHotspot(M250MixerHotspot, "M250", "Миксер M-250");
 
                 InitializePumpUzUnderPanel(P601, "P601", "Насос P-601", "P-601");
                 InitializePumpUzUnderPanel(P602, "P602", "Насос P-602", "P-602");
-                InitializePumpUz(M600, "M600", "Миксер M-600", "M-600");
+                InitializeM600(M600, "M600", "Миксер M-600", "M-600");
                 InitializePumpUzUnderPanel(P651, "P651", "Насос P-651", "P-651");
 
                 Initialize3Valve(SV601, "V601", "Клапан SV-601", "SV-601");
@@ -583,6 +583,17 @@ namespace ProtolScadaRemake
         }
 
         private void InitializePumpUzUnderPanel(Element_PumpUzUnderPanel pump, string varName, string description, string tagName)
+        {
+            if (pump != null && _global != null)
+            {
+                pump.Global = _global;
+                pump.VarName = varName;
+                pump.Description = description;
+                pump.TagName = tagName;
+            }
+        }
+
+        private void InitializeM600(Element_M600 pump, string varName, string description, string tagName)
         {
             if (pump != null && _global != null)
             {

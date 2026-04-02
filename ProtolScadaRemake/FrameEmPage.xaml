@@ -242,12 +242,11 @@
                              HorizontalAlignment="Left"
                              VerticalAlignment="Top"
                              Margin="655,697,0,0"/>
-
         <!-- M600 -->
-        <local:Element_PumpUz x:Name="M600"
-                             HorizontalAlignment="Left"
-                             VerticalAlignment="Top"
-                             Margin="1103,147,0,0"/>
+        <local:Element_M600 x:Name="M600"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Margin="1080,146,0,0"/>
 
         <!-- P651 -->
         <local:Element_PumpUzUnderPanel x:Name="P651" 
