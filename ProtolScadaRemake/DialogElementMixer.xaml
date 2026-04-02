@@ -5,16 +5,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Height="200"
+        Height="280"
         Width="520"
         Background="#FFCCC9C9"
         FontFamily="Arial"
         Icon="Images/ProtolLogo.ico"
         ResizeMode="NoResize"
-        WindowStartupLocation="CenterScreen"
-        Closing="Window_Closing">
+        WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
@@ -25,15 +25,30 @@
                 <RadioButton x:Name="RBAuto" 
                              Content="Автоматический" 
                              Margin="0,0,20,0" 
-                             Checked="RBAuto_Checked"/>
+                             Checked="RBAuto_CheckedChanged"/>
                 <RadioButton x:Name="RBManual" 
                              Content="Ручной" 
-                             Checked="RBManual_Checked"/>
+                             Checked="RBManual_CheckedChanged"/>
+
+                <!-- Кнопки ручного управления (в одной строке с режимом) -->
+                <Button x:Name="StartButton"
+                        Content="Включить"
+                        Width="80"
+                        Height="24"
+                        Margin="30,0,10,0"
+                        Visibility="Hidden"
+                        Click="StartButton_Click"/>
+                <Button x:Name="StopButton"
+                        Content="Выключить"
+                        Width="80"
+                        Height="24"
+                        Visibility="Hidden"
+                        Click="StopButton_Click"/>
             </StackPanel>
         </GroupBox>
 
         <!-- Время работы -->
-        <GroupBox Header="Время работы, сек" Grid.Row="1">
+        <GroupBox x:Name="GroupBox2" Header="Время работы, сек" Grid.Row="1">
             <Grid Margin="10,4">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>

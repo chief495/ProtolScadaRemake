@@ -13,7 +13,7 @@
         <!-- Добавьте прозрачный фон -->
 
         <!-- Тэг сверху по центру -->
-        <TextBlock x:Name="TAGNAME" TextWrapping="Wrap" Text="TAG" VerticalAlignment="Top" Width="60" HorizontalAlignment="Right" FontFamily="Arial" Foreground="White" TextAlignment="Center"/>
+        <TextBlock x:Name="TAGNAME" TextWrapping="Wrap" Text="TAG" VerticalAlignment="Top" Width="60" HorizontalAlignment="Center" FontFamily="Arial" Foreground="White" TextAlignment="Center"/>
 
         <!-- Насос с поворотом внизу -->
         <Grid Width="60" Height="60" 

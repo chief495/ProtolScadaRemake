@@ -9,6 +9,6 @@
     <Grid Width="80" Height="80" VerticalAlignment="Top" Margin="0,8,0,0">
         <Image x:Name ="PumpIcon"  Source="{StaticResource PumpHStopIcon}" Width="60" Height="60" Margin="0,0,0,8" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
         <Image x:Name="HandImage" HorizontalAlignment="Left" Height="24" Margin="60,46,0,0" VerticalAlignment="Top" Width="20" Source="/Hand.png"/>
-        <TextBlock x:Name="TAGNAME" TextWrapping="Wrap" Text="TAG" VerticalAlignment="Top" Width="60" HorizontalAlignment="Left" FontFamily="Arial" Foreground="White" TextAlignment="Center"/>
+        <TextBlock x:Name="TAGNAME" TextWrapping="Wrap" Text="TAG" VerticalAlignment="Top" Width="60" HorizontalAlignment="Center" FontFamily="Arial" Foreground="White" TextAlignment="Center"/>
     </Grid>
 </UserControl>

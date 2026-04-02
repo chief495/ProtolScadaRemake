@@ -12,6 +12,9 @@ namespace ProtolScadaRemake
         public string VarName = "";
         public string TagName { get; set; } = "";
 
+        // Максимальная ширина заполнения (внутренняя ширина Border минус отступы)
+        private const double MaxFillWidth = 86; // 90 - 2*Margin(1) - 2
+
         public Element_PumpUz()
         {
             InitializeComponent();
@@ -28,6 +31,7 @@ namespace ProtolScadaRemake
 
                 if (Global == null) return;
 
+                // Ручной режим
                 TVariableTag Tag = Global.Variables?.GetByName(VarName + "_Manual");
                 if (Tag != null)
                 {
@@ -38,35 +42,46 @@ namespace ProtolScadaRemake
                     HandImage.Visibility = Visibility.Hidden;
                 }
 
+                // Состояние по умолчанию
                 PumpIcon.Source = FindResource("PumpHStopIcon") as ImageSource;
-                SpeedBar.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ffb4b4b4"));
 
+                // Насос работает
                 Tag = Global.Variables?.GetByName(VarName + "_IsWork");
                 if (Tag != null && Tag.ValueReal > 0)
                 {
                     PumpIcon.Source = FindResource("PumpHStartIcon") as ImageSource;
-                    SpeedBar.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ff2fcc3a"));
                 }
 
+                // Нет подтверждения состояния
                 Tag = Global.Variables?.GetByName(VarName + "_FeedbackOk");
                 if (Tag != null && Tag.ValueReal < 1)
                 {
                     PumpIcon.Source = FindResource("PumpHChangedIcon") as ImageSource;
-                    SpeedBar.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#fff2f208"));
                 }
 
+                // Авария
                 Tag = Global.Variables?.GetByName(VarName + "_Fault");
                 if (Tag != null && Tag.ValueReal > 0)
                 {
                     PumpIcon.Source = FindResource("PumpHFaultIcon") as ImageSource;
-                    SpeedBar.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#fff22222"));
                 }
 
+                // Обновление шкалы скорости
                 Tag = Global.Variables?.GetByName(VarName + "_Speed");
-                if (Tag != null && SpeedBar != null && SpeedText != null)
+                if (Tag != null && SpeedFill != null && SpeedText != null)
                 {
-                    SpeedBar.Value = Tag.ValueReal;
-                    SpeedText.Text = $"{Tag.ValueString} %";
+                    double speed = Math.Max(0, Math.Min(100, Tag.ValueReal));
+
+                    // Обновляем ширину заполнения
+                    SpeedFill.Width = (speed / 100.0) * MaxFillWidth;
+
+                    // Обновляем текст
+                    SpeedText.Text = $"{speed:F0} %";
+                }
+                else
+                {
+                    if (SpeedFill != null) SpeedFill.Width = 0;
+                    if (SpeedText != null) SpeedText.Text = "0 %";
                 }
             }
             catch (Exception ex)

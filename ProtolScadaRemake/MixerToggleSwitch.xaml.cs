@@ -9,20 +9,25 @@ namespace ProtolScadaRemake
     public partial class MixerToggleSwitch : UserControl
     {
         // События
-        public event EventHandler<bool> StateChanged;
+        public event EventHandler<bool>? StateChanged;
 
         // Свойства для связи с Global
         public TGlobal? Global;
         public string VarName { get; set; } = string.Empty;
         public string Description { get; set; } = "Миксер";
 
-        // Цвета состояний (как в Element_Mixer2)
-        private readonly Brush ColorDefault = new SolidColorBrush(Color.FromRgb(158, 158, 158)); // Серый
-        private readonly Brush ColorWorking = new SolidColorBrush(Color.FromRgb(0, 255, 0));     // Lime
-        private readonly Brush ColorNoFeedback = Brushes.Yellow;                                 // Жёлтый
-        private readonly Brush ColorFault = Brushes.Red;                                         // Красный
+        // Имя команды (как в старом проекте: T150_StartMixer)
+        public string CommandSuffix { get; set; } = "_StartMixer";
+
+        // Цвета состояний
+        private readonly Brush ColorDefault = new SolidColorBrush(Color.FromRgb(158, 158, 158));
+        private readonly Brush ColorWorking = new SolidColorBrush(Color.FromRgb(0, 255, 0));
+        private readonly Brush ColorNoFeedback = Brushes.Yellow;
+        private readonly Brush ColorFault = Brushes.Red;
 
         private bool _isChecked = false;
+        private bool _isManualMode = false;
+        private bool _isWorking = false;
 
         public bool IsChecked
         {
@@ -32,11 +37,12 @@ namespace ProtolScadaRemake
                 if (_isChecked != value)
                 {
                     _isChecked = value;
-                    UpdateVisualState();
-                    StateChanged?.Invoke(this, _isChecked);
+                    UpdateAnimation();
                 }
             }
         }
+
+        public bool IsManualMode => _isManualMode;
 
         public MixerToggleSwitch()
         {
@@ -44,9 +50,6 @@ namespace ProtolScadaRemake
             UpdateVisualState();
         }
 
-        /// <summary>
-        /// Обновление визуального состояния на основе переменных ПЛК
-        /// </summary>
         public void UpdateElement()
         {
             if (Global == null || string.IsNullOrWhiteSpace(VarName))
@@ -54,43 +57,43 @@ namespace ProtolScadaRemake
 
             try
             {
-                // Синхронизация состояния переключателя с ПЛК
+                // Проверяем режим работы
+                var manualTag = Global.Variables?.GetByName(VarName + "_Manual");
+                _isManualMode = manualTag != null && manualTag.ValueReal > 0;
+
+                // Проверяем состояние работы
                 var isWorkTag = Global.Variables?.GetByName(VarName + "_IsWork");
-                if (isWorkTag != null)
+                _isWorking = isWorkTag != null && isWorkTag.ValueReal > 0;
+
+                // Синхронизация анимации переключателя
+                if (_isChecked != _isWorking)
                 {
-                    bool isWorking = isWorkTag.ValueReal > 0;
-                    if (_isChecked != isWorking)
-                    {
-                        _isChecked = isWorking;
-                        UpdateAnimation();
-                    }
+                    _isChecked = _isWorking;
+                    UpdateAnimation();
                 }
 
-                // Определение цвета на основе состояния (как в Element_Mixer2)
+                // Определение цвета
                 Brush targetColor = ColorDefault;
 
-                // Миксер включен
-                if (isWorkTag != null && isWorkTag.ValueReal > 0)
+                if (_isWorking)
                 {
                     targetColor = ColorWorking;
                 }
 
-                // Нет подтверждения состояния (перезаписывает "включен")
                 var feedbackTag = Global.Variables?.GetByName(VarName + "_FeedbackOk");
                 if (feedbackTag != null && feedbackTag.ValueReal < 1)
                 {
                     targetColor = ColorNoFeedback;
                 }
 
-                // Авария (перезаписывает всё)
                 var faultTag = Global.Variables?.GetByName(VarName + "_Fault");
                 if (faultTag != null && faultTag.ValueReal > 0)
                 {
                     targetColor = ColorFault;
                 }
 
-                // Применяем цвет
                 BackgroundBorder.Background = targetColor;
+                MainBorder.Cursor = _isManualMode ? Cursors.No : Cursors.Hand;
             }
             catch (System.Exception ex)
             {
@@ -115,20 +118,43 @@ namespace ProtolScadaRemake
 
         private void UpdateColors()
         {
-            // Если Global == null, используем стандартную логику ToggleSwitch
             if (Global == null)
             {
                 BackgroundBorder.Background = _isChecked
                     ? new SolidColorBrush(Color.FromRgb(76, 175, 80))
                     : ColorDefault;
             }
-            // Иначе цвет устанавливается через UpdateElement()
         }
 
         private void ToggleSwitch_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            IsChecked = !IsChecked;
             e.Handled = true;
+
+            if (Global == null || string.IsNullOrWhiteSpace(VarName))
+                return;
+
+            // В ручном режиме переключатель не работает
+            if (_isManualMode)
+            {
+                return;
+            }
+
+            // Переключаем: если работает → выключаем, если не работает → включаем
+            bool turnOn = !_isWorking;
+
+            string commandName = VarName + CommandSuffix;
+            var command = Global.Commands?.GetByName(commandName);
+
+            if (command != null)
+            {
+                string action = turnOn ? "Включение" : "Отключение";
+                Global.Log?.Add("Пользователь", $"{action} миксера {VarName}", 1);
+
+                command.WriteValue = turnOn ? "true" : "false";
+                command.NeedToWrite = true;
+            }
+
+            StateChanged?.Invoke(this, turnOn);
         }
     }
 }

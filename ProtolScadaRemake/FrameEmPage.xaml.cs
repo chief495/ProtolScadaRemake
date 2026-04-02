@@ -77,8 +77,7 @@ namespace ProtolScadaRemake
                     M150.Global = _global;
                     M150.VarName = "M150";
                     M150.Description = "Миксер M-150";
-                    M150.StateChanged -= M150Mixer_StateChanged;
-                    M150.StateChanged += M150Mixer_StateChanged;
+                    M150.CommandSuffix = "_StartMixer";
                 }
 
                 if (M250 != null)
@@ -86,10 +85,9 @@ namespace ProtolScadaRemake
                     M250.Global = _global;
                     M250.VarName = "M250";
                     M250.Description = "Миксер M-250";
-                    M250.StateChanged -= M250Mixer_StateChanged;
-                    M250.StateChanged += M250Mixer_StateChanged;
+                    M250.CommandSuffix = "_StartMixer";
                 }
-                InitializeMixerHotspot(M150MixerHotspot, "M150", "Миксер M-150");
+                InitializeMixerHotspot(M150MixerHotspot, "T150", "Миксер M-150");
                 InitializeMixerHotspot(M250MixerHotspot, "M250", "Миксер M-250");
 
                 InitializePumpUzUnderPanel(P601, "P601", "Насос P-601", "P-601");
@@ -201,35 +199,35 @@ namespace ProtolScadaRemake
             }
         }
 
-        private void UpdateMixerTogglesFromVariables()
-        {
-            try
-            {
-                var m150Tag = _global?.Variables?.GetByName("M150_IsWork");
-                if (m150Tag != null && M150 != null)
-                {
-                    bool isWorking = m150Tag.ValueReal > 0;
-                    if (M150.IsChecked != isWorking)
-                    {
-                        M150.IsChecked = isWorking;
-                    }
-                }
+        //private void UpdateMixerTogglesFromVariables()
+        //{
+        //    try
+        //    {
+        //        var m150Tag = _global?.Variables?.GetByName("M150_IsWork");
+        //        if (m150Tag != null && M150 != null)
+        //        {
+        //            bool isWorking = m150Tag.ValueReal > 0;
+        //            if (M150.IsChecked != isWorking)
+        //            {
+        //                M150.IsChecked = isWorking;
+        //            }
+        //        }
 
-                var m250Tag = _global?.Variables?.GetByName("M250_IsWork");
-                if (m250Tag != null && M250 != null)
-                {
-                    bool isWorking = m250Tag.ValueReal > 0;
-                    if (M250.IsChecked != isWorking)
-                    {
-                        M250.IsChecked = isWorking;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Ошибка обновления переключателей: {ex.Message}");
-            }
-        }
+        //        var m250Tag = _global?.Variables?.GetByName("M250_IsWork");
+        //        if (m250Tag != null && M250 != null)
+        //        {
+        //            bool isWorking = m250Tag.ValueReal > 0;
+        //            if (M250.IsChecked != isWorking)
+        //            {
+        //                M250.IsChecked = isWorking;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        System.Diagnostics.Debug.WriteLine($"Ошибка обновления переключателей: {ex.Message}");
+        //    }
+        //}
 
         private void UpdateLiquidGauges()
         {

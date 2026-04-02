@@ -331,11 +331,11 @@
                             Margin="363,741,0,0"
                             StateChanged="M100Switch_StateChanged"/>
         <local:Element_MixerHotspot x:Name="M100MixerHotspot"
-                                    Width="90"
-                                    Height="90"
+                                    Width="50"
+                                    Height="107"
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top"
-                                    Margin="335,636,0,0"/>
+                                    Margin="363,767,0,0"/>
 
         <!-- Переключатель миксера M150 -->
         <local:MixerToggleSwitch x:Name="M150Switch"
@@ -346,11 +346,11 @@
                             Margin="1190,754,0,0"
                             StateChanged="M150Switch_StateChanged"/>
         <local:Element_MixerHotspot x:Name="M150MixerHotspot"
-                                    Width="90"
-                                    Height="90"
+                                    Width="55"
+                                    Height="103"
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top"
-                                    Margin="1163,648,0,0"/>
+                                    Margin="1189,781,0,0"/>
 
         <!-- Переключатель миксера M400 -->
         <local:MixerToggleSwitch x:Name="M400Switch"
@@ -361,11 +361,11 @@
                             Margin="450,225,0,0"
                             StateChanged="M400Switch_StateChanged"/>
         <local:Element_MixerHotspot x:Name="M400MixerHotspot"
-                                    Width="90"
-                                    Height="90"
+                                    Width="47"
+                                    Height="109"
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top"
-                                    Margin="425,119,0,0"/>
+                                    Margin="454,251,0,0"/>
 
         <!-- Переключатель нагревателя HE300 -->
         <local:ToggleSwitch x:Name="HE300Switch"
