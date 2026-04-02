@@ -71,23 +71,23 @@ namespace ProtolScadaRemake
                 InitializeDiscreteSensor(LAHH251, "LAHH251", "Датчик уровня LAHH251", "LAHH-251");
                 InitializeDiscreteSensor(LAHH653, "LAHH653", "Датчик уровня LAHH653", "LAHH-653");
 
-                // Подписка на события миксеров (с отпиской)
+                // Инициализация миксеров
                 if (M150 != null)
                 {
+                    M150.Global = _global;
+                    M150.VarName = "M150";
+                    M150.Description = "Миксер M-150";
                     M150.StateChanged -= M150Mixer_StateChanged;
                     M150.StateChanged += M150Mixer_StateChanged;
                 }
+
                 if (M250 != null)
                 {
+                    M250.Global = _global;
+                    M250.VarName = "M250";
+                    M250.Description = "Миксер M-250";
                     M250.StateChanged -= M250Mixer_StateChanged;
                     M250.StateChanged += M250Mixer_StateChanged;
-                }
-                InitializeMixerHotspot(M150MixerHotspot, "M150", "Миксер M-150");
-                InitializeMixerHotspot(M250MixerHotspot, "M250", "Миксер M-250");
-                if (EmModePanel != null)
-                {
-                    EmModePanel.ModeChanged -= EmModePanel_ModeChanged;
-                    EmModePanel.ModeChanged += EmModePanel_ModeChanged;
                 }
 
                 InitializePumpUzUnderPanel(P601, "P601", "Насос P-601", "P-601");
@@ -189,7 +189,8 @@ namespace ProtolScadaRemake
                 SV602?.UpdateElement();
                 V505?.UpdateElement();
 
-                UpdateMixerTogglesFromVariables();
+                M150?.UpdateElement();
+                M250?.UpdateElement();
                 UpdateLiquidGauges();
             }
             catch (Exception ex)

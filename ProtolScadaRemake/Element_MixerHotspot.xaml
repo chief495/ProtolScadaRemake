@@ -6,6 +6,11 @@
              mc:Ignorable="d"
              d:DesignHeight="70"
              d:DesignWidth="70"
-             MouseDown="Hotspot_MouseDown">
-    <Grid Background="Transparent"/>
+             Cursor="Hand">
+
+    <!-- Прозрачный Rectangle который перехватывает клики -->
+    <Grid>
+        <Rectangle Fill="Transparent" 
+                   MouseLeftButtonDown="Hotspot_MouseDown"/>
+    </Grid>
 </UserControl>

@@ -1,19 +1,32 @@
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace ProtolScadaRemake
 {
     public partial class DialogElementMixer : Window
     {
+        private Brush NormalColor = Brushes.White;
+        private Brush EditColor = Brushes.Yellow;
+
         public TGlobal? Global;
         public string VarName = string.Empty;
 
         private bool _isInitializing = true;
+        private DispatcherTimer _repaintTimer;
 
         public DialogElementMixer()
         {
             InitializeComponent();
+
+            _repaintTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(500)
+            };
+            _repaintTimer.Tick += RepaintTimer_Tick;
         }
 
         public void Initialize()
@@ -21,29 +34,87 @@ namespace ProtolScadaRemake
             _isInitializing = true;
             try
             {
-                var manual = Global?.Variables.GetByName(VarName + "_Manual");
-                var startTime = Global?.Variables.GetByName(VarName + "_StartTime");
-                var stopTime = Global?.Variables.GetByName(VarName + "_StopTime");
-
+                // Режим работы
+                var manual = FindVariable("_Manual");
                 RBAuto.IsChecked = manual == null || manual.ValueReal < 1;
                 RBManual.IsChecked = manual != null && manual.ValueReal > 0;
 
-                StartTimeNumeric.Value = startTime?.ValueReal ?? 0;
-                StopTimeNumeric.Value = stopTime?.ValueReal ?? 0;
+                // Время запуска
+                var startTime = FindVariable("_StartTime");
+                if (startTime != null)
+                    StartTimeNumeric.Value = startTime.ValueReal;
 
-                UpdateFaultIdentifier();
+                // Время остановки
+                var stopTime = FindVariable("_StopTime");
+                if (stopTime != null)
+                    StopTimeNumeric.Value = stopTime.ValueReal;
 
-                bool canEdit = Global?.Access == true;
-                RBAuto.IsEnabled = canEdit;
-                RBManual.IsEnabled = canEdit;
-                StartTimeNumeric.IsEnabled = canEdit;
-                StopTimeNumeric.IsEnabled = canEdit;
+                // Контроль доступа
+                ApplyAccessRestrictions();
+
+                // Запуск таймера подсветки
+                _repaintTimer.Start();
             }
             finally
             {
                 _isInitializing = false;
             }
         }
+
+        private void ApplyAccessRestrictions()
+        {
+            bool hasAccess = Global?.Access == true;
+
+            // Режим работы доступен ВСЕГДА (без пароля)
+            RBAuto.IsEnabled = true;
+            RBManual.IsEnabled = true;
+
+            // Время работы требует пароль
+            StartTimeNumeric.IsEnabled = hasAccess;
+            StopTimeNumeric.IsEnabled = hasAccess;
+        }
+
+        private TVariableTag? FindVariable(string suffix) => Global?.Variables?.GetByName(VarName + suffix);
+
+        private TCommandTag? FindCommand(string suffix) => Global?.Commands?.GetByName(VarName + suffix);
+
+        private void RepaintTimer_Tick(object? sender, EventArgs e)
+        {
+            _repaintTimer.Stop();
+
+            // Подсветка времени запуска
+            var startTimeVar = FindVariable("_StartTime");
+            if (!StartTimeNumeric.IsFocused)
+            {
+                StartTimeNumeric.Background = NormalColor;
+                if (startTimeVar != null)
+                {
+                    if (Math.Abs(startTimeVar.ValueReal - (StartTimeNumeric.Value ?? 0)) >= 1)
+                        StartTimeNumeric.Background = EditColor;
+                }
+            }
+
+            // Подсветка времени остановки
+            var stopTimeVar = FindVariable("_StopTime");
+            if (!StopTimeNumeric.IsFocused)
+            {
+                StopTimeNumeric.Background = NormalColor;
+                if (stopTimeVar != null)
+                {
+                    if (Math.Abs(stopTimeVar.ValueReal - (StopTimeNumeric.Value ?? 0)) >= 1)
+                        StopTimeNumeric.Background = EditColor;
+                }
+            }
+
+            _repaintTimer.Start();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            _repaintTimer.Stop();
+        }
+
+        #region Обработчики режима
 
         private void RBAuto_Checked(object sender, RoutedEventArgs e)
         {
@@ -57,9 +128,21 @@ namespace ProtolScadaRemake
             SendCommand("_Manual", "true", "Установлен ручной режим миксера.");
         }
 
+        #endregion
+
+        #region Обработчики времени
+
         private void StartTimeNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
             if (_isInitializing || !StartTimeNumeric.Value.HasValue) return;
+
+            var variable = FindVariable("_StartTime");
+            if (variable != null)
+            {
+                if (Math.Abs(variable.ValueReal - StartTimeNumeric.Value.Value) < 1)
+                    return;
+            }
+
             string value = StartTimeNumeric.Value.Value.ToString(CultureInfo.InvariantCulture);
             SendCommand("_StartTime", value, $"Установлено время запуска: {value} сек.");
         }
@@ -67,16 +150,27 @@ namespace ProtolScadaRemake
         private void StopTimeNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
             if (_isInitializing || !StopTimeNumeric.Value.HasValue) return;
+
+            var variable = FindVariable("_StopTime");
+            if (variable != null)
+            {
+                if (Math.Abs(variable.ValueReal - StopTimeNumeric.Value.Value) < 1)
+                    return;
+            }
+
             string value = StopTimeNumeric.Value.Value.ToString(CultureInfo.InvariantCulture);
             SendCommand("_StopTime", value, $"Установлено время остановки: {value} сек.");
         }
 
+        #endregion
+
         private void SendCommand(string suffix, string value, string logMessage)
         {
-            if (Global == null || !Global.Access) return;
+            if (Global == null) return;
 
             string commandName = VarName + suffix;
-            var command = Global.Commands.GetByName(commandName);
+            var command = FindCommand(suffix);
+
             if (command == null)
             {
                 Debug.WriteLine($"Команда не найдена: {commandName}");
@@ -85,22 +179,10 @@ namespace ProtolScadaRemake
 
             command.WriteValue = value;
             command.NeedToWrite = true;
-            command.SendToController();
+            Global.Commands.SendToController();
+
             Global.Log.Add("Пользователь", $"{Title}. {logMessage}", 1);
-            UpdateFaultIdentifier();
-        }
-
-        private void UpdateFaultIdentifier()
-        {
-            var faultTag = Global?.Variables.GetByName(VarName + "_Fault");
-            var statusTag = Global?.Variables.GetByName(VarName + "_Status");
-
-            bool isFault = faultTag != null && faultTag.ValueReal > 0;
-            int statusCode = statusTag != null ? (int)statusTag.ValueReal : 0;
-
-            FaultIdText.Text = isFault
-                ? $"{VarName}_FAULT_ACTIVE (код {statusCode})"
-                : $"{VarName}_FAULT_OK (код {statusCode})";
+            Debug.WriteLine($"Команда отправлена: {commandName} = {value}");
         }
     }
 }

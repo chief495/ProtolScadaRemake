@@ -202,32 +202,32 @@
         <!-- ========== МИКСЕРЫ (TOGGLE SWITCH) ========== -->
 
         <!-- M150 - Миксер T150 -->
-        <local:ToggleSwitch x:Name="M150"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           Margin="389,318,0,0"
-                           Width="50"
-                           Height="28"/>
         <local:Element_MixerHotspot x:Name="M150MixerHotspot"
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top"
-                                    Margin="362,212,0,0"
-                                    Width="90"
-                                    Height="90"/>
+                                    Margin="394,345,0,0"
+                                    Width="47"
+                                    Height="106"/>
+        <local:MixerToggleSwitch x:Name="M150"
+                         HorizontalAlignment="Left"
+                         VerticalAlignment="Top"
+                         Margin="389,318,0,0"
+                         Width="50"
+                         Height="28"/>
 
         <!-- M250 - Миксер T250 -->
-        <local:ToggleSwitch x:Name="M250"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           Margin="431,626,0,0"
-                           Width="50"
-                           Height="26"/>
         <local:Element_MixerHotspot x:Name="M250MixerHotspot"
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top"
-                                    Margin="403,520,0,0"
-                                    Width="90"
-                                    Height="90"/>
+                                    Margin="431,652,0,0"
+                                    Width="53"
+                                    Height="105"/>
+        <local:MixerToggleSwitch x:Name="M250"
+                         HorizontalAlignment="Left"
+                         VerticalAlignment="Top"
+                         Margin="431,626,0,0"
+                         Width="50"
+                         Height="26"/>
 
         <!-- ========== НАСОСЫ ========== -->
 
