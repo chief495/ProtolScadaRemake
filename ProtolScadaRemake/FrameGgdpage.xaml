@@ -146,7 +146,7 @@
 
         <!-- ========== ПЕРЕКЛЮЧАТЕЛИ МИКСЕРОВ ========== -->
         <!-- T400 Mixer Toggle -->
-        <local:ToggleSwitch x:Name="T400MixerToggle"
+        <local:MixerToggleSwitch x:Name="T400MixerToggle"
                             Width="60"
                             Height="30"
                             HorizontalAlignment="Left"
@@ -160,7 +160,7 @@
                                     Margin="968,330,0,0"/>
 
         <!-- T500 Mixer Toggle -->
-        <local:ToggleSwitch x:Name="T500MixerToggle"
+        <local:MixerToggleSwitch x:Name="T500MixerToggle"
                             Width="60"
                             Height="30"
                             HorizontalAlignment="Right"

@@ -99,12 +99,20 @@ namespace ProtolScadaRemake
                 if (T400MixerToggle != null)
                 {
                     T400MixerToggle.Tag = "M400";
+                    T400MixerToggle.Global = _global;
+                    T400MixerToggle.VarName = "M400";
+                    T400MixerToggle.Description = "Миксер M-400";
+                    T400MixerToggle.StateChanged -= T400MixerToggle_StateChanged;
                     T400MixerToggle.StateChanged += T400MixerToggle_StateChanged;
                 }
 
                 if (T500MixerToggle != null)
                 {
                     T500MixerToggle.Tag = "M500";
+                    T500MixerToggle.Global = _global;
+                    T500MixerToggle.VarName = "M500";
+                    T500MixerToggle.Description = "Миксер M-500";
+                    T500MixerToggle.StateChanged -= T500MixerToggle_StateChanged;
                     T500MixerToggle.StateChanged += T500MixerToggle_StateChanged;
                 }
 
@@ -317,6 +325,7 @@ namespace ProtolScadaRemake
                     {
                         T400MixerToggle.IsChecked = isWorking;
                     }
+                    T400MixerToggle.UpdateElement();
                 }
 
                 // Миксер M500
@@ -329,6 +338,7 @@ namespace ProtolScadaRemake
                     {
                         T500MixerToggle.IsChecked = isWorking;
                     }
+                    T500MixerToggle.UpdateElement();
                 }
             }
             catch (Exception ex)
