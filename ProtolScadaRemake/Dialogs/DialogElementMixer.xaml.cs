@@ -158,8 +158,6 @@ namespace ProtolScadaRemake
             _repaintTimer.Stop();
         }
 
-        #region Обработчики режима
-
         private void RBAuto_CheckedChanged(object sender, RoutedEventArgs e)
         {
             if (_isInitializing) return;
@@ -213,10 +211,6 @@ namespace ProtolScadaRemake
             }
         }
 
-        #endregion
-
-        #region Кнопки Включить/Выключить (ручной режим - _ManualStart)
-
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
             if (_isInitializing) return;
@@ -256,10 +250,6 @@ namespace ProtolScadaRemake
                 }
             }
         }
-
-        #endregion
-
-        #region Обработчики времени
 
         private void StartTimeNumeric_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
@@ -302,7 +292,5 @@ namespace ProtolScadaRemake
                 }
             }
         }
-
-        #endregion
     }
 }

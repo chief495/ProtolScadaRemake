@@ -10,7 +10,7 @@
         Title="DialogElementDI" 
         Height="180" 
         Background="#FFCCC9C9"
-        Icon="Images/ProtolLogo.ico"
+        Icon="/Images/ProtolLogo.ico"
         SizeToContent="Manual"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen">

@@ -11,7 +11,7 @@
         Width="690" 
         Background="#FFCCC9C9" 
         FontFamily="Arial"
-        Icon="Images/ProtolLogo.ico"
+        Icon="/Images/ProtolLogo.ico"
         SizeToContent="Manual"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen">

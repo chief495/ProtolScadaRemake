@@ -71,7 +71,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="ProtolLogo.ico" />
+    <Resource Include="ProtolLogo.ico" />
   </ItemGroup>
 
    <ItemGroup>
@@ -248,22 +248,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="DialogElementPumpUz.xaml.cs">
+    <Compile Update="Dialogs\DialogElementPumpUz.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Element_3ValveH.xaml.cs">
+    <Compile Update="Elements\Element_3ValveH.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Element_PumpUz.xaml.cs">
+    <Compile Update="Elements\Element_PumpUz.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <Page Update="Element_PumpUz.xaml">
+    <Page Update="Elements\Element_PumpUz.xaml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Page>
-    <Page Update="Element_PumpH.xaml">
+    <Page Update="Elements\Element_PumpH.xaml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Page>
   </ItemGroup>

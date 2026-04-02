@@ -9,7 +9,7 @@
         Width="520"
         Background="#FFCCC9C9"
         FontFamily="Arial"
-        Icon="Images/ProtolLogo.ico"
+        Icon="/Images/ProtolLogo.ico"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
