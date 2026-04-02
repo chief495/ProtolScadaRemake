@@ -72,6 +72,8 @@
         <!-- ========== ПЕРЕКЛЮЧАТЕЛИ МИКСЕРОВ ========== -->
         <local:ToggleSwitch x:Name="M200MixerToggle" Width="60" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="463,494,0,0"/>
         <local:ToggleSwitch x:Name="M250MixerToggle" Width="60" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1133,507,0,0"/>
+        <local:Element_MixerHotspot x:Name="M200MixerHotspot" Width="90" Height="90" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="433,391,0,0"/>
+        <local:Element_MixerHotspot x:Name="M250MixerHotspot" Width="90" Height="90" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1104,404,0,0"/>
 
         <!-- ========== ПЕРЕКЛЮЧАТЕЛЬ НАГРЕВАТЕЛЯ ========== -->
         <local:ToggleSwitch x:Name="HE800Toggle" Width="60" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="144,719,0,0"/>

@@ -82,6 +82,8 @@ namespace ProtolScadaRemake
                     M250.StateChanged -= M250Mixer_StateChanged;
                     M250.StateChanged += M250Mixer_StateChanged;
                 }
+                InitializeMixerHotspot(M150MixerHotspot, "M150", "Миксер M-150");
+                InitializeMixerHotspot(M250MixerHotspot, "M250", "Миксер M-250");
                 if (EmModePanel != null)
                 {
                     EmModePanel.ModeChanged -= EmModePanel_ModeChanged;
@@ -610,6 +612,14 @@ namespace ProtolScadaRemake
                 valve.Description = description;
                 valve.TagName = tagName;
             }
+        }
+
+        private void InitializeMixerHotspot(Element_MixerHotspot hotspot, string varName, string description)
+        {
+            if (hotspot == null || _global == null) return;
+            hotspot.Global = _global;
+            hotspot.VarName = varName;
+            hotspot.Description = description;
         }
 
         // ========== ОБРАБОТЧИКИ СОБЫТИЙ МИКСЕРОВ ==========

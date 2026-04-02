@@ -108,6 +108,9 @@ namespace ProtolScadaRemake
                     T500MixerToggle.StateChanged += T500MixerToggle_StateChanged;
                 }
 
+                InitializeMixerHotspot(T400MixerHotspot, "M400", "Миксер M-400");
+                InitializeMixerHotspot(T500MixerHotspot, "M500", "Миксер M-500");
+
             }
             catch (Exception ex)
             {
@@ -194,6 +197,16 @@ namespace ProtolScadaRemake
                 pump.VarName = varName;
                 pump.Description = description;
                 pump.TagName = tagName;  // Добавлено: имя для отображения на мнемосхеме
+            }
+        }
+
+        private void InitializeMixerHotspot(Element_MixerHotspot hotspot, string varName, string description)
+        {
+            if (hotspot != null && _global != null)
+            {
+                hotspot.Global = _global;
+                hotspot.VarName = varName;
+                hotspot.Description = description;
             }
         }
 

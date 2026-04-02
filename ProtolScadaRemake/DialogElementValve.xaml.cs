@@ -145,7 +145,7 @@ namespace ProtolScadaRemake
         private void SendCommand(string commandSuffix, string value, string logMessage)
         {
             if (_isInitializing) return;
-            if (Global == null || !Global.Access) return;
+            if (Global == null) return;
 
             string fullCommandName = VarName + commandSuffix;
             TCommandTag command = Global.Commands.GetByName(fullCommandName);
@@ -188,7 +188,7 @@ namespace ProtolScadaRemake
         private void SendValveCommands(string openValue, string closeValue, string logMessage)
         {
             if (_isInitializing) return;
-            if (Global == null || !Global.Access) return;
+            if (Global == null) return;
 
             TCommandTag openCommand = Global.Commands.GetByName(VarName + "_ManualOpen");
             TCommandTag closeCommand = Global.Commands.GetByName(VarName + "_ManualClose");
@@ -279,7 +279,7 @@ namespace ProtolScadaRemake
         private void OpenButton_Click(object sender, RoutedEventArgs e)
         {
             if (_isInitializing) return;
-            if (Global == null || !Global.Access) return;
+            if (Global == null) return;
 
             TVariableTag ManualOpenVariable = Global.Variables.GetByName(VarName + "_ManualOpen");
 
@@ -295,7 +295,7 @@ namespace ProtolScadaRemake
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             if (_isInitializing) return;
-            if (Global == null || !Global.Access) return;
+            if (Global == null) return;
 
             TVariableTag ManualCloseVariable = Global.Variables.GetByName(VarName + "_ManualClose");
 
