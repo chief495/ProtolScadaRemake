@@ -59,7 +59,7 @@ namespace ProtolScadaRemake
             try
             {
                 UpdateAllElements();
-                ResetCommands();
+                //ResetCommands();
                 UpdateOperationMode();
                 UpdatePanelsVisibility();
                 UpdateCounters();
@@ -371,30 +371,30 @@ namespace ProtolScadaRemake
             if (t != null && HE750Switch != null) HE750Switch.IsChecked = t.ValueReal > 0;
         }
 
-        private void ResetCommands()
-        {
-            if (_global?.Commands == null) return;
+        //private void ResetCommands()
+        //{
+        //    if (_global?.Commands == null) return;
 
-            void SetFalse(string name)
-            {
-                var c = _global.Commands.GetByName(name);
-                if (c != null && !c.NeedToWrite) c.WriteValue = "false";
-            }
+        //    void SetFalse(string name)
+        //    {
+        //        var c = _global.Commands.GetByName(name);
+        //        if (c != null && !c.NeedToWrite) c.WriteValue = "false";
+        //    }
 
-            SetFalse("M100_StartMixer");
-            SetFalse("M150_StartMixer");
-            SetFalse("M400_StartMixer");
-            SetFalse("HE300_IsOn");
-            SetFalse("HE750_IsOn");
-            SetFalse("GRO_Manual_Selitra_Start");
-            SetFalse("GRO_Manual_Water_Start");
-            SetFalse("GRO_Manual_Kislota_Start");
-            SetFalse("GRO_Manual_Stop");
-            SetFalse("GRO_Manual_Pause");
-            SetFalse("GRO_TransportStart");
-            SetFalse("GRO_TransportStop");
-            SetFalse("T100_MassSp");
-        }
+        //    SetFalse("M100_StartMixer");
+        //    SetFalse("M150_StartMixer");
+        //    SetFalse("M400_StartMixer");
+        //    SetFalse("HE300_IsOn");
+        //    SetFalse("HE750_IsOn");
+        //    SetFalse("GRO_Manual_Selitra_Start");
+        //    SetFalse("GRO_Manual_Water_Start");
+        //    SetFalse("GRO_Manual_Kislota_Start");
+        //    SetFalse("GRO_Manual_Stop");
+        //    SetFalse("GRO_Manual_Pause");
+        //    SetFalse("GRO_TransportStart");
+        //    SetFalse("GRO_TransportStop");
+        //    SetFalse("T100_MassSp");
+        //}
 
         private void UpdateOperationMode()
         {

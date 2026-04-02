@@ -51,9 +51,9 @@
 
         <!-- ========== НАСОСЫ ========== -->
         <!-- P200, P201, P202 заменены на Element_PumpH -->
-        <local:Element_PumpH x:Name="P200" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="687,576,0,0"/>
-        <local:Element_PumpH x:Name="P201" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="369,197,0,0"/>
-        <local:Element_PumpH x:Name="P202" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="368,317,0,0"/>
+        <local:Element_PumpH x:Name="P200" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="686,583,0,0"/>
+        <local:Element_PumpH x:Name="P201" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="369,206,0,0"/>
+        <local:Element_PumpH x:Name="P202" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="369,325,0,0"/>
 
         <!-- P602 заменен на Element_PumpUzUnderPanel -->
         <local:Element_PumpUzUnderPanel x:Name="P602" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1320,592,0,0"/>

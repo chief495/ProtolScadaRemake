@@ -260,8 +260,8 @@ namespace ProtolScadaRemake
         private static void InitializeT400Sensors(TGlobal global)
         {
             // Ёмкость T-400
-            global.Variables.Add("T400_StartMixer", 0x12, 0x0026, 1, "Bool", "", "Нет;Да", "", "Включить миксер Т400");
-            global.Commands.Add("T400_StartMixer", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x06A6, "Bool", "Нет;Да", "Включить миксер Т400");
+            global.Variables.Add("M400_StartMixer", 0x12, 0x0026, 1, "Bool", "", "Нет;Да", "", "Включить миксер M400");
+            global.Commands.Add("M400_StartMixer", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x06A6, "Bool", "Нет;Да", "Включить миксер M400");
             global.Variables.Add("T400_StartWater", 0x12, 0x0028, 1, "Bool", "", "Нет;Да", "", "Включить наполнение Т400");
             global.Commands.Add("T400_StartWater", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x06A8, "Bool", "Нет;Да", "Включить наполнение Т400");
             global.Variables.Add("T400_StopWater", 0x12, 0x0029, 1, "Bool", "", "Нет;Да", "", "Отключить наполнение Т400");
@@ -273,8 +273,8 @@ namespace ProtolScadaRemake
         private static void InitializeT500Sensors(TGlobal global)
         {
             // Ёмкость T-500
-            global.Variables.Add("T500_StartMixer", 0x12, 0x0027, 1, "Bool", "", "Нет;Да", "", "Включить миксер Т500");
-            global.Commands.Add("T500_StartMixer", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x06A7, "Bool", "Нет;Да", "Отключить миксер Т500");
+            global.Variables.Add("M500_StartMixer", 0x12, 0x0027, 1, "Bool", "", "Нет;Да", "", "Включить миксер M500");
+            global.Commands.Add("M500_StartMixer", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x06A7, "Bool", "Нет;Да", "Отключить миксер M500");
             global.Variables.Add("T500_StartWater", 0x12, 0x002C, 1, "Bool", "", "Нет;Да", "", "Включить наполнение Т500");
             global.Commands.Add("T500_StartWater", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x06AC, "Bool", "Нет;Да", "Включить наполнение Т500");
             global.Variables.Add("T500_StopWater", 0x12, 0x002D, 1, "Bool", "", "Нет;Да", "", "Отключить наполнение Т500");
@@ -286,11 +286,11 @@ namespace ProtolScadaRemake
         private static void InitializeT100T150T200T700Sensors(TGlobal global)
         {
             // Ёмкость T-100
-            global.Variables.Add("T100_StartMixer", 0x13, 0x0030, 1, "Bool", "", "Нет;Да", "", "Включить миксер Т100");
-            global.Commands.Add("T100_StartMixer", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x0720, "Bool", "Нет;Да", "Отключить миксер Т100");
+            global.Variables.Add("M100_StartMixer", 0x13, 0x0030, 1, "Bool", "", "Нет;Да", "", "Включить миксер M100");
+            global.Commands.Add("M100_StartMixer", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x0720, "Bool", "Нет;Да", "Отключить миксер M100");
             // Ёмкость T-150
-            global.Variables.Add("T150_StartMixer", 0x13, 0x0031, 1, "Bool", "", "Нет;Да", "", "Включить миксер Т150");
-            global.Commands.Add("T150_StartMixer", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x0721, "Bool", "Нет;Да", "Отключить миксер Т150");
+            global.Variables.Add("M150_StartMixer", 0x13, 0x0031, 1, "Bool", "", "Нет;Да", "", "Включить миксер M150");
+            global.Commands.Add("M150_StartMixer", global.Plc_IpAddress, global.Plc_PortNum, global.Plc_DeviceAddress, "Holding Registers", 0x0721, "Bool", "Нет;Да", "Отключить миксер M150");
             // Тензодатчики
             global.Variables.Add("WIT100_Volume", 0x13, 0x0032, 1, "Float_32", "", "##0.#", "", "Вес в ёскости Т100");
             global.Variables.Add("WIT200_Volume", 0x13, 0x0034, 1, "Float_32", "", "##0.#", "", "Вес в ёскости Т200");

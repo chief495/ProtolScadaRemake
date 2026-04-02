@@ -231,33 +231,33 @@
         <local:Element_PumpHReverse x:Name="P400"
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top" 
-                                    Margin="886,392,0,0"/>
+                                    Margin="887,386,0,0"/>
 
         <!-- ========== НАСОСЫ ОБЫЧНЫЕ ========== -->
         <!-- P100 - Насос P-100 -->
         <local:Element_PumpUzUnderPanel x:Name="P100"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top" 
-                                        Margin="636,854,0,0"/>
+                                        Margin="640,844,0,0"/>
 
         <!-- A100 - Шнек A-100 -->
         <local:Element_PumpUzUnderPanel x:Name="A100"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top" 
-                                        Margin="172,557,0,0"/>
+                                        Margin="159,570,0,0"/>
 
         <!-- P601 - Насос P-601 -->
         <local:Element_PumpUzUnderPanel x:Name="P601"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top" 
-                                        Margin="1399,844,0,0"/>
+                                        Margin="1400,837,0,0"/>
 
         <!-- ========== ЗАДВИЖКИ ========== -->
         <!-- VT101 - Клапан V-101 (вертикальный) -->
         <local:Element_ValveV x:Name="VT101"
                               HorizontalAlignment="Left"
                               VerticalAlignment="Top" 
-                              Margin="311,662,0,0"/>
+                              Margin="313,663,0,0"/>
 
         <!-- VT151 - Клапан V-151 (горизонтальный) -->
         <local:Element_ValveH x:Name="VT151"
@@ -269,32 +269,32 @@
         <local:Element_ValveH x:Name="VT152"
                               HorizontalAlignment="Left"
                               VerticalAlignment="Top" 
-                              Margin="595,630,0,0"/>
+                              Margin="595,626,0,0"/>
 
         <!-- VT302 - Клапан V-302 (вертикальный) -->
         <local:Element_ValveV x:Name="VT302"
                               HorizontalAlignment="Left"
                               VerticalAlignment="Top" 
-                              Margin="1310,134,0,0"/>
+                              Margin="1308,134,0,0"/>
 
         <!-- VT305 - Клапан V-305 (вертикальный) -->
         <local:Element_ValveV x:Name="VT305"
                               HorizontalAlignment="Left"
                               VerticalAlignment="Top" 
-                              Margin="475,597,0,0"/>
+                              Margin="478,597,0,0"/>
 
         <!-- VT401 - Клапан V-401 (вертикальный) -->
         <local:Element_ValveV x:Name="VT401"
                               HorizontalAlignment="Left"
                               VerticalAlignment="Top" 
-                              Margin="565,134,0,0"/>
+                              Margin="564,134,0,0"/>
 
         <!-- ========== 3-ХОДОВОЙ КЛАПАН ========== -->
         <!-- VT601 - Клапан SV-601 (3-ходовой) -->
         <local:Element_3ValveH x:Name="VT601"
                                HorizontalAlignment="Left"
                                VerticalAlignment="Top" 
-                               Margin="1612,543,0,0"/>
+                               Margin="1614,539,0,0"/>
 
         <!-- ========== НАГРЕВАТЕЛИ ========== -->
         <!-- HE300 - Нагреватель HE-300 -->

@@ -235,13 +235,13 @@
         <local:Element_PumpUzUnderPanel x:Name="P601"
                              HorizontalAlignment="Left"
                              VerticalAlignment="Top"
-                             Margin="629,411,0,0"/>
+                             Margin="628,415,0,0"/>
 
         <!-- P602 -->
         <local:Element_PumpUzUnderPanel x:Name="P602"
                              HorizontalAlignment="Left"
                              VerticalAlignment="Top"
-                             Margin="655,697,0,0"/>
+                             Margin="654,705,0,0"/>
         <!-- M600 -->
         <local:Element_M600 x:Name="M600"
                     HorizontalAlignment="Left"
@@ -251,7 +251,7 @@
         <!-- P651 -->
         <local:Element_PumpUzUnderPanel x:Name="P651" 
                             HorizontalAlignment="Left" 
-                            Margin="1068,465,0,0" 
+                            Margin="1071,460,0,0" 
                             VerticalAlignment="Top"/>
 
         <!-- P700 -->
@@ -262,19 +262,19 @@
         <local:Element_3ValveH x:Name="SV601"
                               HorizontalAlignment="Left"
                               VerticalAlignment="Top"
-                              Margin="874,169,0,0"/>
+                              Margin="874,167,0,0"/>
 
         <!-- VT602 -->
         <local:Element_3ValveH x:Name="SV602"
                               HorizontalAlignment="Left"
                               VerticalAlignment="Top"
-                              Margin="885,547,0,0"/>
+                              Margin="885,545,0,0"/>
 
         <!-- VT505 -->
         <local:Element_ValveV x:Name="V505"
                              HorizontalAlignment="Left"
                              VerticalAlignment="Top"
-                             Margin="1459,342,0,0"/>
+                             Margin="1461,342,0,0"/>
 
     </Grid>
 </UserControl>
