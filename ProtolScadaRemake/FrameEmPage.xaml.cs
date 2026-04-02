@@ -89,6 +89,8 @@ namespace ProtolScadaRemake
                     M250.StateChanged -= M250Mixer_StateChanged;
                     M250.StateChanged += M250Mixer_StateChanged;
                 }
+                InitializeMixerHotspot(M150MixerHotspot, "M150", "Миксер M-150");
+                InitializeMixerHotspot(M250MixerHotspot, "M250", "Миксер M-250");
 
                 InitializePumpUzUnderPanel(P601, "P601", "Насос P-601", "P-601");
                 InitializePumpUzUnderPanel(P602, "P602", "Насос P-602", "P-602");

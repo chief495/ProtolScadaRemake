@@ -121,6 +121,10 @@ namespace ProtolScadaRemake
                 if (M200MixerToggle != null)
                 {
                     M200MixerToggle.Tag = "M200";
+                    M200MixerToggle.Global = _global;
+                    M200MixerToggle.VarName = "M200";
+                    M200MixerToggle.Description = "Миксер M-200";
+                    M200MixerToggle.StateChanged -= M200MixerToggle_StateChanged;
                     M200MixerToggle.StateChanged += M200MixerToggle_StateChanged;
                 }
 
@@ -128,6 +132,10 @@ namespace ProtolScadaRemake
                 if (M250MixerToggle != null)
                 {
                     M250MixerToggle.Tag = "M250";
+                    M250MixerToggle.Global = _global;
+                    M250MixerToggle.VarName = "M250";
+                    M250MixerToggle.Description = "Миксер M-250";
+                    M250MixerToggle.StateChanged -= M250MixerToggle_StateChanged;
                     M250MixerToggle.StateChanged += M250MixerToggle_StateChanged;
                 }
                 InitializeMixerHotspot(M200MixerHotspot, "M200", "Миксер M-200");
@@ -290,6 +298,7 @@ namespace ProtolScadaRemake
                     {
                         M200MixerToggle.IsChecked = isWorking;
                     }
+                    M200MixerToggle.UpdateElement();
                 }
 
                 // Миксер M250
@@ -301,6 +310,7 @@ namespace ProtolScadaRemake
                     {
                         M250MixerToggle.IsChecked = isWorking;
                     }
+                    M250MixerToggle.UpdateElement();
                 }
 
                 // Нагреватель HE800

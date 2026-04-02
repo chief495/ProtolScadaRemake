@@ -122,9 +122,9 @@ namespace ProtolScadaRemake
                 InitializeHeater(HE700_1, "HE700.1", "Нагреватель HE-700.1", "HE-700.1");
                 InitializeHeater(HE700_2, "HE700.2", "Нагреватель HE-700.2", "HE-700.2");
 
-                if (M100Switch != null) { M100Switch.Tag = "M100"; M100Switch.StateChanged += M100Switch_StateChanged; }
-                if (M150Switch != null) { M150Switch.Tag = "M150"; M150Switch.StateChanged += M150Switch_StateChanged; }
-                if (M400Switch != null) { M400Switch.Tag = "M400"; M400Switch.StateChanged += M400Switch_StateChanged; }
+                if (M100Switch != null) { M100Switch.Tag = "M100"; M100Switch.Global = _global; M100Switch.VarName = "M100"; M100Switch.Description = "Миксер M-100"; M100Switch.StateChanged -= M100Switch_StateChanged; M100Switch.StateChanged += M100Switch_StateChanged; }
+                if (M150Switch != null) { M150Switch.Tag = "M150"; M150Switch.Global = _global; M150Switch.VarName = "M150"; M150Switch.Description = "Миксер M-150"; M150Switch.StateChanged -= M150Switch_StateChanged; M150Switch.StateChanged += M150Switch_StateChanged; }
+                if (M400Switch != null) { M400Switch.Tag = "M400"; M400Switch.Global = _global; M400Switch.VarName = "M400"; M400Switch.Description = "Миксер M-400"; M400Switch.StateChanged -= M400Switch_StateChanged; M400Switch.StateChanged += M400Switch_StateChanged; }
                 InitializeMixerHotspot(M100MixerHotspot, "M100", "Миксер M-100");
                 InitializeMixerHotspot(M150MixerHotspot, "M150", "Миксер M-150");
                 InitializeMixerHotspot(M400MixerHotspot, "M400", "Миксер M-400");
@@ -356,13 +356,13 @@ namespace ProtolScadaRemake
         private void UpdateToggleSwitchesFromVariables()
         {
             var t = _global?.Variables?.GetByName("M100_IsWork");
-            if (t != null && M100Switch != null) M100Switch.IsChecked = t.ValueReal > 0;
+            if (t != null && M100Switch != null) { M100Switch.IsChecked = t.ValueReal > 0; M100Switch.UpdateElement(); }
 
             t = _global?.Variables?.GetByName("M150_IsWork");
-            if (t != null && M150Switch != null) M150Switch.IsChecked = t.ValueReal > 0;
+            if (t != null && M150Switch != null) { M150Switch.IsChecked = t.ValueReal > 0; M150Switch.UpdateElement(); }
 
             t = _global?.Variables?.GetByName("M400_IsWork");
-            if (t != null && M400Switch != null) M400Switch.IsChecked = t.ValueReal > 0;
+            if (t != null && M400Switch != null) { M400Switch.IsChecked = t.ValueReal > 0; M400Switch.UpdateElement(); }
 
             t = _global?.Variables?.GetByName("HE300_IsOn");
             if (t != null && HE300Switch != null) HE300Switch.IsChecked = t.ValueReal > 0;

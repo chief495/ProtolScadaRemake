@@ -323,7 +323,7 @@
 
         <!-- ========== ПЕРЕКЛЮЧАТЕЛИ ========== -->
         <!-- Переключатель миксера M100 -->
-        <local:ToggleSwitch x:Name="M100Switch"
+        <local:MixerToggleSwitch x:Name="M100Switch"
                             Width="50"
                             Height="26"
                             HorizontalAlignment="Left"
@@ -338,7 +338,7 @@
                                     Margin="335,636,0,0"/>
 
         <!-- Переключатель миксера M150 -->
-        <local:ToggleSwitch x:Name="M150Switch"
+        <local:MixerToggleSwitch x:Name="M150Switch"
                             Width="50"
                             Height="26"
                             HorizontalAlignment="Left"
@@ -353,7 +353,7 @@
                                     Margin="1163,648,0,0"/>
 
         <!-- Переключатель миксера M400 -->
-        <local:ToggleSwitch x:Name="M400Switch"
+        <local:MixerToggleSwitch x:Name="M400Switch"
                             Width="50"
                             Height="25"
                             HorizontalAlignment="Left"
