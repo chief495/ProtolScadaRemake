@@ -125,6 +125,9 @@ namespace ProtolScadaRemake
                 if (M100Switch != null) { M100Switch.Tag = "M100"; M100Switch.StateChanged += M100Switch_StateChanged; }
                 if (M150Switch != null) { M150Switch.Tag = "M150"; M150Switch.StateChanged += M150Switch_StateChanged; }
                 if (M400Switch != null) { M400Switch.Tag = "M400"; M400Switch.StateChanged += M400Switch_StateChanged; }
+                InitializeMixerHotspot(M100MixerHotspot, "M100", "Миксер M-100");
+                InitializeMixerHotspot(M150MixerHotspot, "M150", "Миксер M-150");
+                InitializeMixerHotspot(M400MixerHotspot, "M400", "Миксер M-400");
 
                 if (HE300Switch != null) { HE300Switch.Tag = "HE300"; HE300Switch.StateChanged += HE300Switch_StateChanged; }
                 if (HE750Switch != null) { HE750Switch.Tag = "HE750"; HE750Switch.StateChanged += HE750Switch_StateChanged; }
@@ -297,6 +300,14 @@ namespace ProtolScadaRemake
                 heater.Description = description;
                 heater.TagName = tagName;
             }
+        }
+
+        private void InitializeMixerHotspot(Element_MixerHotspot hotspot, string varName, string description)
+        {
+            if (hotspot == null || _global == null) return;
+            hotspot.Global = _global;
+            hotspot.VarName = varName;
+            hotspot.Description = description;
         }
 
         private void UpdateAllElements()

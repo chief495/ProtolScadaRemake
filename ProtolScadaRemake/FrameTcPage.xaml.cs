@@ -130,6 +130,8 @@ namespace ProtolScadaRemake
                     M250MixerToggle.Tag = "M250";
                     M250MixerToggle.StateChanged += M250MixerToggle_StateChanged;
                 }
+                InitializeMixerHotspot(M200MixerHotspot, "M200", "Миксер M-200");
+                InitializeMixerHotspot(M250MixerHotspot, "M250", "Миксер M-250");
 
                 // ========== ПЕРЕКЛЮЧАТЕЛИ НАГРЕВАТЕЛЕЙ ==========
                 // HE800 Toggle
@@ -707,6 +709,14 @@ namespace ProtolScadaRemake
                 valve.Description = description;
                 valve.TagName = tagName;
             }
+        }
+
+        private void InitializeMixerHotspot(Element_MixerHotspot hotspot, string varName, string description)
+        {
+            if (hotspot == null || _global == null) return;
+            hotspot.Global = _global;
+            hotspot.VarName = varName;
+            hotspot.Description = description;
         }
 
         private void InitializeHeater(Element_Heater heater, string varName, string description, string tagName)
